@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Layout</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="flex flex-col md:flex-row">
+      <!-- Left Column -->
+      <div class="left-column custom-bg md:w-350 md:h-screen overflow-y-auto">
+        <div class="p-2 flex flex-col items-center"> <!-- Reduced padding -->
+            <div class="header-text mt-1 mb-4">
+                <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
+            </div>                       
+            <a href="#" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
+            <a href="#" class="custom-link mt-2 hover:custom-link-hover">Classic Mode</a>
+        </div>
+        <div class="full-width-banner mt-2">
+            <span class="banner-text">Be Known As...</span>
+        </div>
+        <!-- New Rectangle Box -->
+        <div class="info-box mt-2 p-3 border-orange">
+            <div class="info-item mb-2">
+                <label for="name">Your name:</label>
+                <div class="input-group">
+                    <input type="text" id="name" name="name" placeholder="Username">
+                    <button class="button-style">
+                        Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
+                    </button>
+                </div>
+            </div>
+            <div class="info-item">
+                <label for="location">Location:</label>
+                <div class="input-group">
+                    <input type="text" id="location" name="location" placeholder="Earth">
+                    <button class="button-style">
+                        Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="full-width-banner mt-2">
+            <span class="banner-text">Create a room...</span>
+            <a href="#" class="learn-more-link">Learn More</a>
+        </div>
+        <div class="room-creation mt-2">
+          <input type="text" id="roomName" name="roomName" placeholder="Room name" class="room-name-input">
+          <label class="radio-container">
+            <input type="radio" name="roomType" value="public" checked>
+            <img src="icons/handshake.png" alt="Public" class="radio-icon">
+            Public
+            <span class="radio-checkmark"></span>
+          </label>
+          <label class="radio-container">
+            <input type="radio" name="roomType" value="private">
+            <img src="icons/closeeye.png" alt="Private" class="radio-icon">
+            Private
+            <span class="radio-checkmark"></span>
+          </label>
+          <label class="radio-container">
+            <input type="radio" name="roomType" value="secret">
+            <img src="icons/key.png" alt="Secret" class="radio-icon">
+            Secret
+            <span class="radio-checkmark"></span>
+          </label>
+          <p class="label-text">Room layout</p>
+          <label class="radio-container">
+            <input type="radio" name="layoutType" value="horizontal" checked>
+            <img src="icons/horizontal.png" alt="Horizontal" class="radio-icon">
+            Horizontal
+            <span class="radio-checkmark"></span>
+          </label>
+          <label class="radio-container">
+            <input type="radio" name="layoutType" value="vertical">
+            <img src="icons/vertical.png" alt="Vertical" class="radio-icon">
+            Vertical
+            <span class="radio-checkmark"></span>
+          </label>
+          <button id="createRoomBtn" class="join-room-button">
+            Create Room
+            <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
+          </button>                   
+        </div>
+      </div>
+
+    <!-- Right Column -->
+    <div id="roomList" class="right-column bg-black md:flex-1 md:h-screen overflow-y-auto">
+      <h2 class="right-column-header">Join a room...</h2>
+      <!-- Rooms will be dynamically added here -->
+    </div>
+    
+</div>
+
+</body>
+</html>        
