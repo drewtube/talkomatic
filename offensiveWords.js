@@ -7,7 +7,7 @@ const OFFENSIVE_WORDS = [
   'faggot', // Replace with actual offensive phrase
   'kill yourslef', // Replace with actual racial slur
   'kill urslef', // Replace with actual curse word
-  'derogatory term', // Replace with actual derogatory term
+  'i hate you', // Replace with actual derogatory term
   'insulting phrase', // Replace with actual insulting phrase
   // Add more words and phrases as needed
 ];
