@@ -19,17 +19,19 @@ app.get('/', (req, res) => {
 
 // Handle socket connection
 io.on('connection', (socket) => {
-  console.log('A user connected');
+  console.log('A user connected:', socket.id);
 
   // Send existing rooms to newly connected client
   socket.emit('existingRooms', Object.values(rooms));
+  console.log('Sent existing rooms to client:', socket.id);
 
   // Handle room creation
   socket.on('createRoom', (roomData) => {
-    const { username, location, name, type, layout } = roomData;
+    const { username, location, userId, name, type, layout } = roomData;
 
-    if (!username || !location || !name || !type || !layout) {
+    if (!username || !location || !userId || !name || !type || !layout) {
       socket.emit('error', 'All fields are required.');
+      console.log('Room creation failed - missing fields:', socket.id);
       return;
     }
 
@@ -39,53 +41,56 @@ io.on('connection', (socket) => {
       name: name,
       type: type,
       layout: layout,
-      users: [{ username, location, socketId: socket.id }]
+      users: [{ username, location, userId, socketId: socket.id }]
     };
     rooms[roomId] = room;
     io.emit('roomCreated', room);
     socket.join(roomId);
-    socket.emit('roomJoined', { roomId, username, location });
+    socket.emit('roomJoined', { roomId, username, location, userId });
     socket.emit('initializeUsers', room.users);
+    console.log('Room created:', roomId, 'by user:', socket.id);
   });
 
- // Handle room joining
-socket.on('joinRoom', (data) => {
-  const { roomId, username, location } = data;
-  if (rooms[roomId]) {
-    if (rooms[roomId].users.length < 5) {
-      rooms[roomId].users.push({ username, location, socketId: socket.id });
-      socket.join(roomId);
-      io.to(roomId).emit('roomUpdated', rooms[roomId]);
-      socket.emit('roomJoined', { roomId, username, location });
-      socket.emit('initializeUsers', rooms[roomId].users);
-      socket.to(roomId).emit('userJoined', { username, location });
+  // Handle room joining
+  socket.on('joinRoom', (data) => {
+    const { roomId, username, location, userId } = data;
+    console.log('User', socket.id, 'is joining room:', roomId);
+    if (rooms[roomId]) {
+      if (rooms[roomId].users.length < 5) {
+        rooms[roomId].users.push({ username, location, userId, socketId: socket.id });
+        socket.join(roomId);
+        io.emit('roomUpdated', rooms[roomId]);
+        socket.emit('roomJoined', { roomId, username, location, userId });
+        socket.emit('initializeUsers', rooms[roomId].users);
+        socket.to(roomId).emit('userJoined', { roomId, username, location, userId });
+        console.log('User', socket.id, 'joined room:', roomId);
+      } else {
+        socket.emit('roomFull');
+        console.log('Room', roomId, 'is full. User', socket.id, 'cannot join.');
+      }
     } else {
-      socket.emit('roomFull');
+      console.log('Room', roomId, 'does not exist. User', socket.id, 'cannot join.');
     }
-  }
-});
+  });
 
   // Handle typing within a room
   socket.on('typing', (data) => {
-    const { roomId, username, message } = data;
-    socket.to(roomId).emit('typing', { username, message });
+    const { roomId, userId, message } = data;
+    socket.to(roomId).emit('typing', { userId, message });
+    console.log('User', userId, 'is typing in room:', roomId);
   });
 
   // Handle user disconnection
   socket.on('disconnect', () => {
-    console.log('A user disconnected');
+    console.log('A user disconnected:', socket.id);
     Object.keys(rooms).forEach((roomId) => {
       const room = rooms[roomId];
       const userIndex = room.users.findIndex((user) => user.socketId === socket.id);
       if (userIndex !== -1) {
         const user = room.users.splice(userIndex, 1)[0];
         io.emit('roomUpdated', room);
-        if (room.users.length === 0) {
-          delete rooms[roomId];
-          io.emit('roomDeleted', roomId);
-        } else {
-          io.to(roomId).emit('userLeft', user);
-        }
+        socket.to(roomId).emit('userLeft', { roomId, userId: user.userId });
+        console.log('User', user.userId, 'left room:', roomId);
       }
     });
   });

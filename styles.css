@@ -248,16 +248,53 @@ body, p, h1, h2, h3, h4, h5, h6 {
 /* Right Column */
 .right-column-header {
   color: #FF9800;
-  font-size: 24px;
-  padding-left: 20px;
-  margin-top: 0;
+  font-size: 34px;
+  padding: 12px 0 0 20px; /* Top padding of 12px, left padding of 20px */
+  margin: 0; /* Remove margin */
   font-family: 'Consolas', monospace;
   background-color: #202020;
-  height: 100px;
+  height: auto; /* Adjust height as needed */
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
+
+#roomsCount, #usersCount {
+  color: #ffffff;
+  font-size: 13px;
+  padding: 8px 0 0 20px; /* Top padding of 8px, left padding of 20px */
+  margin: 0; /* Remove margin */
+  font-family: 'Consolas', monospace;
+  background-color: #202020;
+  height: auto; /* Adjust height as needed */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border: none; /* Ensure no borders */
+}
+
+#usersCount {
+  padding-bottom: 20px; /* Bottom padding of 20px */
+}
+
+/* Mobile Specific Adjustments */
+@media (max-width: 768px) {
+  #roomsCount, #usersCount {
+    padding: 8px 0 0 20px; /* Top padding of 8px, left padding of 20px */
+    margin: 0; /* Remove margin */
+    border: none; /* Ensure no borders */
+  }
+
+  #usersCount {
+    padding-bottom: 20px; /* Bottom padding of 20px */
+  }
+}
+
+
+#usersCount {
+  padding-bottom: 20px; /* Bottom padding of 20px */
+}
+
 
 .room-details-container {
   display: flex;

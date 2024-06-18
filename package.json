@@ -9,8 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
-    "toastr": "^2.1.4"
+    "toastr": "^2.1.4",
+    "uuid": "^10.0.0"
   }
 }

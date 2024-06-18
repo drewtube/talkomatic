@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
+    <script src="amount.js"></script>
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
@@ -24,29 +25,29 @@
                 <a href="#" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
                 <a href="#" class="custom-link mt-2 hover:custom-link-hover">Classic Mode</a>
             </div>
-            <div class="full-width-banner mt-2">
+            <div class="full-width-banner mt=2">
                 <span class="banner-text">Be Known As...</span>
             </div>
             <!-- New Rectangle Box -->
             <div class="info-box mt-2 p-3 border-orange">
-                <div class="info-item mb-2">
-                    <label for="name">Your name:</label>
-                    <div class="input-group">
-                        <input type="text" id="name" name="name" placeholder="Username">
-                        <button class="button-style">
-                            Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
-                        </button>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <label for="location">Location:</label>
-                    <div class="input-group">
-                        <input type="text" id="location" name="location" placeholder="Earth">
-                        <button class="button-style">
-                            Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
-                        </button>
-                    </div>
-                </div>
+              <div class="info-item mb-2">
+                  <label for="name">Your name:</label>
+                  <div class="input-group">
+                      <input type="text" id="name" name="name" placeholder="Username">
+                      <button class="button-style" onclick="updateUsername()">
+                          Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
+                      </button>
+                  </div>
+              </div>
+              <div class="info-item">
+                  <label for="location">Location:</label>
+                  <div class="input-group">
+                      <input type="text" id="location" name="location" placeholder="Earth">
+                      <button class="button-style" onclick="signOut()">
+                          Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
+                      </button>
+                  </div>
+              </div>
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
@@ -94,6 +95,8 @@
         <!-- Right Column -->
         <div id="roomListContainer" class="right-column bg-black md:flex-1 md:h-screen overflow-y-auto">
             <h2 class="right-column-header">Join a room...</h2>
+            <div id="roomsCount">0 rooms available to join</div>
+            <div id="usersCount">0 people currently online</div>
             <div id="roomList">
                 <!-- Rooms will be dynamically added here -->
             </div>

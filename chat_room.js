@@ -1,88 +1,84 @@
 const socket = io();
 
-// Get the room ID, username, and userLocation from the URL query parameters
+// Get the room ID, username, userLocation, and userId from the URL query parameters
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId');
 const username = urlParams.get('username');
 const userLocation = urlParams.get('location');
+const userId = urlParams.get('userId');
 
 // DOM elements
 const chatRoom = document.getElementById('chatRoom');
 
 // Join the room on page load
-socket.emit('joinRoom', { roomId, username, location: userLocation });
-
-// Handle chat room events and messaging
-socket.on('message', (data) => {
-  updateUserTyping(data.username, data.message);
-});
-
-// Handle user typing
-socket.on('typing', (data) => {
-  updateUserTyping(data.username, data.message);
-});
+socket.emit('joinRoom', { roomId, username, location: userLocation, userId });
 
 // Handle user joining the room
-socket.on('userJoined', (user) => {
-  addUserToChatRoom(user.username, user.location);
-});
-
-// Handle user leaving the room
-socket.on('userLeft', (user) => {
-  removeUserFromChatRoom(user.username);
-  updateUserPositions();
-});
-
-// Add user to chat room
-function addUserToChatRoom(username, location) {
-  const userElement = document.createElement('div');
-  userElement.id = `user-${username}`;
-  userElement.classList.add('border-t', 'border-white', 'pt-2', 'grid', 'grid-rows-2');
-
-  const userInfo = document.createElement('div');
-  userInfo.textContent = `${username} / ${location}`;
-  userInfo.classList.add('mb-2');
-
-  const userTyping = document.createElement('div');
-  userTyping.classList.add('bg-white', 'text-black', 'p-2');
-  userTyping.contentEditable = true;
-  userTyping.dataset.username = username;
-  userTyping.addEventListener('input', () => {
-    socket.emit('typing', { roomId, username, message: userTyping.textContent });
-  });
-
-  userElement.appendChild(userInfo);
-  userElement.appendChild(userTyping);
-  chatRoom.appendChild(userElement);
-
-  updateUserPositions();
-}
-
-// Update user typing in chat room
-function updateUserTyping(username, message) {
-  const userElement = document.querySelector(`#user-${username} div[data-username="${username}"]`);
-  if (userElement) {
-    userElement.textContent = message;
-  }
-}
-
-// Remove user from chat room
-function removeUserFromChatRoom(username) {
-  const userElement = document.getElementById(`user-${username}`);
-  if (userElement) {
-    userElement.remove();
-  }
-}
-
-// Update user positions
-function updateUserPositions() {
-  const users = Array.from(chatRoom.children);
-  users.forEach((user, index) => {
-    user.style.order = index;
-  });
-}
-
-// Initialize existing users on page load
 socket.on('initializeUsers', (users) => {
-  users.forEach(user => addUserToChatRoom(user.username, user.location));
+    chatRoom.innerHTML = ''; // Clear the chat room before adding users
+    users.forEach((user, index) => {
+        const userElement = createUserElement(user, index);
+        chatRoom.appendChild(userElement);
+    });
 });
+
+socket.on('userJoined', (user) => {
+    const userElement = createUserElement(user);
+    chatRoom.appendChild(userElement);
+});
+
+socket.on('userLeft', (user) => {
+    const userElement = document.querySelector(`[data-user-id="${user.userId}"]`);
+    if (userElement) {
+        userElement.remove();
+    }
+});
+
+socket.on('typing', (data) => {
+    const userElement = document.querySelector(`[data-user-id="${data.userId}"]`);
+    if (userElement) {
+        const textareaElement = userElement.querySelector('textarea');
+        textareaElement.value = data.message;
+    }
+});
+
+function createUserElement(user) {
+    const userElement = document.createElement('div');
+    userElement.classList.add('row');
+    userElement.dataset.userId = user.userId;
+
+    const userInfo = document.createElement('div');
+    userInfo.classList.add('sub-row');
+    userInfo.innerHTML = `<span>${user.username}</span><span>/</span><span>${user.location}</span>`;
+
+    const userTyping = document.createElement('textarea');
+    userTyping.classList.add('sub-row');
+    userTyping.disabled = user.userId !== userId;
+
+    // Apply styles via JavaScript
+    userTyping.style.width = '100%';
+    userTyping.style.height = '80px';
+    userTyping.style.resize = 'none';
+    userTyping.style.backgroundColor = 'black';
+    userTyping.style.color = 'white';
+    userTyping.style.border = '1px solid white';
+    userTyping.style.padding = '10px';
+    userTyping.style.fontSize = '14px';
+    userTyping.style.boxSizing = 'border-box';
+    userTyping.style.fontFamily = '"Courier New", Courier, monospace';
+
+    if (user.userId !== userId) {
+        userTyping.style.userSelect = 'none';
+    }
+
+    if (user.userId === userId) {
+        userTyping.addEventListener('input', () => {
+            socket.emit('typing', { roomId, userId, message: userTyping.value });
+        });
+    }
+
+    userElement.appendChild(userInfo);
+    userElement.appendChild(userTyping);
+
+    return userElement;
+}

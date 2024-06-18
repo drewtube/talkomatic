@@ -1,23 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Talkomatic Chat Room</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkomatic Chat Room</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: "Courier New", Courier, monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid white;
+        }
+        .header button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .row {
+            flex: 1;
+            border-top: 1px solid white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        .sub-row {
+            margin-bottom: 10px;
+        }
+        .sub-row:first-child {
+            display: flex;
+            justify-content: flex-start;
+        }
+        .sub-row span {
+            margin-right: 5px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+    </style>
 </head>
-<body class="bg-black text-white">
-  <header class="flex items-center justify-between p-4 border-b border-white">
-    <button onclick="window.location.href='index.html'" class="text-white">Return Back to Lobby</button>
-    <h1 class="text-xl">Talkomatic Chat Room</h1>
-    <div></div>
-  </header>
-  <div id="chatRoom" class="grid gap-4 p-4">
-    <!-- Chat room rows will be dynamically added here -->
-  </div>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="chat_room.js"></script>
+<body>
+    <div class="container">
+        <div class="header">
+            <button onclick="window.location.href='index.html'">Back to Lobby</button>
+        </div>
+        <div id="chatRoom"></div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="chat_room.js"></script>
 </body>
 </html>
