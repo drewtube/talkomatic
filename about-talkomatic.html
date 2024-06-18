@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Talkomatic</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: "Courier New", Courier, monospace;
+            padding: 20px;
+        }
+        .header {
+            background-color: #333333;
+            padding: 20px;
+            border-bottom: 1px solid #444444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin: 0;
+        }
+        .header button {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .section p {
+            font-size: 1em;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .section img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            width: 800px;
+            border: 2px solid white;
+        }
+        .caption {
+            font-size: 0.9em;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: rgb(255, 255, 255);
+            text-align: center;
+        }
+        .footer a {
+            color: #ff9800;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .section img {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>About Talkomatic</h1>
+        <button onclick="window.location.href='index.html'">Back to Lobby</button>
+    </div>
+    <div class="container">
+        <div class="section">
+            <h2>Overview</h2>
+            <p>Talkomatic was one of the earliest online chat systems, created in 1973 by Doug Brown and David R. Woolley at the University of Illinois. It was developed on the PLATO system, an early computer-based education platform that ran on mainframe computers. Talkomatic allowed real-time text communication among small groups, displaying each user's messages in their own section of the screen. This made it unique, as messages appeared letter-by-letter as they were typed, creating a sense of real-time interaction that was groundbreaking for its time.</p>
+            <p>The system was designed to facilitate group discussions and collaboration, with a focus on educational and research settings. Users could join one of six available channels, each capable of hosting up to five participants. The interface was text-based, with each user's messages appearing in a designated area of the screen, making it easy to follow the conversation.</p>
+            <img src="images/using.gif" alt="Talkomatic Screenshot">
+            <div class="caption">An example of a Talkomatic conversation</div>
+        </div>
+        <div class="section">
+            <h2>Technical Details</h2>
+            <p>Talkomatic was built using the TUTOR programming language, which was specifically designed for the PLATO system. The system relied on the PLATO's high-speed network and time-sharing capabilities to enable real-time communication among users. Each user's input was transmitted to the central mainframe, processed, and then distributed to the other participants in the chat room.</p>
+            <p>One of the key innovations of Talkomatic was its ability to display messages character-by-character as they were typed, rather than waiting for the user to press "send" or "enter." This feature, known as "character-at-a-time transmission," created a more natural and engaging conversation flow, as users could see each other's messages forming in real-time.</p>
+            <img src="images/talkomatic-screenshot.png" alt="PLATO Terminal">
+            <div class="caption">A screenshot of Talkomatic on the PLATO system</div>
+        </div>
+        <div class="section">
+            <h2>History and Impact</h2>
+            <p>Talkomatic quickly gained popularity among PLATO users, who were drawn to its innovative real-time communication features. The system became a hub for social interaction, fostering a sense of community among users across different locations. It was particularly popular among students and researchers, who used it for both academic discussions and casual conversations.</p>
+            <p>The success of Talkomatic on the PLATO system inspired the development of similar chat systems on other platforms, both within the PLATO community and beyond. It laid the groundwork for future online communication tools, demonstrating the potential for real-time, text-based interaction in a digital environment.</p>
+            <p>Despite its historical significance, Talkomatic's reach was limited by the fact that the PLATO system was primarily accessible to academic and research institutions. However, its influence can be seen in the subsequent development of chat systems and online communities that emerged as personal computers and the internet became more widely available.</p>
+            <img src="images/mohdsversion.png" alt="PLATO Users">
+            <div class="caption">Mohd's recreation of Talkomatic</div>
+        </div>
+        <div class="section">
+            <h2>Revival and Legacy</h2>
+            <p>In 2014, Doug Brown and David R. Woolley, the original creators of Talkomatic, launched a web-based version of the system, aiming to recreate the experience for a new generation of users. The web version was built using modern web technologies and was designed to closely mimic the original PLATO interface.</p>
+            <p>However, the web-based Talkomatic faced several challenges, including technical issues and difficulties in moderating user behavior. The open nature of the internet made it harder to maintain the same level of community and decorum that had been possible on the closed PLATO system. As a result, the web version of Talkomatic was eventually taken offline in June 2024.</p>
+            <p>Despite the challenges faced by the web-based revival, Mohd Mahomdi, a developer and Talkomatic enthusiast, decided to recreate Talkomatic from scratch based on the original web design. Mohd's version addressed the issues faced by the previous web-based Talkomatic, implementing effective moderation tools to ensure a safer and more inclusive user experience. The new Talkomatic, built with modern web technologies, offers improved performance and a better overall user experience compared to its predecessor.</p>
+            <p>The legacy of Talkomatic lives on through its impact on the development of online communication and its role in shaping early digital communities. It remains an important part of the history of computing and a testament to the innovative spirit of its creators. The latest iteration of Talkomatic, developed by Mohd Mahomdi, ensures that this groundbreaking system continues to inspire and connect users in the modern era.</p>
+            <img src="images/plato-terminal.jpg" alt="Mohd Mahomdi's Talkomatic Web Version">
+            <div class="caption">A PLATO terminal used to access Talkomatic</div>
+        </div>
+        <div class="section">
+            <h2>Additional Resources</h2>
+            <ul>
+                <li><a href="https://en.wikipedia.org/wiki/Talkomatic" target="_blank">Talkomatic - Wikipedia</a></li>
+                <li><a href="https://just.thinkofit.com/talkomatic/" target="_blank">Talkomatic, Just Think of It</a></li>
+                <li><a href="https://www.lonje.com/2017/08/08/talkomatic-the-first-chat-in-computer-history/" target="_blank">Talkomatic: the first chat in computer history - Lonje</a></li>
+                <li><a href="https://www.britannica.com/topic/chat-room" target="_blank">Chat room | History, Technology, & Facts | Britannica</a></li>
+                <li><a href="https://www.historyofinformation.com/detail.php?entryid=4180" target="_blank">History of Information: Talkomatic</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer">
+        Created by <a href="https://twitter.com/MohdMahmodi" target="_blank">Mohd</a>
+    </div>
+</body>
+</html>

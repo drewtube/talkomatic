@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const usersCountElement = document.getElementById('usersCount');
 
   socket.on('updateCounts', ({ roomsCount, usersCount }) => {
-      roomsCountElement.textContent = `${roomsCount} room(s) available to join`;
-      usersCountElement.textContent = `${usersCount} people currently online`;
+      roomsCountElement.textContent = `${roomsCount.toLocaleString()} room(s) available`;
+      usersCountElement.textContent = `${usersCount.toLocaleString()} user(s) online`;
   });
 });

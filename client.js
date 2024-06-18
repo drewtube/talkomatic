@@ -21,15 +21,23 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Handle user banned event
-  socket.on('userBanned', (banExpiration) => {
+    socket.on('userBanned', (banExpiration) => {
     const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
     setCookie('banned', 'true', banDuration / 86400); // Set banned cookie for the remaining ban duration in days
+    setCookie('banExpiration', banExpiration, banDuration / 86400); // Store the ban expiration time
     window.location.href = 'banned.html';
   });
 
   // Check if the user is banned
   if (getCookie('banned') === 'true') {
-    window.location.href = 'banned.html';
+    const banExpiration = getCookie('banExpiration');
+    const remainingTime = Math.floor((banExpiration - Date.now()) / 1000);
+    if (remainingTime > 0) {
+      window.location.href = 'banned.html';
+    } else {
+      deleteCookie('banned');
+      deleteCookie('banExpiration');
+    }
   }
 
   // DOM elements
@@ -47,12 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function setCookie(name, value, days) {
     var expires = "";
     if (days) {
-      var date = new Date();
-      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-      expires = "; expires=" + date.toUTCString();
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
-  }
+}
 
   // Function to get a cookie by name
   function getCookie(name) {

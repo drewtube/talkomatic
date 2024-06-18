@@ -70,7 +70,7 @@ function createUserElement(user) {
     userTyping.style.height = '80px';
     userTyping.style.resize = 'none';
     userTyping.style.backgroundColor = 'black';
-    userTyping.style.color = 'white';
+    userTyping.style.color = 'orange';
     userTyping.style.padding = '10px';
     userTyping.style.fontSize = '14px';
     userTyping.style.boxSizing = 'border-box';

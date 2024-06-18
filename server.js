@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
+const OFFENSIVE_WORDS = require('./offensiveWords'); // Import the offensive words
 
 const app = express();
 const server = http.createServer(app);
@@ -11,8 +12,6 @@ const rooms = {};
 const activeUsers = new Set();
 const roomDeletionTimeouts = {};
 const bannedUsers = new Map(); // Store banned users and their ban expiration times
-
-const OFFENSIVE_WORDS = ['nword']; // Add other offensive words here
 
 app.use(express.static(path.join(__dirname)));
 
@@ -103,21 +102,22 @@ io.on('connection', (socket) => {
     });
 
     socket.on('typing', (data) => {
-        const { roomId, userId, message } = data;
-
-        // Check for offensive words
-        if (containsOffensiveWords(message)) {
-            socket.emit('userBanned', getBanExpiration(userId));
-            setTimeout(() => {
-                banUser(userId);
-                socket.disconnect(); // Disconnect the user from the server
-            }, 100); // Slight delay to allow the event to be processed
-            return;
-        }
-
-        socket.to(roomId).emit('typing', { userId, message });
-        console.log('User', userId, 'is typing in room:', roomId);
-    });
+      const { roomId, userId, message } = data;
+  
+      // Check for offensive words
+      if (containsOffensiveWords(message)) {
+          const banExpiration = Date.now() + 30 * 60 * 1000; // 30 minutes from now
+          bannedUsers.set(userId, banExpiration);
+          socket.emit('userBanned', banExpiration);
+          setTimeout(() => {
+              socket.disconnect(); // Disconnect the user from the server
+          }, 100); // Slight delay to allow the event to be processed
+          return;
+      }
+  
+      socket.to(roomId).emit('typing', { userId, message });
+      console.log('User', userId, 'is typing in room:', roomId);
+  });
 
     socket.on('disconnect', () => {
         console.log('A user disconnected:', socket.id);
@@ -162,7 +162,7 @@ function containsOffensiveWords(message) {
 }
 
 function banUser(userId) {
-    const banExpiration = Date.now() + 1 * 60 * 1000; // 1 minute from now
+    const banExpiration = Date.now() + 30 * 60 * 1000; // 30 minutes from now
     bannedUsers.set(userId, banExpiration);
 }
 

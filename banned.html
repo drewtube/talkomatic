@@ -35,11 +35,10 @@
             let remainingTime = duration;
 
             const interval = setInterval(() => {
-                const hours = Math.floor(remainingTime / 3600);
-                const minutes = Math.floor((remainingTime % 3600) / 60);
+                const minutes = Math.floor(remainingTime / 60);
                 const seconds = remainingTime % 60;
 
-                timerElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+                timerElement.textContent = `${minutes}m ${seconds}s`;
 
                 if (remainingTime <= 0) {
                     clearInterval(interval);
@@ -50,9 +49,25 @@
             }, 1000);
         }
 
-        // Replace this with the actual ban duration in seconds sent from the server
-        const banDuration = 1 * 60; // 1 minute for testing
-        startCountdown(banDuration);
+        function getCookie(name) {
+            let cookieArray = document.cookie.split(';');
+            for (let i = 0; i < cookieArray.length; i++) {
+                let cookiePair = cookieArray[i].split('=');
+                if (name == cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        const banExpiration = getCookie('banExpiration');
+        if (banExpiration) {
+            const remainingTime = Math.floor((banExpiration - Date.now()) / 1000);
+            startCountdown(remainingTime);
+        } else {
+            // If no ban expiration found, redirect to the homepage
+            window.location.href = '/';
+        }
     </script>
 </body>
 </html>
