@@ -8,7 +8,7 @@ const OFFENSIVE_WORDS = [
   'kill yourslef', // Replace with actual racial slur
   'kill urslef', // Replace with actual curse word
   'i hate you', // Replace with actual derogatory term
-  'mohd', // Replace with actual insulting phrase
+  'alpha male', // Replace with actual insulting phrase
   // Add more words and phrases as needed
 ];
 
