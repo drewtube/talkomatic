@@ -1,22 +1,12 @@
 const express = require('express');
-const fs = require('fs');
 const http = require('http');
-const https = require('https');
 const socketIO = require('socket.io');
 const path = require('path');
 const OFFENSIVE_WORDS = require('./offensiveWords'); // Import the offensive words
 
 const app = express();
-
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/talkomatic.co/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/talkomatic.co/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/talkomatic.co/chain.pem', 'utf8');
-
-const credentials = { key: privateKey, cert: certificate, ca: ca };
-
-const httpServer = http.createServer(app);
-const httpsServer = https.createServer(credentials, app);
-const io = socketIO(httpsServer);
+const server = http.createServer(app);
+const io = socketIO(server);
 
 const rooms = {};
 const activeUsers = new Set();
@@ -190,13 +180,7 @@ function getBanExpiration(userId) {
     return bannedUsers.get(userId);
 }
 
-const httpPort = process.env.PORT || 80;
-const httpsPort = 443;
-
-httpServer.listen(httpPort, () => {
-    console.log(`HTTP Server running on port ${httpPort}`);
-});
-
-httpsServer.listen(httpsPort, () => {
-    console.log(`HTTPS Server running on port ${httpsPort}`);
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
