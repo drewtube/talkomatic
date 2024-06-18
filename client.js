@@ -8,13 +8,40 @@ document.addEventListener('DOMContentLoaded', () => {
   // Generate or get the user ID from the cookie
   let userId = getCookie('userId');
   if (!userId) {
-    userId = Math.floor(Math.random() * 900000000) + 100000000; // Generate a 9-digit number
+    userId = generateUserId();
     setCookie('userId', userId, 30); // Store the user ID in a cookie for 30 days
+  }
+
+  // Notify the server about the new user
+  socket.emit('userConnected', { userId });
+
+  // Handle user disconnection
+  window.addEventListener('beforeunload', () => {
+    socket.emit('userDisconnected', { userId });
+  });
+
+  // Handle user banned event
+  socket.on('userBanned', (banExpiration) => {
+    const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
+    setCookie('banned', 'true', banDuration / 86400); // Set banned cookie for the remaining ban duration in days
+    window.location.href = 'banned.html';
+  });
+
+  // Check if the user is banned
+  if (getCookie('banned') === 'true') {
+    window.location.href = 'banned.html';
   }
 
   // DOM elements
   const createRoomBtn = document.getElementById('createRoomBtn');
   const roomList = document.getElementById('roomList');
+  const roomsCountElement = document.getElementById('roomsCount');
+  const usersCountElement = document.getElementById('usersCount');
+
+  // Function to generate a unique user ID
+  function generateUserId() {
+    return 'user_' + Math.random().toString(36).substr(2, 9);
+  }
 
   // Function to set a cookie
   function setCookie(name, value, days) {
@@ -30,17 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to get a cookie by name
   function getCookie(name) {
     let cookieArray = document.cookie.split(';');
-    for(let i = 0; i < cookieArray.length; i++) {
+    for (let i = 0; i < cookieArray.length; i++) {
       let cookiePair = cookieArray[i].split('=');
-      if(name == cookiePair[0].trim()) {
+      if (name == cookiePair[0].trim()) {
         return decodeURIComponent(cookiePair[1]);
       }
     }
     return null;
   }
 
+  // Function to delete a cookie
+  function deleteCookie(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  }
+
   // Function to update username and location
-  window.updateUsername = function() {
+  window.updateUsername = function () {
     const oldUsername = getCookie('username');
     const oldLocation = getCookie('location');
     const username = document.getElementById('name').value.trim();
@@ -64,13 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Function to sign out
-  window.signOut = function() {
-    document.cookie = 'username=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    document.cookie = 'location=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    document.cookie = 'userId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  window.signOut = function () {
+    deleteCookie('username');
+    deleteCookie('location');
+    deleteCookie('userId');
     document.getElementById('name').value = '';
     document.getElementById('location').value = '';
     toastr.success('Username, location, and user ID have been removed.');
+    socket.emit('userDisconnected', { userId });
   };
 
   // Event listener for creating a room
@@ -133,6 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const roomId = event.target.dataset.roomId;
       socket.emit('joinRoom', { roomId, username, location, userId });
       console.log('Room joining request sent:', { roomId, username, location, userId });
+
+      window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}`;
     }
   });
 
@@ -141,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roomElement = createRoomElement(room);
     roomList.appendChild(roomElement);
     console.log('Room created:', room);
+    updateRoomCount();
   });
 
   // Handle existing rooms
@@ -151,6 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
       roomList.appendChild(roomElement);
     });
     console.log('Existing rooms received:', rooms);
+    updateRoomCount();
+  });
+
+  // Handle room removal
+  socket.on('roomRemoved', (roomId) => {
+    const roomElement = document.getElementById(`room-${roomId}`);
+    if (roomElement) {
+      roomElement.remove();
+      console.log('Room removed:', roomId);
+    }
+    updateRoomCount();
   });
 
   // Handle room joining
@@ -170,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
       roomList.appendChild(roomElement);
       console.log('Room added:', room);
     }
+    updateRoomCount();
   });
 
   // Handle user joining a room
@@ -265,4 +313,16 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     return roomElement;
   }
+
+  // Update room count
+  function updateRoomCount() {
+    const roomCount = document.querySelectorAll('.room-details-container').length;
+    roomsCountElement.textContent = `${roomCount} room(s) available to join`;
+  }
+
+  // Update user count
+  socket.on('updateCounts', ({ roomsCount, usersCount }) => {
+    roomsCountElement.textContent = `${roomsCount} room(s) available to join`;
+    usersCountElement.textContent = `${usersCount} people currently online`;
+  });
 });

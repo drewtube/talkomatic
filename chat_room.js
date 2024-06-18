@@ -7,6 +7,9 @@ const username = urlParams.get('username');
 const userLocation = urlParams.get('location');
 const userId = urlParams.get('userId');
 
+// Notify the server about the user joining the room
+socket.emit('userConnected', { userId });
+
 // DOM elements
 const chatRoom = document.getElementById('chatRoom');
 
@@ -42,6 +45,13 @@ socket.on('typing', (data) => {
     }
 });
 
+// Handle user banned event
+socket.on('userBanned', (banExpiration) => {
+    const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
+    setCookie('banned', 'true', banDuration / 86400); // Set banned cookie for the remaining ban duration in days
+    window.location.href = 'banned.html';
+});
+
 function createUserElement(user) {
     const userElement = document.createElement('div');
     userElement.classList.add('row');
@@ -61,24 +71,39 @@ function createUserElement(user) {
     userTyping.style.resize = 'none';
     userTyping.style.backgroundColor = 'black';
     userTyping.style.color = 'white';
-    userTyping.style.border = '1px solid white';
     userTyping.style.padding = '10px';
     userTyping.style.fontSize = '14px';
     userTyping.style.boxSizing = 'border-box';
     userTyping.style.fontFamily = '"Courier New", Courier, monospace';
 
-    if (user.userId !== userId) {
-        userTyping.style.userSelect = 'none';
-    }
-
     if (user.userId === userId) {
+        userTyping.style.border = '1px solid white';
         userTyping.addEventListener('input', () => {
             socket.emit('typing', { roomId, userId, message: userTyping.value });
         });
+    } else {
+        userTyping.style.border = 'none'; // No border for other users
+        userTyping.style.userSelect = 'none';
     }
 
     userElement.appendChild(userInfo);
     userElement.appendChild(userTyping);
 
     return userElement;
+}
+
+// Handle user disconnection
+window.addEventListener('beforeunload', () => {
+    socket.emit('userDisconnected', { userId });
+});
+
+// Function to set a cookie
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }

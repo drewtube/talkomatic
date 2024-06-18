@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banned</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        .timer {
+            font-size: 2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>You have been banned for using offensive language.</h1>
+        <p>You will be able to access the site again in:</p>
+        <div class="timer" id="timer"></div>
+    </div>
+    <script>
+        function startCountdown(duration) {
+            const timerElement = document.getElementById('timer');
+            let remainingTime = duration;
+
+            const interval = setInterval(() => {
+                const hours = Math.floor(remainingTime / 3600);
+                const minutes = Math.floor((remainingTime % 3600) / 60);
+                const seconds = remainingTime % 60;
+
+                timerElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                    window.location.href = '/';
+                }
+
+                remainingTime--;
+            }, 1000);
+        }
+
+        // Replace this with the actual ban duration in seconds sent from the server
+        const banDuration = 1 * 60; // 1 minute for testing
+        startCountdown(banDuration);
+    </script>
+</body>
+</html>
