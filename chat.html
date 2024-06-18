@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Responsive Website</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid white;
+        }
+        .header button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .row {
+            flex: 1;
+            border-top: 1px solid white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        .sub-row {
+            margin-bottom: 10px;
+        }
+        .sub-row:first-child {
+            display: flex;
+            justify-content: space-between;
+        }
+        .sub-row textarea {
+            width: 100%;
+            height: calc((100vh - 60px) / 5 - 40px);
+            resize: none;
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button>Back to Lobby</button>
+        </div>
+        <div class="row">
+            <div class="sub-row">
+                <span>Username</span>
+                <span>Location</span>
+            </div>
+            <div class="sub-row">
+                <textarea></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sub-row">
+                <span>Username</span>
+                <span>Location</span>
+            </div>
+            <div class="sub-row">
+                <textarea></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sub-row">
+                <span>Username</span>
+                <span>Location</span>
+            </div>
+            <div class="sub-row">
+                <textarea></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sub-row">
+                <span>Username</span>
+                <span>Location</span>
+            </div>
+            <div class="sub-row">
+                <textarea></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sub-row">
+                <span>Username</span>
+                <span>Location</span>
+            </div>
+            <div class="sub-row">
+                <textarea></textarea>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
