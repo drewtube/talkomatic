@@ -2,10 +2,10 @@ const socket = io();
 
 // Get the room ID, username, userLocation, and userId from the URL query parameters
 const urlParams = new URLSearchParams(window.location.search);
-const roomId = urlParams.get('roomId');
-const username = urlParams.get('username');
-const userLocation = urlParams.get('location');
-const userId = urlParams.get('userId');
+const roomId = escapeHtml(urlParams.get('roomId'));
+const username = escapeHtml(urlParams.get('username'));
+const userLocation = escapeHtml(urlParams.get('location'));
+const userId = escapeHtml(urlParams.get('userId'));
 
 // Notify the server about the user joining the room
 socket.emit('userConnected', { userId });
@@ -59,7 +59,7 @@ function createUserElement(user) {
 
     const userInfo = document.createElement('div');
     userInfo.classList.add('sub-row');
-    userInfo.innerHTML = `<span>${user.username}</span><span>/</span><span>${user.location}</span>`;
+    userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
 
     const userTyping = document.createElement('textarea');
     userTyping.classList.add('sub-row');
@@ -79,7 +79,7 @@ function createUserElement(user) {
     if (user.userId === userId) {
         userTyping.style.border = '1px solid white';
         userTyping.addEventListener('input', () => {
-            socket.emit('typing', { roomId, userId, message: userTyping.value });
+            socket.emit('typing', { roomId, userId, message: escapeHtml(userTyping.value) });
         });
     } else {
         userTyping.style.border = 'none'; // No border for other users
@@ -106,4 +106,16 @@ function setCookie(name, value, days) {
         expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+// Function to escape HTML
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
 }

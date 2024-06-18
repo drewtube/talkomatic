@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
     <title>Talkomatic - Home</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -16,7 +17,7 @@
 <body>
     <div class="flex flex-col md:flex-row">
         <!-- Left Column -->
-        <div class="left-column custom-bg md:w-350 md:h-screen overflow-y-auto">
+        <div class="left-column custom-bg md:w-350 md:max-h-screen overflow-y-auto">
           <div class="p-2 flex flex-col items-center">
             <!-- Reduced padding -->
             <div class="header-text mt-1 mb-4">
@@ -37,7 +38,7 @@
               <div class="info-item mb-2">
                   <label for="name">Your name:</label>
                   <div class="input-group">
-                      <input type="text" id="name" name="name" placeholder="Username">
+                      <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
                       <button class="button-style" onclick="updateUsername()">
                           Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
                       </button>
@@ -46,7 +47,7 @@
               <div class="info-item">
                   <label for="location">Location:</label>
                   <div class="input-group">
-                      <input type="text" id="location" name="location" placeholder="Earth">
+                      <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
                       <button class="button-style" onclick="signOut()">
                           Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
                       </button>
@@ -58,7 +59,7 @@
                 <a href="#" class="learn-more-link">Learn More</a>
             </div>
             <div class="room-creation mt-2">
-                <input type="text" id="roomName" name="roomName" placeholder="Room name" class="room-name-input">
+                <input type="text" id="roomName" name="roomName" placeholder="Room name" class="room-name-input" maxlength="30">
                 <label class="radio-container">
                     <input type="radio" name="roomType" value="public" checked>
                     <img src="icons/handshake.png" alt="Public" class="radio-icon">
@@ -94,13 +95,17 @@
                     Create Room
                     <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
                 </button>
+                <div class="p-2 text-gray-500 text-sm flex items-center justify-between w-full bottom-left">
+                    <span class="version-n">V 1.0.0.0</span>
+                    <a href="https://www.reddit.com/r/Talkomatic/" target="_blank" class="text-blue-500 hover:underline">Reddit Community Page</a>
+                </div>
             </div>
         </div>
         <!-- Right Column -->
-        <div id="roomListContainer" class="right-column bg-black md:flex-1 md:h-screen overflow-y-auto">
+        <div id="roomListContainer" class="right-column bg-black md:flex-1 md:max-h-screen overflow-y-auto">
             <h2 class="right-column-header">Join a room...</h2>
-            <div id="roomsCount">1 room(s) available to join</div>
-            <div id="usersCount">2 people currently online</div>
+            <div id="roomsCount">1 room(s) available</div>
+            <div id="usersCount">2 user(s) online</div>
             <div id="roomList">
                 <!-- Rooms will be dynamically added here -->
             </div>

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Handle user banned event
-    socket.on('userBanned', (banExpiration) => {
+  socket.on('userBanned', (banExpiration) => {
     const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
     setCookie('banned', 'true', banDuration / 86400); // Set banned cookie for the remaining ban duration in days
     setCookie('banExpiration', banExpiration, banDuration / 86400); // Store the ban expiration time
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
-}
+  }
 
   // Function to get a cookie by name
   function getCookie(name) {
@@ -149,8 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
       layout: layoutType
     };
 
+    console.log('Sending room creation request:', roomData);
     socket.emit('createRoom', roomData);
-    console.log('Room creation request sent:', roomData);
   });
 
   // Event listener for joining a room
@@ -325,12 +325,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update room count
   function updateRoomCount() {
     const roomCount = document.querySelectorAll('.room-details-container').length;
-    roomsCountElement.textContent = `${roomCount} room(s) available to join`;
+    roomsCountElement.textContent = `${roomCount} room(s) available`;
   }
 
   // Update user count
   socket.on('updateCounts', ({ roomsCount, usersCount }) => {
-    roomsCountElement.textContent = `${roomsCount} room(s) available to join`;
-    usersCountElement.textContent = `${usersCount} people currently online`;
+    roomsCountElement.textContent = `${roomsCount} room(s) available`;
+    usersCountElement.textContent = `${usersCount} user(s) online`;
   });
 });

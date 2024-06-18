@@ -133,14 +133,15 @@ body, p, h1, h2, h3, h4, h5, h6 {
   padding: 8px 16px; /* Padding around the text */
   text-decoration: none; /* Removes underline */
   margin-left: 50px;
+  margin-bottom: 0px;
 }
 .room-creation {
   width: 100%; /* Ensures it spans the full width */
   display: flex; /* Ensures elements are in a column */
   flex-direction: column; /* Stacks items vertically */
-  padding: 16px; /* Padding inside the container */
+  padding: 16px 16px 0px 16px; /* Padding inside the container */
   background-color: #616161; /* Background to match the theme */
-  margin-bottom: 10px; /* Bottom margin for spacing */
+  margin-bottom: 0px; /* Bottom margin for spacing */
 }
 .room-name-input {
   height: 35px; /* Fixed height for the input */
@@ -242,13 +243,17 @@ body, p, h1, h2, h3, h4, h5, h6 {
   vertical-align: middle; /* Aligns icon with text vertically */
 }
 
+.version-n {
+  color: white;
+}
+
 
 /* Right Column */
 
 /* Right Column */
 .right-column-header {
   color: #FF9800;
-  font-size: 34px;
+  font-size: 28px;
   padding: 12px 0 0 20px; /* Top padding of 12px, left padding of 20px */
   margin: 0; /* Remove margin */
   font-family: 'Consolas', monospace;
@@ -383,6 +388,11 @@ body, p, h1, h2, h3, h4, h5, h6 {
   margin-left: 5px;
   height: 20px;
   width: auto;
+}
+
+.bottom-left {
+  margin-top: 10px;
+  margin-bottom: 0px;
 }
 
 /* Media query for desktop devices */

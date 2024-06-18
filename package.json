@@ -10,9 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "escape-html": "^1.0.3",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "toastr": "^2.1.4",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "validator": "^13.12.0"
   }
 }
