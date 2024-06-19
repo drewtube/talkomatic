@@ -15,10 +15,7 @@ const bannedUsers = new Map(); // Store banned users and their ban expiration ti
 
 const MAX_CHAR_LENGTH = 20;
 
-mongoose.connect('mongodb+srv://doadmin:U40N3196oq2cb7Ji@talkomatic-db-b7997980.mongo.ondigitalocean.com/admin?tls=true&authSource=admin', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect('mongodb+srv://doadmin:U40N3196oq2cb7Ji@talkomatic-db-b7997980.mongo.ondigitalocean.com/admin?tls=true&authSource=admin')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -49,7 +46,12 @@ io.on('connection', (socket) => {
       return;
     }
 
-    await User.findOneAndUpdate({ userId }, { socketId: socket.id }, { new: true, upsert: true });
+    // Update or create user in the database
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { socketId: socket.id },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
     const rooms = await Room.find({ type: { $ne: 'secret' } });
     socket.emit('existingRooms', rooms);
