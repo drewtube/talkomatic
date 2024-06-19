@@ -66,7 +66,6 @@ body, p, h1, h2, h3, h4, h5, h6 {
   margin-left: 25px; /* Ensures some spacing inside the banner */
 }
 .info-box {
-  width: calc(100% - 50px); /* Adjusts width to allow for left and right margins */
   margin: 30px; /* Adds 10px margin to all sides */
   border: 1px solid #FF9800; /* Orange border with 1px thickness */
   display: flex; /* Makes the container a flexbox */
@@ -247,6 +246,9 @@ body, p, h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
+
+/* Right Column */
+
 /* Right Column */
 .right-column-header {
   color: #FF9800;
@@ -390,10 +392,6 @@ body, p, h1, h2, h3, h4, h5, h6 {
 .bottom-left {
   margin-top: 10px;
   margin-bottom: 0px;
-}
-
-#privateRoomCode {
-  margin-bottom: 15px;
 }
 
 /* Media query for desktop devices */

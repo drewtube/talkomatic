@@ -1,33 +1,15 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+// offensiveWords.js
+const OFFENSIVE_WORDS = [
+  'nigga', // Example placeholder, replace with actual offensive word
+  'nigger', // Replace with actual offensive word
+  'n i g g a ', // Replace with actual offensive word
+  'faggot', // Replace with actual offensive phrase
+  'faggot', // Replace with actual offensive phrase
+  'kill yourslef', // Replace with actual racial slur
+  'kill urslef', // Replace with actual curse word
+  'i hate you', // Replace with actual derogatory term
+  'alpha male', // Replace with actual insulting phrase
+  // Add more words and phrases as needed
+];
 
-// User Schema
-const userSchema = new Schema({
-  username: { type: String, required: true },
-  location: String,
-  userId: { type: String, required: true, unique: true },
-  socketId: String,
-});
-
-// Room Schema
-const roomSchema = new Schema({
-  name: { type: String, required: true },
-  type: { type: String, enum: ['public', 'private', 'secret'], required: true },
-  layout: { type: String, enum: ['horizontal', 'vertical'], required: true },
-  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  privateRoomCode: String,
-});
-
-// Message Schema
-const messageSchema = new Schema({
-  roomId: { type: Schema.Types.ObjectId, ref: 'Room', required: true },
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  message: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now },
-});
-
-const User = mongoose.model('User', userSchema);
-const Room = mongoose.model('Room', roomSchema);
-const Message = mongoose.model('Message', messageSchema);
-
-module.exports = { User, Room, Message };
+module.exports = OFFENSIVE_WORDS;
