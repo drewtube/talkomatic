@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Private Room</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: "Courier New", Courier, monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .header {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .header button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .verify-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .verify-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border: 1px solid white;
+            background-color: black;
+            color: white;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .verify-container button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: "Courier New", Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button onclick="window.location.href='index.html'">Back to Lobby</button>
+    </div>
+    <div class="verify-container">
+        <h2>The room you are trying to join is private. Please enter the key to join.</h2>
+        <input type="text" id="privateRoomCode" placeholder="Enter the 6-digit key">
+        <button onclick="verifyPrivateRoom()">Enter</button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script> <!-- Include socket.io-client script -->
+    <script>
+        const socket = io();
+
+        // Get the room type and private room code from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('roomId');
+        const username = urlParams.get('username');
+        const userLocation = urlParams.get('location');
+        const userId = urlParams.get('userId');
+        const roomType = urlParams.get('roomType');
+
+        function verifyPrivateRoom() {
+            const enteredCode = document.getElementById('privateRoomCode').value.trim();
+            if (enteredCode.length !== 6) {
+                alert('Please enter a valid 6-digit key.');
+                return;
+            }
+
+            socket.emit('verifyPrivateRoom', { roomId, privateRoomCode: enteredCode, username, location: userLocation, userId });
+        }
+
+        socket.on('roomJoined', (data) => {
+            if (data.success) {
+                window.location.href = `chat_room.html?roomId=${data.roomId}&username=${data.username}&location=${data.location}&userId=${data.userId}&roomType=${roomType}`;
+            } else {
+                alert(data.message);
+            }
+        });
+    </script>
+</body>
+</html>

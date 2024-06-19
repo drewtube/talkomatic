@@ -17,7 +17,7 @@
         }
         .header {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid white;
@@ -30,6 +30,9 @@
             font-size: 16px;
             cursor: pointer;
             font-family: "Courier New", Courier, monospace;
+        }
+        .room-info {
+            font-size: 16px;
         }
         .row {
             flex: 1;
@@ -59,10 +62,11 @@
     <div class="container">
         <div class="header">
             <button onclick="window.location.href='index.html'">Back to Lobby</button>
+            <div class="room-info" id="roomInfo"></div>
         </div>
         <div id="chatRoom"></div>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script> <!-- Include socket.io-client script -->
     <script src="chat_room.js"></script>
 </body>
 </html>

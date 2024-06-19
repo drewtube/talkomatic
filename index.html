@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script> <!-- Include socket.io-client script -->
     <script src="client.js"></script>
     <script src="amount.js"></script>
 </head>
@@ -18,41 +18,41 @@
     <div class="flex flex-col md:flex-row">
         <!-- Left Column -->
         <div class="left-column custom-bg md:w-350 md:max-h-screen overflow-y-auto">
-          <div class="p-2 flex flex-col items-center">
-            <!-- Reduced padding -->
-            <div class="header-text mt-1 mb-4">
-                <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
-            </div>
-            <a href="about-talkomatic.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
-            <a href="version-information.html" class="custom-link mt-2 hover:custom-link-hover">Version Information</a>
-            <!-- New "created by" message -->
-            <div class="footer-text mt-2">
-                Created by <a href="https://twitter.com/MohdMahmodi" class="custom-link hover:custom-link-hover" target="_blank">Mohd</a>
-            </div>
-        </div>        
+            <div class="p-2 flex flex-col items-center">
+                <!-- Reduced padding -->
+                <div class="header-text mt-1 mb-4">
+                    <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
+                </div>
+                <a href="about-talkomatic.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
+                <a href="version-information.html" class="custom-link mt-2 hover:custom-link-hover">Version Information</a>
+                <!-- New "created by" message -->
+                <div class="footer-text mt-2">
+                    Created by <a href="https://twitter.com/MohdMahmodi" class="custom-link hover:custom-link-hover" target="_blank">Mohd</a>
+                </div>
+            </div>        
             <div class="full-width-banner mt=2">
                 <span class="banner-text">Be Known As...</span>
             </div>
             <!-- New Rectangle Box -->
             <div class="info-box mt-2 p-3 border-orange">
-              <div class="info-item mb-2">
-                  <label for="name">Your name:</label>
-                  <div class="input-group">
-                      <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
-                      <button class="button-style" onclick="updateUsername()">
-                          Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
-                      </button>
-                  </div>
-              </div>
-              <div class="info-item">
-                  <label for="location">Location:</label>
-                  <div class="input-group">
-                      <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
-                      <button class="button-style" onclick="signOut()">
-                          Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
-                      </button>
-                  </div>
-              </div>
+                <div class="info-item mb-2">
+                    <label for="name">Your name:</label>
+                    <div class="input-group">
+                        <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
+                        <button class="button-style" onclick="updateUsername()">
+                            Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
+                        </button>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <label for="location">Location:</label>
+                    <div class="input-group">
+                        <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
+                        <button class="button-style" onclick="signOut()">
+                            Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
@@ -72,6 +72,10 @@
                     Private
                     <span class="radio-checkmark"></span>
                 </label>
+                <div id="privateRoomCodeContainer" class="hidden mt-2">
+                    <label for="privateRoomCode" class="block mb-1">Enter 6-digit code for private room:</label>
+                    <input type="text" id="privateRoomCode" name="privateRoomCode" maxlength="6" class="block w-full p-2 border border-gray-300 rounded">
+                </div>
                 <label class="radio-container">
                     <input type="radio" name="roomType" value="secret">
                     <img src="icons/key.png" alt="Secret" class="radio-icon">

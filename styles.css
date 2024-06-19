@@ -246,9 +246,6 @@ body, p, h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
-
-/* Right Column */
-
 /* Right Column */
 .right-column-header {
   color: #FF9800;
@@ -392,6 +389,10 @@ body, p, h1, h2, h3, h4, h5, h6 {
 .bottom-left {
   margin-top: 10px;
   margin-bottom: 0px;
+}
+
+#privateRoomCode {
+  margin-bottom: 15px;
 }
 
 /* Media query for desktop devices */
