@@ -1,15 +1,19 @@
 // offensiveWords.js
 const OFFENSIVE_WORDS = [
-  'nigga', // Example placeholder, replace with actual offensive word
-  'nigger', // Replace with actual offensive word
-  'n i g g a ', // Replace with actual offensive word
-  'faggot', // Replace with actual offensive phrase
-  'faggot', // Replace with actual offensive phrase
-  'kill yourslef', // Replace with actual racial slur
-  'kill urslef', // Replace with actual curse word
-  'i hate you', // Replace with actual derogatory term
-  'alpha male', // Replace with actual insulting phrase
-  // Add more words and phrases as needed
+  'nigga',
+  'nigger',
+  'n i g g a ',
+  'faggot',
+  'faggot',
+  'kill yourslef',
+  'kill urslef',
+  'i hate you',
+  'alpha male',
+  'heil hitler',
+  'penis',
+  'vagina',
+  'sex',
+
 ];
 
 module.exports = OFFENSIVE_WORDS;

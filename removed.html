@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banned</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            max-width: 90%;
+            margin: 20px; /* Added margin at the top and bottom */
+        }
+        .timer {
+            font-size: 2em;
+            margin: 20px 0;
+            color: orange;
+        }
+        .info {
+            margin-top: 10px;
+            font-size: 1em;
+            color: gray;
+        }
+        .link {
+            color: orange;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        @media(min-width: 768px) {
+            .container {
+                max-width: 600px; /* Added max-width for desktop view */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>You have been removed for using offensive language.</h1>
+        <p>You will be able to access the site again in:</p>
+        <div class="timer" id="timer"></div>
+        <div class="info">
+            For more information, please visit 
+            <a href="why-was-i-removed.html" class="link">Why was I removed?</a>
+        </div>
+    </div>
+    <script>
+        function startCountdown(duration) {
+            const timerElement = document.getElementById('timer');
+            let remainingTime = duration;
+
+            const interval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+
+                timerElement.textContent = `${minutes}m ${seconds}s`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                    window.location.href = '/';
+                }
+
+                remainingTime--;
+            }, 1000);
+        }
+
+        function getCookie(name) {
+            let cookieArray = document.cookie.split(';');
+            for (let i = 0; i < cookieArray.length; i++) {
+                let cookiePair = cookieArray[i].split('=');
+                if (name == cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        const banExpiration = getCookie('banExpiration');
+        if (banExpiration) {
+            const remainingTime = Math.floor((banExpiration - Date.now()) / 1000);
+            startCountdown(remainingTime);
+        } else {
+            // If no ban expiration found, redirect to the homepage
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

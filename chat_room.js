@@ -1,24 +1,21 @@
 const socket = io();
 
-// Get the room ID, username, userLocation, and userId from the URL query parameters
 const urlParams = new URLSearchParams(window.location.search);
-const roomId = escapeHtml(urlParams.get('roomId'));
-const username = escapeHtml(urlParams.get('username'));
-const userLocation = escapeHtml(urlParams.get('location'));
-const userId = escapeHtml(urlParams.get('userId'));
+const roomId = sanitizeHtmlClient(urlParams.get('roomId'));
+const roomType = sanitizeHtmlClient(urlParams.get('roomType'));
+const roomName = sanitizeHtmlClient(urlParams.get('roomName'));
+const username = sanitizeHtmlClient(urlParams.get('username'));
+const userLocation = sanitizeHtmlClient(urlParams.get('location'));
+const userId = sanitizeHtmlClient(urlParams.get('userId'));
 
-// Notify the server about the user joining the room
 socket.emit('userConnected', { userId });
 
-// DOM elements
 const chatRoom = document.getElementById('chatRoom');
 
-// Join the room on page load
 socket.emit('joinRoom', { roomId, username, location: userLocation, userId });
 
-// Handle user joining the room
 socket.on('initializeUsers', (users) => {
-    chatRoom.innerHTML = ''; // Clear the chat room before adding users
+    chatRoom.innerHTML = '';
     users.forEach((user, index) => {
         const userElement = createUserElement(user, index);
         chatRoom.appendChild(userElement);
@@ -45,59 +42,66 @@ socket.on('typing', (data) => {
     }
 });
 
-// Handle user banned event
 socket.on('userBanned', (banExpiration) => {
     const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
-    setCookie('banned', 'true', banDuration / 86400); // Set banned cookie for the remaining ban duration in days
+    setCookie('banned', 'true', banDuration / 86400);
     window.location.href = 'banned.html';
 });
 
 function createUserElement(user) {
     const userElement = document.createElement('div');
     userElement.classList.add('row');
+    if (chatRoom.classList.contains('vertical-layout')) {
+        userElement.classList.add('column');
+    }
     userElement.dataset.userId = user.userId;
 
     const userInfo = document.createElement('div');
     userInfo.classList.add('sub-row');
-    userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
+    userInfo.innerHTML = `<span>${sanitizeHtmlClient(user.username)}</span><span>/</span><span>${sanitizeHtmlClient(user.location)}</span>`;
+    
+    userInfo.style.backgroundColor = '#333';
+    userInfo.style.color = 'white';
+    userInfo.style.padding = '5px';
+    userInfo.style.paddingLeft = '12px';
+    userInfo.style.marginBottom = '10px';
 
     const userTyping = document.createElement('textarea');
     userTyping.classList.add('sub-row');
     userTyping.disabled = user.userId !== userId;
 
-    // Apply styles via JavaScript
     userTyping.style.width = '100%';
-    userTyping.style.height = '80px';
+    userTyping.style.height = '100%';
     userTyping.style.resize = 'none';
     userTyping.style.backgroundColor = 'black';
-    userTyping.style.color = 'orange';
+    userTyping.style.color = '#FFA500';
     userTyping.style.padding = '10px';
-    userTyping.style.fontSize = '14px';
+    userTyping.style.fontSize = '16px';
     userTyping.style.boxSizing = 'border-box';
     userTyping.style.fontFamily = '"Courier New", Courier, monospace';
+    userTyping.style.webkitTextFillColor = '#FFA500';
+    userTyping.style.opacity = '1';
 
     if (user.userId === userId) {
         userTyping.style.border = '1px solid white';
         userTyping.addEventListener('input', () => {
-            socket.emit('typing', { roomId, userId, message: escapeHtml(userTyping.value) });
+            socket.emit('typing', { roomId, userId, message: sanitizeHtmlClient(userTyping.value) });
         });
     } else {
-        userTyping.style.border = 'none'; // No border for other users
+        userTyping.style.border = 'none';
         userTyping.style.userSelect = 'none';
     }
-
+    
     userElement.appendChild(userInfo);
     userElement.appendChild(userTyping);
 
     return userElement;
 }
 
-// Handle user disconnection
 window.addEventListener('beforeunload', () => {
     socket.emit('userDisconnected', { userId });
 });
 
-// Function to set a cookie
 function setCookie(name, value, days) {
     var expires = "";
     if (days) {
@@ -108,8 +112,7 @@ function setCookie(name, value, days) {
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
-// Function to escape HTML
-function escapeHtml(text) {
+function sanitizeHtmlClient(text) {
     const map = {
         '&': '&amp;',
         '<': '&lt;',
@@ -119,3 +122,26 @@ function escapeHtml(text) {
     };
     return text.replace(/[&<>"']/g, (m) => map[m]);
 }
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get('roomId');
+    const roomType = urlParams.get('roomType');
+    const roomName = urlParams.get('roomName');
+    document.getElementById('roomId').textContent = roomId;
+    document.getElementById('headerRoomId').textContent = roomId;
+    document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
+    document.getElementById('roomName').textContent = roomName;
+});
+
+const layoutButton = document.getElementById('layoutButton');
+
+layoutButton.addEventListener('click', () => {
+    if (chatRoom.classList.contains('vertical-layout')) {
+        chatRoom.classList.remove('vertical-layout');
+        layoutButton.textContent = 'Switch Layout';
+    } else {
+        chatRoom.classList.add('vertical-layout');
+        layoutButton.textContent = 'Switch Layout';
+    }
+});

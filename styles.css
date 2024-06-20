@@ -31,7 +31,7 @@ body, p, h1, h2, h3, h4, h5, h6 {
   font-size: 1.8rem; /* Slightly reduced size */
   color: #FFFFFF; /* Default text color, can be omitted if you want specific control */
   margin-top: 4px; /* Margin top set to 4px */
-  margin-bottom: 14px; /* Increased bottom margin for header text to 14px */
+  margin-bottom: 0px; /* Increased bottom margin for header text to 14px */
 
 }
 
@@ -129,10 +129,11 @@ body, p, h1, h2, h3, h4, h5, h6 {
 .learn-more-link {
   background-color: #808080; /* Gray background */
   color: #FFFFFF; /* White text */
-  padding: 8px 16px; /* Padding around the text */
+  padding: 4px 16px; /* Padding around the text */
   text-decoration: none; /* Removes underline */
   margin-left: 50px;
   margin-bottom: 0px;
+  font-size: 14px;;
 }
 .room-creation {
   width: 100%; /* Ensures it spans the full width */
@@ -426,4 +427,9 @@ body, p, h1, h2, h3, h4, h5, h6 {
     height: auto;
     overflow-y: visible;
   }
+}
+
+.social-color {
+  color: white;
+  margin-top: 30px;
 }

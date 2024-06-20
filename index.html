@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Talkomatic is the ultimate platform for creating and joining chat rooms. Connect with friends, discover new communities, and enjoy seamless communication.">
+    <meta name="keywords" content="Talkomatic, chat rooms, online communication, social platform, join rooms, create rooms, community">
+    <meta name="author" content="Talkomatic Team">
+    <meta property="og:title" content="Talkomatic - Home">
+    <meta property="og:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities.">
+    <meta property="og:image" content="images/talkomatic-og-image.jpg">
+    <meta property="og:url" content="https://www.talkomatic.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Talkomatic - Home">
+    <meta name="twitter:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities.">
+    <meta name="twitter:image" content="images/talkomatic-twitter-image.jpg">
     <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
     <title>Talkomatic - Home</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -13,6 +25,55 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
     <script src="amount.js"></script>
+    <style>
+        .social-media {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 10px; /* Added space between "Connect with us" and the social media links */
+        }
+        .social-media a {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            text-decoration: none;
+            color: inherit;
+        }
+        .social-media a:hover {
+            text-decoration: underline;
+        }
+        .social-media img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .footer {
+            margin-top: auto;
+            padding: 10px 0;
+            margin-left: 20px;
+        }
+        .version {
+            margin-top: auto;
+            padding: 10px;
+            font-size: 12px;
+            color: rgb(221, 221, 221);
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+        }
+        .room-creation {
+            margin-bottom: 20px; /* Added space below "Create Room" button */
+        }
+
+        #searchRoomId {
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            #searchRoomId {
+                width: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
@@ -24,18 +85,14 @@
                 <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
             </div>
             <a href="about-talkomatic.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
-            <a href="version-information.html" class="custom-link mt-2 hover:custom-link-hover">Version Information</a>
-            <!-- New "created by" message -->
-            <div class="footer-text mt-2">
-                Created by <a href="https://twitter.com/MohdMahmodi" class="custom-link hover:custom-link-hover" target="_blank">Mohd</a>
-            </div>
+            <a href="version-information.html" class="custom-link mt-2 hover:custom-link-hover">Update Notes</a>
         </div>        
             <div class="full-width-banner mt=2">
                 <span class="banner-text">Be Known As...</span>
             </div>
             <!-- New Rectangle Box -->
             <div class="info-box mt-2 p-3 border-orange">
-              <div class="info-item mb-2">
+              <div class="info-item mb=2">
                   <label for="name">Your name:</label>
                   <div class="input-group">
                       <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
@@ -63,41 +120,35 @@
                 <label class="radio-container">
                     <input type="radio" name="roomType" value="public" checked>
                     <img src="icons/handshake.png" alt="Public" class="radio-icon">
-                    Public
+                    Public 
                     <span class="radio-checkmark"></span>
                 </label>
                 <label class="radio-container">
                     <input type="radio" name="roomType" value="private">
-                    <img src="icons/closeeye.png" alt="Private" class="radio-icon">
-                    Private
-                    <span class="radio-checkmark"></span>
-                </label>
-                <label class="radio-container">
-                    <input type="radio" name="roomType" value="secret">
-                    <img src="icons/key.png" alt="Secret" class="radio-icon">
-                    Secret
-                    <span class="radio-checkmark"></span>
-                </label>
-                <p class="label-text">Room layout</p>
-                <label class="radio-container">
-                    <input type="radio" name="layoutType" value="horizontal" checked>
-                    <img src="icons/horizontal.png" alt="Horizontal" class="radio-icon">
-                    Horizontal
-                    <span class="radio-checkmark"></span>
-                </label>
-                <label class="radio-container">
-                    <input type="radio" name="layoutType" value="vertical">
-                    <img src="icons/vertical.png" alt="Vertical" class="radio-icon">
-                    Vertical
+                    <img src="icons/private.png" alt="Private" class="radio-icon">
+                    Private 
                     <span class="radio-checkmark"></span>
                 </label>
                 <button id="createRoomBtn" class="join-room-button">
                     Create Room
                     <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
                 </button>
-                <div class="p-2 text-gray-500 text-sm flex items-center justify-between w-full bottom-left">
-                    <span class="version-n">V 1.0.0.0</span>
-                    <a href="https://www.reddit.com/r/talkomatic/" target="_blank" class="text-blue-500 hover:underline">Join our Reddit Community!</a>
+                <div class="p-2 text-gray-500 text-sm flex flex-col items-start w-full bottom-left social-color">
+                    <p>Connect with us on our official socials:</p>
+                    <div class="social-media">
+                        <a href="https://www.reddit.com/r/talkomatic/" target="_blank">
+                            <img src="socials/reddit.png" alt="Reddit" class="social-icon"> - Reddit
+                        </a>
+                        <a href="https://www.instagram.com/talkomatic/" target="_blank">
+                            <img src="socials/instagram.png" alt="Instagram" class="social-icon"> - Instagram
+                        </a>
+                        <a href="https://twitter.com/talkomatic/" target="_blank">
+                            <img src="socials/x.png" alt="Twitter" class="social-icon"> - Twitter/X
+                        </a>
+                        <a href="https://discord.com/invite/talkomatic" target="_blank">
+                            <img src="socials/discord.png" alt="Discord" class="social-icon"> - Discord
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,6 +157,16 @@
             <h2 class="right-column-header">Join a room...</h2>
             <div id="roomsCount">1 room(s) available</div>
             <div id="usersCount">2 user(s) online</div>
+            
+            <!-- Search Bar, Search Button and Refresh Button -->
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center w-full">
+                    <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400 w-full md:w-64">
+                    <button id="searchRoomBtn" class="ml-2 p-2 bg-green-500 text-white rounded">Search</button>
+                </div>
+                <button id="refreshRoomsBtn" class="ml-2 p-2 bg-blue-500 text-white rounded">Refresh</button>
+            </div>
+            
             <div id="roomList">
                 <!-- Rooms will be dynamically added here -->
             </div>

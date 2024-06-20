@@ -7,51 +7,110 @@
     <title>Talkomatic Chat Room</title>
     <style>
         body {
-            margin: 0;
-            background-color: black;
-            color: white;
-            font-family: "Courier New", Courier, monospace;
-            height: 100vh;
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
         }
         .header {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid white;
         }
         .header button {
-            background-color: white;
-            color: black;
+            background-color: #FF4500;
+            color: white;
             border: none;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            font-family: "Courier New", Courier, monospace;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .header button:hover {
+            background-color: #FF6347;
+        }
+        .header .room-id {
+            font-size: 16px;
+            color: white;
         }
         .row {
             flex: 1;
-            border-top: 1px solid white;
             display: flex;
             flex-direction: column;
             padding: 10px;
+            overflow-y: auto;
         }
-        .sub-row {
-            margin-bottom: 10px;
-        }
-        .sub-row:first-child {
+        .footer {
+            padding: 10px;
+            text-align: center;
+            background-color: #333;
+            color: gray;
             display: flex;
-            justify-content: flex-start;
+            flex-direction: column;
+            align-items: center;
+            border-top: 1px solid white;
         }
-        .sub-row span {
-            margin-right: 5px;
+        .footer .room-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap;
+            width: 100%;
+            font-size: clamp(10px, 2vw, 14px);
+            overflow: hidden;
+        }
+        .footer .room-info div {
+            margin: 0 5px;
+            white-space: nowrap;
+        }
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            font-size: clamp(8px, 1.5vw, 12px);
+            margin-top: 5px;
+        }
+        .footer .copyright div {
+            margin: 0 5px;
         }
         .container {
             display: flex;
             flex-direction: column;
             height: 100vh;
+        }
+        input, textarea {
+            font-size: 16px;
+        }
+        .layout-button {
+            background-color: #FF4500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .layout-button:hover {
+            background-color: #FF6347;
+        }
+        @media screen and (max-width: 768px) {
+            .layout-button {
+                display: none;
+            }
+        }
+        .vertical-layout {
+            flex-direction: row;
+        }
+        .vertical-layout .row {
+            flex-direction: column;
         }
     </style>
 </head>
@@ -59,10 +118,35 @@
     <div class="container">
         <div class="header">
             <button onclick="window.location.href='index.html'">Back to Lobby</button>
+            <div class="room-id">Room ID: <span id="headerRoomId"></span></div>
+            <button id="layoutButton" class="layout-button">Layout: Horizontal</button>
         </div>
-        <div id="chatRoom"></div>
+        <div id="chatRoom" class="row"></div>
+        <div class="footer">
+            <div class="room-info">
+                <div>Name: <span id="roomName"></span></div>
+                <div>| ID: <span id="roomId"></span></div>
+                <div>| Type: <span id="roomTypeText"></span></div>
+            </div>
+            <div class="copyright">
+                <div>© talkomatic.co</div>
+                <div>V 1.0.0.0</div>
+            </div>
+        </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="chat_room.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = urlParams.get('roomId');
+            const roomType = urlParams.get('roomType');
+            const roomName = urlParams.get('roomName');
+            document.getElementById('roomId').textContent = roomId;
+            document.getElementById('headerRoomId').textContent = roomId;
+            document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
+            document.getElementById('roomName').textContent = roomName;
+        });
+    </script>
 </body>
 </html>
