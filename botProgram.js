@@ -52,14 +52,11 @@ function createBot() {
     botData.role = botRole;
 
     socket.on('connect', () => {
-        console.log(`${botData.username} connected as a ${botRole}`);
         socket.emit('userConnected', { userId: botData.userId });
         setTimeout(() => {
             if (botRole === 'joiner') {
-                console.log(`${botData.username} is set to join a room`);
                 socket.emit('getExistingRooms');
             } else {
-                console.log(`${botData.username} is set to create a room`);
                 createRoom(socket, botData);
             }
         }, Math.random() * 2000 + 1000);
@@ -68,7 +65,6 @@ function createBot() {
     socket.on('existingRooms', (existingRooms) => {
         if (botRole !== 'joiner') return;
 
-        console.log(`${botData.username} received existing rooms: ${JSON.stringify(existingRooms)}`);
         const availableRooms = existingRooms.filter(room => room.users.length < 5 && room.type === 'public');
         if (availableRooms.length > 0) {
             const randomRoom = availableRooms[Math.floor(Math.random() * availableRooms.length)];
@@ -79,9 +75,7 @@ function createBot() {
                 location: botData.location,
                 userId: botData.userId,
             });
-            console.log(`${botData.username} joined room ${randomRoom.name}`);
         } else {
-            console.log(`${botData.username} did not find an available room, creating a new one...`);
             createRoom(socket, botData);
         }
     });
@@ -90,7 +84,6 @@ function createBot() {
         if (socket.id === creatorSocketId) {
             botData.roomId = room.id;
             rooms.set(room.id, room);
-            console.log(`${botData.username} created and joined room ${room.name}`);
             startTyping(socket, botData);
             scheduleRoomLeaving(socket, botData);
         }
@@ -101,7 +94,6 @@ function createBot() {
         if (!rooms.has(data.roomId)) {
             rooms.set(data.roomId, { id: data.roomId, users: [] });
         }
-        console.log(`${botData.username} joined room ${data.roomId}`);
         startTyping(socket, botData);
         scheduleRoomLeaving(socket, botData);
     });
@@ -116,19 +108,16 @@ function createBot() {
     socket.on('userLeft', (data) => {
         if (data.userId === botData.userId) {
             botData.roomId = null;
-            console.log(`${botData.username} left room ${data.roomId}`);
             destroyBot(socket, botData);
         }
     });
 
     socket.on('disconnect', () => {
-        console.log(`${botData.username} disconnected`);
         activeBots.delete(socket);
         maintainBotCount();
     });
 
     activeBots.add(socket);
-    console.log(`Active bots: ${activeBots.size}`);
 
     function startTyping(socket, botData) {
         if (!botData.roomId) return;
@@ -137,8 +126,6 @@ function createBot() {
         let typingTimeout;
         let messageTimeout;
         let deleteTimeout;
-
-        console.log(`${botData.username} started typing in room ${botData.roomId}`);
 
         function sendRandomMessage() {
             if (isTyping) return;
@@ -161,7 +148,6 @@ function createBot() {
                 } else {
                     messageTimeout = setTimeout(() => {
                         socket.emit('message', { roomId: botData.roomId, userId: botData.userId, message: messageData.text });
-                        console.log(`${botData.username} sent message in room ${botData.roomId}: ${messageData.text}`);
                         deleteMessage();
                     }, 1000);
                 }
@@ -170,7 +156,6 @@ function createBot() {
             function deleteMessage() {
                 deleteTimeout = setTimeout(() => {
                     socket.emit('deleteMessage', { roomId: botData.roomId, userId: botData.userId });
-                    console.log(`${botData.username} deleted message in room ${botData.roomId}`);
                     isTyping = false;
                     scheduleNextMessage();
                 }, 2000);
@@ -188,7 +173,6 @@ function createBot() {
     }
 
     function handleIncomingMessage(socket, botData, messageData) {
-        console.log(`${botData.username} received message: ${messageData.message}`);
         // Respond to the message
         botData.lastQuestion = messageData.message;
         startTyping(socket, botData);
@@ -197,7 +181,6 @@ function createBot() {
     function leaveRoom(socket, botData) {
         if (botData.roomId) {
             socket.emit('leaveRoom', { roomId: botData.roomId, userId: botData.userId });
-            console.log(`${botData.username} left room ${botData.roomId}`);
             botData.roomId = null;
             destroyBot(socket, botData);
         }
@@ -217,17 +200,14 @@ function createRoom(socket, botData) {
         name: botData.roomName,
         type: 'public'
     });
-    console.log(`${botData.username} creating room ${botData.roomName}`);
 }
 
 function destroyBot(socket, botData) {
-    console.log(`Destroying bot: ${botData.username}`);
     activeBots.delete(socket);
     socket.disconnect();
 }
 
 function maintainBotCount() {
-    console.log(`Maintaining bot count. Current active bots: ${activeBots.size}`);
     const botsToCreate = MAX_ACTIVE_BOTS - activeBots.size;
     if (botsToCreate > 0) {
         for (let i = 0; i < botsToCreate; i++) {

@@ -127,23 +127,23 @@ io.on('connection', (socket) => {
     // Handle room joining
     socket.on('joinRoom', (data) => {
         const { roomId, username, location, userId } = data;
-    
+
         // Validate inputs
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
             return;
         }
-    
+
         if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
             socket.emit('error', 'Input exceeds maximum length');
             return;
         }
-    
+
         // Sanitize inputs
         const sanitizedUsername = sanitizeHtml(username);
         const sanitizedLocation = sanitizeHtml(location);
         const sanitizedUserId = sanitizeHtml(userId);
-    
+
         const room = rooms.get(roomId);
         if (room) {
             // Clear any existing deletion timeout for the room
@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
                 clearTimeout(roomDeletionTimeouts.get(roomId));
                 roomDeletionTimeouts.delete(roomId);
             }
-    
+
             if (room.users.length < 5) {
                 room.users.push({ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id });
                 socket.join(roomId);
@@ -159,7 +159,7 @@ io.on('connection', (socket) => {
                 socket.emit('roomJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, roomType: room.type, roomName: room.name });
                 socket.emit('initializeUsers', room.users);
                 socket.to(roomId).emit('userJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId }); // Emit userJoined event
-    
+
                 updateCounts();
             } else {
                 socket.emit('roomFull');
@@ -168,7 +168,7 @@ io.on('connection', (socket) => {
             socket.emit('roomNotFound');
         }
     });
-    
+
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
         const { roomId, userId } = data;
@@ -202,8 +202,6 @@ io.on('connection', (socket) => {
         // Sanitize message
         const sanitizedMessage = sanitizeHtml(message);
 
-        console.log(`User ${userId} is typing in room ${roomId}: ${sanitizedMessage}`);
-
         // Check for offensive words
         if (containsOffensiveWords(sanitizedMessage)) {
             const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
@@ -224,8 +222,6 @@ io.on('connection', (socket) => {
 
         // Sanitize message
         const sanitizedMessage = sanitizeHtml(message);
-
-        console.log(`User ${userId} sent message in room ${roomId}: ${sanitizedMessage}`);
 
         // Check for offensive words
         if (containsOffensiveWords(sanitizedMessage)) {
