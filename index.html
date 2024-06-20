@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Talkomatic is the ultimate platform for creating and joining chat rooms. Connect with friends, discover new communities, and enjoy seamless communication.">
-    <meta name="keywords" content="Talkomatic, chat rooms, online communication, social platform, join rooms, create rooms, community">
-    <meta name="author" content="Talkomatic Team">
-    <meta property="og:title" content="Talkomatic - Home">
-    <meta property="og:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities.">
-    <meta property="og:image" content="images/talkomatic-og-image.jpg">
-    <meta property="og:url" content="https://www.talkomatic.com">
+    <title>Talkomatic - Create and Join Chat Rooms | Online Community Platform</title>
+    <meta name="description" content="Talkomatic is the ultimate platform for creating and joining chat rooms. Connect with friends, discover new communities, and enjoy seamless real-time communication.">
+    <meta name="keywords" content="Talkomatic, chat rooms, online communication, social platform, join rooms, create rooms, community, real-time chat">
+    <meta name="author" content="Talkomatic">
+    <meta property="og:title" content="Talkomatic - Create and Join Chat Rooms">
+    <meta property="og:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities in real-time.">
+    <meta property="og:image" content="https://www.talkomatic.co/images/talkomatic-og-image.jpg">
+    <meta property="og:url" content="https://www.talkomatic.co">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Talkomatic - Home">
-    <meta name="twitter:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities.">
-    <meta name="twitter:image" content="images/talkomatic-twitter-image.jpg">
+    <meta name="twitter:title" content="Talkomatic - Create and Join Chat Rooms">
+    <meta name="twitter:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities in real-time.">
+    <meta name="twitter:image" content="https://www.talkomatic.co/images/talkomatic-twitter-image.jpg">
+    <link rel="canonical" href="https://www.talkomatic.co">
     <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
-    <title>Talkomatic - Home</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -25,6 +26,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
     <script src="amount.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
     <style>
         .social-media {
             display: flex;
@@ -74,6 +77,17 @@
         #searchRoomId {
             width: 100%;
         }
+        .join-private-link {
+    display: block;
+    margin-top: 0px;
+    color: #FF9800;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.join-private-link:hover {
+    text-decoration: underline;
+}
 
         @media (min-width: 768px) {
             #searchRoomId {
@@ -84,6 +98,10 @@
             .footer {
                 margin-top: 350px; /* Add top margin to show the footer a bit later on mobile */
                 font-size: 12px;
+            }
+
+            .join-private-link {
+                text-decoration: underline;
             }
         }
         .refreshbtn, .searchbtn {
@@ -161,7 +179,7 @@
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
-                <a href="#" class="learn-more-link">Learn More</a>
+                <a href="rooms.html" class="learn-more-link">Learn More</a>
             </div>
             <div class="room-creation mt-2">
                 <input type="text" id="roomName" name="roomName" placeholder="Room name" class="room-name-input" maxlength="20">
@@ -177,6 +195,7 @@
                     Private 
                     <span class="radio-checkmark"></span>
                 </label>
+                <a href="rooms.html" class="join-private-link">How to use private rooms</a>
                 <button id="createRoomBtn" class="join-room-button">
                     Create Room
                     <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
@@ -187,10 +206,10 @@
                         <a href="https://www.reddit.com/r/talkomatic/" target="_blank">
                             <img src="socials/reddit.png" alt="Reddit" class="social-icon"> - Reddit
                         </a>
-                        <a href="https://www.instagram.com/talkomatic/" target="_blank">
+                        <a href="https://www.instagram.com/talkomaticofficial/" target="_blank">
                             <img src="socials/instagram.png" alt="Instagram" class="social-icon"> - Instagram
                         </a>
-                        <a href="https://twitter.com/talkomatic/" target="_blank">
+                        <a href="https://twitter.com/talkomatic_co" target="_blank">
                             <img src="socials/x.png" alt="Twitter" class="social-icon"> - Twitter/X
                         </a>
                         <a href="https://discord.com/invite/talkomatic" target="_blank">

@@ -205,20 +205,18 @@ body, p, h1, h2, h3, h4, h5, h6 {
 }
 
 .join-room-button {
-  background-color: #FF9800; /* Orange background to stand out */
   background-color: #000000; /* Changed background color to black */
   color: #FFFFFF; /* White text for visibility */
   border: none; /* No border for a cleaner look */
-  padding: 10px 20px; /* Adequate padding for comfort */
+  padding: 10px 15px; /* Adequate padding for comfort */
   border: 1px solid #FF9800; /* Added orange border */
-  padding: 15px 10px; /* Adequate padding for comfort */
   font-size: 16px; /* Legible text size */
   cursor: pointer; /* Pointer on hover for better UX */
   display: flex; /* Enables flexbox layout */
   align-items: center; /* Centers items vertically */
   justify-content: space-between; /* Positions items to fill the available space */
   align-self: flex-end; /* Aligns the button to the right */
-  margin-top: 20px; /* Space above the button */
+  margin-top: 10px; /* Space above the button */
   width: auto; /* Auto width based on content size */
   border-radius: 5px; /* Rounded corners for a smoother look */
   height: 30px;
