@@ -73,6 +73,12 @@
                 width: 250px;
             }
         }
+        .refreshbtn, .searchbtn {
+            background-color: #222222;
+            border-radius: 4px;
+            padding: 12px 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -162,9 +168,9 @@
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center w-full">
                     <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400 w-full md:w-64">
-                    <button id="searchRoomBtn" class="ml-2 p-2 bg-green-500 text-white rounded">Search</button>
+                    <button id="searchRoomBtn" class="ml-2 p-2 searchbtn text-white ">Search</button>
                 </div>
-                <button id="refreshRoomsBtn" class="ml-2 p-2 bg-blue-500 text-white rounded">Refresh</button>
+                <button id="refreshRoomsBtn" class="ml-2 p-2 refreshbtn text-white ">Refresh</button>
             </div>
             
             <div id="roomList">
