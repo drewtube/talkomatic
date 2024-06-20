@@ -84,15 +84,11 @@ body, p, h1, h2, h3, h4, h5, h6 {
   align-items: center; /* Centers items vertically */
 }
 
-.info-item input {
-  flex-grow: 1; /* Allows the input to grow and take available space */
-  width: 30%; /* Adjusts width to the flexbox setting */
-  min-width: 0; /* Ensures it can shrink if necessary */
-  height: 30px; /* Fixed height for cleaner appearance */
-  background-color: #616161; /* Same as the box background */
-  color: #FF9800; /* Text color set to orange */
-  border: 1px solid #000000; /* Black border for input */
-  padding: 0 10px; /* Padding inside the textbox for text alignment */
+.info-item label {
+
+  color: #d6d6d6; /* Text color set to orange */
+  padding-bottom: 5px;
+
 }
 
 .info-item input {
@@ -102,7 +98,7 @@ body, p, h1, h2, h3, h4, h5, h6 {
   width: 60%; /* Smaller width for the textbox */
   height: 30px; /* Fixed height */
   background-color: #616161; /* Background color */
-  color: #FF9800; /* Text color */
+  color: #ffffff; /* Text color */
   border: 1px solid #000000; /* Border color */
   padding: 0 10px; /* Padding */
 }
@@ -127,11 +123,11 @@ body, p, h1, h2, h3, h4, h5, h6 {
 }
 
 .learn-more-link {
-  background-color: #808080; /* Gray background */
+  background-color: #333; /* Gray background */
   color: #FFFFFF; /* White text */
   padding: 4px 16px; /* Padding around the text */
   text-decoration: none; /* Removes underline */
-  margin-left: 50px;
+  margin-left: 110px;
   margin-bottom: 0px;
   font-size: 14px;;
 }

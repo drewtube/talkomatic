@@ -20,14 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
         setCookie('banned', 'true', banDuration / 86400);
         setCookie('banExpiration', banExpiration, banDuration / 86400);
-        window.location.href = 'banned.html';
+        window.location.href = 'removed.html';
     });
 
     if (getCookie('banned') === 'true') {
         const banExpiration = getCookie('banExpiration');
         const remainingTime = Math.floor((banExpiration - Date.now()) / 1000);
         if (remainingTime > 0) {
-            window.location.href = 'banned.html';
+            window.location.href = 'removed.html';
         } else {
             deleteCookie('banned');
             deleteCookie('banExpiration');

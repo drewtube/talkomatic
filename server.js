@@ -33,8 +33,8 @@ app.use(rateLimit({
 // Middleware to check if a user is banned
 app.use((req, res, next) => {
     const userId = req.cookies.userId; // Assumes userId is stored in cookies
-    if (userId && isUserBanned(userId) && req.path !== '/why-was-i-banned.html' && req.path !== '/banned.html') {
-        return res.redirect('/banned.html');
+    if (userId && isUserBanned(userId) && req.path !== '/why-was-i-removed.html' && req.path !== '/removed.html') {
+        return res.redirect('/removed.html');
     }
     next();
 });
@@ -44,12 +44,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/banned', (req, res) => {
-    res.sendFile(path.join(__dirname, 'banned.html'));
+app.get('/removed', (req, res) => {
+    res.sendFile(path.join(__dirname, 'removed.html'));
 });
 
-app.get('/why-was-i-banned.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'why-was-i-banned.html'));
+app.get('/why-was-i-removed.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'why-was-i-removed.html'));
 });
 
 // Socket.IO setup
@@ -127,23 +127,23 @@ io.on('connection', (socket) => {
     // Handle room joining
     socket.on('joinRoom', (data) => {
         const { roomId, username, location, userId } = data;
-
+    
         // Validate inputs
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
             return;
         }
-
+    
         if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
             socket.emit('error', 'Input exceeds maximum length');
             return;
         }
-
+    
         // Sanitize inputs
         const sanitizedUsername = sanitizeHtml(username);
         const sanitizedLocation = sanitizeHtml(location);
         const sanitizedUserId = sanitizeHtml(userId);
-
+    
         const room = rooms.get(roomId);
         if (room) {
             // Clear any existing deletion timeout for the room
@@ -151,15 +151,15 @@ io.on('connection', (socket) => {
                 clearTimeout(roomDeletionTimeouts.get(roomId));
                 roomDeletionTimeouts.delete(roomId);
             }
-
+    
             if (room.users.length < 5) {
                 room.users.push({ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id });
                 socket.join(roomId);
                 io.emit('roomUpdated', room);
                 socket.emit('roomJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, roomType: room.type, roomName: room.name });
                 socket.emit('initializeUsers', room.users);
-                socket.to(roomId).emit('userJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId });
-
+                socket.to(roomId).emit('userJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId }); // Emit userJoined event
+    
                 updateCounts();
             } else {
                 socket.emit('roomFull');
@@ -168,7 +168,7 @@ io.on('connection', (socket) => {
             socket.emit('roomNotFound');
         }
     });
-
+    
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
         const { roomId, userId } = data;
@@ -206,7 +206,7 @@ io.on('connection', (socket) => {
 
         // Check for offensive words
         if (containsOffensiveWords(sanitizedMessage)) {
-            const banExpiration = Date.now() + 30 * 60 * 1000; // 30 minutes from now
+            const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
             bannedUsers.set(userId, banExpiration);
             socket.emit('userBanned', banExpiration);
             setTimeout(() => {
@@ -229,7 +229,7 @@ io.on('connection', (socket) => {
 
         // Check for offensive words
         if (containsOffensiveWords(sanitizedMessage)) {
-            const banExpiration = Date.now() + 30 * 60 * 1000; // 30 minutes from now
+            const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
             bannedUsers.set(userId, banExpiration);
             socket.emit('userBanned', banExpiration);
             setTimeout(() => {

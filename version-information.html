@@ -2,110 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
-    <title>Talkomatic Version</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Notes</title>
     <style>
         body {
-            background-color: #000000;
-            color: #FFFFFF;
-            font-family: "Courier New", Courier, monospace;
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
         .header {
-            background-color: #333333;
-            padding: 20px;
-            border-bottom: 1px solid #444444;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid #FF9800;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         .header h1 {
-            font-size: 2em;
+            font-size: 2.5em;
             margin: 0;
         }
-        .header button {
-            background-color: #ff9800;
-            color: white;
+        .back-to-lobby {
+            background-color: #FF9800;
+            color: black;
             border: none;
             padding: 10px 20px;
-            font-size: 16px;
             cursor: pointer;
+            font-size: 1em;
+            border-radius: 5px;
         }
-        .container {
-            margin-top: 20px;
+        .back-to-lobby:hover {
+            background-color: white;
+            color: black;
         }
         .section {
             margin-bottom: 40px;
         }
+        .section img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #FF9800;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .caption {
+            text-align: center;
+            font-size: 1em;
+            color: gray;
+            margin-bottom: 10px;
+        }
         .section h2 {
-            font-size: 1.5em;
+            font-size: 2em;
+            color: #FF9800;
             margin-bottom: 10px;
         }
         .section p {
-            font-size: 1em;
+            font-size: 1.2em;
             line-height: 1.5;
-            margin-bottom: 10px;
+            color: white;
         }
-        .section img {
-            display: block;
-            margin: 20px auto;
-            max-width: 100%;
-            border: 2px solid white;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: rgb(255, 255, 255);
-            text-align: center;
-        }
-        .footer a {
-            color: #ff9800;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header h1 {
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+            .back-to-lobby {
+                width: 100%;
+                text-align: center;
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Talkomatic Version Information</h1>
-        <button onclick="window.location.href='index.html'">Back to Lobby</button>
-    </div>
     <div class="container">
-        <div class="section">
-            <h2>Overview of Mohd's Version</h2>
-            <p>Mohd's version of Talkomatic builds on the 2014 web version, integrating modern technologies and an automated moderation system to prevent harassment, hate speech, bullying, and other inappropriate behaviors.</p>
+        <div class="header">
+            <h1>Update Notes</h1>
+            <button class="back-to-lobby" onclick="window.location.href='index.html'">Back to Lobby</button>
         </div>
         <div class="section">
-            <h2>User Interface and Features</h2>
-            <p>The left column allows users to set their name and location. This information can be saved with cookies enabled, allowing the data to persist even after closing the browser. There is no database; everything is managed via a custom API and Node.js, ensuring privacy and security as nothing is saved or visible to others not in the chatroom.</p>
-            <p>The right column displays the number of users currently connected and the number of rooms created. Below this, the original layout shows the room name and the number of people out of 5 who are in the room. Underneath is the room privacy status, followed by the list of users.</p>
-            <p>If a room has 0 users in it for 5 seconds it gets automatically removed. </p>
-            <img src="images/1.png" alt="Room List Screenshot">
+            <h2>Update Notes for v2.0.0.0</h2>
+            <p>Welcome to the latest version of Talkomatic! In this update, we've implemented significant changes and enhancements to improve your user experience. Below are the key updates:</p>
         </div>
         <div class="section">
-            <h2>Chat Room Features</h2>
-            <p>Each chat room can hold a maximum of 5 people. At the top is a back button to return to the lobby to change the name or join another room. As users join, their information appears in one of the 5 rows, each displaying the username and location at the top, followed by a text area for real-time conversation.</p>
-            <img src="images/2.png" alt="Chat Room Screenshot">
+            <h2>Home Page Redesign</h2>
+            <p>In this version, the home page has been completely redesigned to enhance usability. The left column now has a cleaner look, with all its components functioning correctly. On the right side, new features have been added, including the ability to search for rooms to join and to refresh the room list.</p>
+            <img src="updates/newhome.png" alt="Home Page Redesign">
+            <div class="caption">The redesigned home page</div>
         </div>
         <div class="section">
-          <h2>Automated Moderation System</h2>
-          <p>An automated moderation system is in place to detect keywords as they are being typed. If inappropriate content is detected, the user is removed from the room and subjected to a ban lasting between 30 minutes and 24 hours. Currently, the default ban duration is 30 minutes.</p>
-          <p>The system moderates basic offensive words and phrases that are degrading or inappropriate. Some offensive language is intentionally not moderated to balance user experience and moderation effectiveness.</p>
-          <p>We will be testing this system and gathering feedback to adjust the moderation level based on the community's needs. This will help us determine if the moderation is too strict or too lenient and make necessary adjustments.</p>
-          <p>When banned, users attempting to access the web app are redirected to a ban page showing a countdown timer until the ban is lifted. Once the timer reaches zero, the user is automatically redirected back to the home page and can use the app normally. Repeat offenders may face permanent bans.</p>
-          <p>While the moderation system is not perfect, it has been highly effective during beta testing, successfully removing 95% of offenders before any inappropriate content is visible to others in the chat. It works like magic.</p>
-          <img src="images/3.png" alt="Moderation System Screenshot">
-      </div>
-      
-      
+            <h2>Private and Public Rooms</h2>
+            <p>Private and public rooms now work seamlessly. Users can create and join any room they desire. Private rooms are not displayed in the public room list, ensuring privacy and exclusivity for their participants.</p>
+            <img src="updates/pprooms.png" alt="Private and Public Rooms">
+            <div class="caption">Functioning private and public rooms</div>
         </div>
-    </div>
-    <div class="footer">
-        Created by <a href="https://twitter.com/MohdMahmodi" target="_blank">Mohd</a>
+        <div class="section">
+            <h2>Redesigned Chatroom Page</h2>
+            <p>The chatroom page has been redesigned for a better look and additional features. Users can now see the room ID, room number, and room name. Additionally, chats can be set to either vertical or horizontal layouts by pressing the toggle layout button at the top right.</p>
+            <img src="updates/horizotnal-chatroom.png" alt="Redesigned Chatroom Page">
+            <div class="caption">The new horizotnal chatroom layout</div>
+            <img src="updates/vertical chat-room.png" alt="Redesigned Chatroom Page">
+            <div class="caption">The new vertical chatroom layout</div>
+        </div>
+        <div class="section">
+            <h2>Updated User Removal Policy</h2>
+            <p>Instead of a 30-minute ban for typing hateful messages, users are now redirected to a "Removed from Chat" page that explains why they were removed and emphasizes that such behavior is unacceptable. Users can rejoin Talkomatic after 30 seconds.</p>
+        </div>
+        <div class="section">
+            <h2>Improved 'Removed' and 'Why Was I Removed?' Pages</h2>
+            <p>The design of the "Removed" and "Why Was I Removed?" pages has been significantly improved to provide clearer information and a better user experience. These pages now offer more detailed explanations and a more polished interface.</p>
+            <img src="updates/removed.png" alt="Redesigned Chatroom Page">
+            <div class="caption">Redesigned to show more features and styled to mathch the theme of Talkomatic</div>
+            <img src="updates/why-removed.png" alt="Redesigned Chatroom Page">
+            <div class="caption">Redesigned page to show more informaton</div>
+        </div>
     </div>
 </body>
 </html>

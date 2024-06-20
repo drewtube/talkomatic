@@ -11,6 +11,7 @@ const userId = sanitizeHtmlClient(urlParams.get('userId'));
 socket.emit('userConnected', { userId });
 
 const chatRoom = document.getElementById('chatRoom');
+const joinSound = document.getElementById('joinSound'); // Get the audio element
 
 socket.emit('joinRoom', { roomId, username, location: userLocation, userId });
 
@@ -25,6 +26,7 @@ socket.on('initializeUsers', (users) => {
 socket.on('userJoined', (user) => {
     const userElement = createUserElement(user);
     chatRoom.appendChild(userElement);
+    joinSound.play(); // Play the sound when a user joins
 });
 
 socket.on('userLeft', (user) => {

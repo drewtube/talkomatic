@@ -48,9 +48,15 @@
             margin-right: 10px;
         }
         .footer {
-            margin-top: auto;
             padding: 10px 0;
-            margin-left: 20px;
+            background-color: #FF9800; /* Set background color to orange */
+            color: black; /* Set text color to black */
+            text-align: center; /* Center align the text */
+            width: 100%;
+            position: sticky;
+            bottom: 0;
+            left: 0;
+
         }
         .version {
             margin-top: auto;
@@ -59,6 +65,7 @@
             color: rgb(221, 221, 221);
             font-family: 'Courier New', Courier, monospace;
             letter-spacing: 1px;
+            font-weight: bold;
         }
         .room-creation {
             margin-bottom: 20px; /* Added space below "Create Room" button */
@@ -73,49 +80,84 @@
                 width: 250px;
             }
         }
+        @media (max-width: 768px) {
+            .footer {
+                margin-top: 350px; /* Add top margin to show the footer a bit later on mobile */
+                font-size: 12px;
+            }
+        }
         .refreshbtn, .searchbtn {
             background-color: #222222;
             border-radius: 4px;
-            padding: 12px 20px;
+            padding: 10px 20px;
         }
 
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+        #roomList {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 50px; /* Add bottom padding to prevent content from being covered by the footer */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: #FF9800 white; /* For Firefox */
+            
+        }
+
+        /* For WebKit browsers (Chrome, Safari) */
+        #roomList::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #roomList::-webkit-scrollbar-track {
+            background: white;
+        }
+
+        #roomList::-webkit-scrollbar-thumb {
+            background-color: #FF9800;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
         <!-- Left Column -->
         <div class="left-column custom-bg md:w-350 md:max-h-screen overflow-y-auto">
-          <div class="p-2 flex flex-col items-center">
-            <!-- Reduced padding -->
-            <div class="header-text mt-1 mb-4">
-                <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
-            </div>
-            <a href="about-talkomatic.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
-            <a href="version-information.html" class="custom-link mt-2 hover:custom-link-hover">Update Notes</a>
-        </div>        
+            <div class="p-2 flex flex-col items-center">
+                <!-- Reduced padding -->
+                <div class="header-text mt-1 mb-4">
+                    <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
+                </div>
+                <a href="about-talkomatic.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
+                <a href="version-information.html" class="custom-link mt-2 hover:custom-link-hover">Update Notes</a>
+            </div>        
             <div class="full-width-banner mt=2">
                 <span class="banner-text">Be Known As...</span>
             </div>
             <!-- New Rectangle Box -->
             <div class="info-box mt-2 p-3 border-orange">
-              <div class="info-item mb=2">
-                  <label for="name">Your name:</label>
-                  <div class="input-group">
-                      <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
-                      <button class="button-style" onclick="updateUsername()">
-                          Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
-                      </button>
-                  </div>
-              </div>
-              <div class="info-item">
-                  <label for="location">Location:</label>
-                  <div class="input-group">
-                      <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
-                      <button class="button-style" onclick="signOut()">
-                          Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
-                      </button>
-                  </div>
-              </div>
+                <div class="info-item mb=2">
+                    <label for="name">Your name:</label>
+                    <div class="input-group">
+                        <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
+                        <button class="button-style" onclick="updateUsername()">
+                            Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
+                        </button>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <label for="location">Location:</label>
+                    <div class="input-group">
+                        <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
+                        <button class="button-style" onclick="signOut()">
+                            Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
@@ -176,6 +218,12 @@
             <div id="roomList">
                 <!-- Rooms will be dynamically added here -->
             </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                Copyright 2024 Talkomatic.co | Made with love by the community ❤️
+            </footer>
+            
         </div>
     </div>
 </body>

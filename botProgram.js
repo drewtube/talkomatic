@@ -21,8 +21,20 @@ function generateRandomData() {
         location: locations[Math.floor(Math.random() * locations.length)],
         userId: `bot_${Math.random().toString(36).substr(2, 9)}`,
         roomName: roomNames[Math.floor(Math.random() * roomNames.length)],
-        message: conversations[Math.floor(Math.random() * conversations.length)]
+        lastQuestion: null,
+        role: null,
+        roomId: null
     };
+}
+
+function generateConversationMessage(botData) {
+    const topic = conversations[Math.floor(Math.random() * conversations.length)];
+    const question = topic.questions[Math.floor(Math.random() * topic.questions.length)];
+    const followUp = topic.followUps.find(followUp => followUp.question === botData.lastQuestion);
+    if (followUp) {
+        return { topic: topic.topic, text: followUp.response };
+    }
+    return { topic: topic.topic, text: question };
 }
 
 function createBot() {
@@ -57,7 +69,7 @@ function createBot() {
         if (botRole !== 'joiner') return;
 
         console.log(`${botData.username} received existing rooms: ${JSON.stringify(existingRooms)}`);
-        const availableRooms = existingRooms.filter(room => room.users.length < 5 && room.type === 'public'); // Filter out private rooms
+        const availableRooms = existingRooms.filter(room => room.users.length < 5 && room.type === 'public');
         if (availableRooms.length > 0) {
             const randomRoom = availableRooms[Math.floor(Math.random() * availableRooms.length)];
             botData.roomId = randomRoom.id;
@@ -94,6 +106,13 @@ function createBot() {
         scheduleRoomLeaving(socket, botData);
     });
 
+    socket.on('message', (messageData) => {
+        if (messageData.userId !== botData.userId && messageData.roomId === botData.roomId) {
+            // Another bot sent a message in the same room
+            handleIncomingMessage(socket, botData, messageData);
+        }
+    });
+
     socket.on('userLeft', (data) => {
         if (data.userId === botData.userId) {
             botData.roomId = null;
@@ -125,7 +144,8 @@ function createBot() {
             if (isTyping) return;
             isTyping = true;
 
-            const message = generateRandomData().message;
+            const messageData = generateConversationMessage(botData);
+            botData.lastQuestion = messageData.text;
             let index = 0;
 
             clearTimeout(typingTimeout);
@@ -133,17 +153,17 @@ function createBot() {
             clearTimeout(deleteTimeout);
 
             function typeNextChar() {
-                if (index < message.length) {
-                    socket.emit('typing', { roomId: botData.roomId, userId: botData.userId, message: message.slice(0, index + 1) });
+                if (index < messageData.text.length) {
+                    socket.emit('typing', { roomId: botData.roomId, userId: botData.userId, message: messageData.text.slice(0, index + 1) });
                     index++;
-                    const typingDelay = Math.random() * 200 + 50; // Random typing delay between 50 and 250 ms
+                    const typingDelay = Math.random() * 200 + 50;
                     typingTimeout = setTimeout(typeNextChar, typingDelay);
                 } else {
                     messageTimeout = setTimeout(() => {
-                        socket.emit('message', { roomId: botData.roomId, userId: botData.userId, message });
-                        console.log(`${botData.username} sent message in room ${botData.roomId}: ${message}`);
+                        socket.emit('message', { roomId: botData.roomId, userId: botData.userId, message: messageData.text });
+                        console.log(`${botData.username} sent message in room ${botData.roomId}: ${messageData.text}`);
                         deleteMessage();
-                    }, 1000); // Short delay before deleting the message
+                    }, 1000);
                 }
             }
 
@@ -153,18 +173,25 @@ function createBot() {
                     console.log(`${botData.username} deleted message in room ${botData.roomId}`);
                     isTyping = false;
                     scheduleNextMessage();
-                }, 2000); // Delay before typing the next message
+                }, 2000);
             }
 
             typeNextChar();
         }
 
         function scheduleNextMessage() {
-            const delay = Math.random() * 5000 + 2000; // Random delay between 2 and 7 seconds
+            const delay = Math.random() * 5000 + 2000;
             setTimeout(sendRandomMessage, delay);
         }
 
         sendRandomMessage();
+    }
+
+    function handleIncomingMessage(socket, botData, messageData) {
+        console.log(`${botData.username} received message: ${messageData.message}`);
+        // Respond to the message
+        botData.lastQuestion = messageData.message;
+        startTyping(socket, botData);
     }
 
     function leaveRoom(socket, botData) {
