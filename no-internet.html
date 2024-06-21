@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Internet Connection | Talkomatic</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            max-width: 90%;
+            margin: 20px;
+        }
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 1.2em;
+            margin: 20px 0;
+            color: orange;
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 1em;
+            color: gray;
+        }
+        @media(min-width: 768px) {
+            .container {
+                max-width: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>No Internet Connection</h1>
+        <p class="message">An internet connection is required to use Talkomatic.</p>
+        <div class="info">
+            Please check your network settings and try again.
+        </div>
+    </div>
+</body>
+</html>

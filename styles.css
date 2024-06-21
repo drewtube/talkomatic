@@ -1,5 +1,6 @@
 body, p, h1, h2, h3, h4, h5, h6 {
   font-family: 'Consolas', monospace; /* Sets Consolas as the primary font, with monospace as a fallback */
+  background-color: #616161;
 }
 
 .custom-orange, .custom-white {
