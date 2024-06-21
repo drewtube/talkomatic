@@ -50,6 +50,34 @@ socket.on('userBanned', (banExpiration) => {
     window.location.href = 'banned.html';
 });
 
+// Handle duplicate user event
+socket.on('duplicateUser', (data) => {
+    toastr.error(data.message);
+    setTimeout(() => {
+        window.location.href = data.redirectUrl;
+    }, 3000); // Wait for 3 seconds to show the toastr message
+});
+
+// Inactivity timeout
+let inactivityTimeout;
+const inactivityLimit = 120000; // 2 minutes
+
+function resetInactivityTimeout() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(() => {
+        toastr.error('You were removed from the room for being inactive for 30 seconds.');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000); // Wait for 3 seconds to show the toastr message
+    }, inactivityLimit);
+}
+
+// Reset the inactivity timeout whenever user types or moves the mouse
+document.addEventListener('keydown', resetInactivityTimeout);
+document.addEventListener('mousemove', resetInactivityTimeout);
+
+resetInactivityTimeout(); // Initialize the inactivity timeout
+
 function createUserElement(user) {
     const userElement = document.createElement('div');
     userElement.classList.add('row');
@@ -88,6 +116,7 @@ function createUserElement(user) {
         userTyping.style.border = '1px solid white';
         userTyping.addEventListener('input', () => {
             socket.emit('typing', { roomId, userId, message: sanitizeHtmlClient(userTyping.value) });
+            resetInactivityTimeout(); // Reset the inactivity timeout on input
         });
     } else {
         userTyping.style.border = 'none';

@@ -87,87 +87,109 @@ io.on('connection', (socket) => {
         updateCounts();
     });
 
-    // Handle room creation
-    socket.on('createRoom', (roomData) => {
-        const { username, location, userId, name, type } = roomData;
+// Handle room creation
+socket.on('createRoom', (roomData) => {
+    const { username, location, userId, name, type } = roomData;
 
-        // Validate inputs
-        if (!username || !location || !userId || !name || !['public', 'private'].includes(type)) {
-            socket.emit('error', 'Invalid input');
+    // Validate inputs
+    if (!username || !location || !userId || !name || !['public', 'private'].includes(type)) {
+        socket.emit('error', 'Invalid input');
+        return;
+    }
+
+    if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || name.length > MAX_CHAR_LENGTH) {
+        socket.emit('error', 'Input exceeds maximum length');
+        return;
+    }
+
+    // Sanitize inputs
+    const sanitizedUsername = sanitizeHtml(username);
+    const sanitizedLocation = sanitizeHtml(location);
+    const sanitizedUserId = sanitizeHtml(userId);
+    const sanitizedName = sanitizeHtml(name);
+
+    const roomId = generateRoomId();
+    const room = {
+        id: roomId,
+        name: sanitizedName,
+        type: type,
+        users: [{ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id }]
+    };
+    rooms.set(roomId, room);
+
+    // Emit 'roomCreated' only to other clients
+    socket.broadcast.emit('roomCreated', room);
+    
+    // Emit 'roomUpdated' to all clients, including the creator
+    io.emit('roomUpdated', room);
+
+    socket.join(roomId);
+    socket.emit('roomJoined', { 
+        roomId, 
+        username: sanitizedUsername, 
+        location: sanitizedLocation, 
+        userId: sanitizedUserId, 
+        roomType: type, 
+        roomName: sanitizedName 
+    });
+    socket.emit('initializeUsers', room.users);
+
+    updateCounts();
+});
+
+// Handle room joining
+socket.on('joinRoom', (data) => {
+    const { roomId, username, location, userId } = data;
+
+    // Validate inputs
+    if (!roomId || !username || !location || !userId) {
+        socket.emit('error', 'Invalid input');
+        return;
+    }
+
+    if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
+        socket.emit('error', 'Input exceeds maximum length');
+        return;
+    }
+
+    // Sanitize inputs
+    const sanitizedUsername = sanitizeHtml(username);
+    const sanitizedLocation = sanitizeHtml(location);
+    const sanitizedUserId = sanitizeHtml(userId);
+
+    const room = rooms.get(roomId);
+    if (room) {
+        // Check if the user is already in the room
+        const existingUser = room.users.find(user => user.userId === sanitizedUserId);
+        if (existingUser) {
+            socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: 'index.html' });
             return;
         }
 
-        if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || name.length > MAX_CHAR_LENGTH) {
-            socket.emit('error', 'Input exceeds maximum length');
+        // Clear any existing deletion timeout for the room
+        if (roomDeletionTimeouts.has(roomId)) {
+            clearTimeout(roomDeletionTimeouts.get(roomId));
+            roomDeletionTimeouts.delete(roomId);
+        }
+
+        if (room.users.length < 5) {
+            room.users.push({ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id });
+        } else {
+            socket.emit('roomFull');
             return;
         }
 
-        // Sanitize inputs
-        const sanitizedUsername = sanitizeHtml(username);
-        const sanitizedLocation = sanitizeHtml(location);
-        const sanitizedUserId = sanitizeHtml(userId);
-        const sanitizedName = sanitizeHtml(name);
-
-        const roomId = generateRoomId();
-        const room = {
-            id: roomId,
-            name: sanitizedName,
-            type: type,
-            users: [{ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id }]
-        };
-        rooms.set(roomId, room);
-        io.emit('roomCreated', room, socket.id);
         socket.join(roomId);
-        socket.emit('roomJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, roomType: type, roomName: sanitizedName });
+        io.emit('roomUpdated', room);
+        socket.emit('roomJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, roomType: room.type, roomName: room.name });
         socket.emit('initializeUsers', room.users);
+        socket.to(roomId).emit('userJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId });
 
         updateCounts();
-    });
-
-    // Handle room joining
-    socket.on('joinRoom', (data) => {
-        const { roomId, username, location, userId } = data;
-
-        // Validate inputs
-        if (!roomId || !username || !location || !userId) {
-            socket.emit('error', 'Invalid input');
-            return;
-        }
-
-        if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
-            socket.emit('error', 'Input exceeds maximum length');
-            return;
-        }
-
-        // Sanitize inputs
-        const sanitizedUsername = sanitizeHtml(username);
-        const sanitizedLocation = sanitizeHtml(location);
-        const sanitizedUserId = sanitizeHtml(userId);
-
-        const room = rooms.get(roomId);
-        if (room) {
-            // Clear any existing deletion timeout for the room
-            if (roomDeletionTimeouts.has(roomId)) {
-                clearTimeout(roomDeletionTimeouts.get(roomId));
-                roomDeletionTimeouts.delete(roomId);
-            }
-
-            if (room.users.length < 5) {
-                room.users.push({ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id });
-                socket.join(roomId);
-                io.emit('roomUpdated', room);
-                socket.emit('roomJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, roomType: room.type, roomName: room.name });
-                socket.emit('initializeUsers', room.users);
-                socket.to(roomId).emit('userJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId }); // Emit userJoined event
-
-                updateCounts();
-            } else {
-                socket.emit('roomFull');
-            }
-        } else {
-            socket.emit('roomNotFound');
-        }
-    });
+    } else {
+        socket.emit('roomNotFound');
+    }
+});
 
     // Handle room leaving
     socket.on('leaveRoom', (data) => {

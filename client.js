@@ -34,6 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    socket.on('duplicateUser', (data) => {
+        toastr.error(data.message);
+        setTimeout(() => {
+            window.location.href = data.redirectUrl;
+        }, 3000); // Wait for 3 seconds to show the toastr message
+    });
+
     const createRoomBtn = document.getElementById('createRoomBtn');
     const roomList = document.getElementById('roomList');
     const roomsCountElement = document.getElementById('roomsCount');
@@ -192,6 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('roomCreated', (room, creatorSocketId) => {
+        const existingRoomElement = document.getElementById(`room-${room.id}`);
+        if (existingRoomElement) {
+            existingRoomElement.remove(); // Remove existing room element if it exists
+        }
         const searchRoomId = searchRoomIdInput.value.trim();
         if (room.type === 'public' && (!searchRoomId || (searchRoomId && room.id === searchRoomId))) {
             const roomElement = createRoomElement(room);
