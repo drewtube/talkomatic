@@ -13,13 +13,7 @@
     {
       "src": "images/favicon.jpg",
       "type": "image/png",
-      "sizes": "500x500"
-    },
-    {
-      "src": "https://www.talkomatic.co/images/talkomatic-twitter-image.jpg"
-    },
-    {
-      "src": "https://www.talkomatic.co/images/talkomatic-og-image.jpg"
+      "sizes": "600x600"
     }
   ]
 }
