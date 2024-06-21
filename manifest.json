@@ -1,0 +1,25 @@
+{
+  "background_color": "#616161",
+  "description": "Talkomatic is the ultimate platform for creating and joining chat rooms. Connect with friends, discover new communities, and enjoy seamless real-time communication.",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Talkomatic",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Talkomatic",
+  "start_url": "/",
+  "theme_color": "#616161",
+  "icons": [
+    {
+      "src": "images/favicon.jpg",
+      "type": "image/png",
+      "sizes": "500x500"
+    },
+    {
+      "src": "https://www.talkomatic.co/images/talkomatic-twitter-image.jpg"
+    },
+    {
+      "src": "https://www.talkomatic.co/images/talkomatic-og-image.jpg"
+    }
+  ]
+}
