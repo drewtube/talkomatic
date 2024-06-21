@@ -47,7 +47,7 @@ socket.on('typing', (data) => {
 socket.on('userBanned', (banExpiration) => {
     const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
     setCookie('banned', 'true', banDuration / 86400);
-    window.location.href = 'banned.html';
+    window.location.href = 'removed.html';
 });
 
 // Handle duplicate user event
