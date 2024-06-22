@@ -41,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000); // Wait for 3 seconds to show the toastr message
     });
 
+    socket.on('offensiveWord', (field) => {
+        toastr.error(`The ${field} contains offensive words and is not allowed.`);
+    });
+
     const createRoomBtn = document.getElementById('createRoomBtn');
     const roomList = document.getElementById('roomList');
     const roomsCountElement = document.getElementById('roomsCount');
@@ -112,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     createRoomBtn.addEventListener('click', () => {
-        const username = sanitizeHtmlClient(document.getElementById('name').value.trim());
-        const location = sanitizeHtmlClient(document.getElementById('location').value.trim());
-        const roomName = sanitizeHtmlClient(document.getElementById('roomName').value.trim());
+        const username = document.getElementById('name').value.trim();
+        const location = document.getElementById('location').value.trim();
+        const roomName = document.getElementById('roomName').value.trim();
         const roomType = document.querySelector('input[name="roomType"]:checked').value;
 
         if (!username) {
@@ -149,8 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     roomList.addEventListener('click', (event) => {
         if (event.target.classList.contains('enter-chat-button')) {
-            const username = sanitizeHtmlClient(document.getElementById('name').value.trim());
-            const location = sanitizeHtmlClient(document.getElementById('location').value.trim());
+            const username = document.getElementById('name').value.trim();
+            const location = document.getElementById('location').value.trim();
 
             if (!username) {
                 toastr.error('Please enter your username.');
@@ -280,9 +284,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const userDetailElement = document.createElement('div');
             userDetailElement.classList.add('user-detail');
             userDetailElement.dataset.userId = userId;
-            userDetailElement.innerHTML = `
-                <img src="icons/chatbubble.png" alt="Chat" class="details-icon"> ${userCount}. ${username} / ${location}
-            `;
+            userDetailElement.innerHTML = 
+                `<img src="icons/chatbubble.png" alt="Chat" class="details-icon"> ${userCount}. ${username} / ${location}`;
             userInfoElement.appendChild(userDetailElement);
 
             const roomHeaderElement = existingRoomElement.querySelector('.room-header');
@@ -333,8 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
         roomElement.id = `room-${room.id}`;
         roomElement.dataset.roomName = room.name;
         roomElement.classList.add('room-details-container');
-        roomElement.innerHTML = `
-            <div class="room-details">
+        roomElement.innerHTML = 
+            `<div class="room-details">
                 <div class="room-info">
                     <div class="room-header">${room.name} (${room.users.length}/5)</div>
                     <div class="public-room-info">
@@ -342,23 +345,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div class="user-info">
-                    ${room.users.map((user, index) => `
-                        <div class="user-detail" data-user-id="${user.userId}"><img src="icons/chatbubble.png" alt="Chat" class="details-icon"> ${index + 1}. ${user.username} / ${user.location}</div>
-                    `).join('')}
+                    ${room.users.map((user, index) => 
+                        `<div class="user-detail" data-user-id="${user.userId}"><img src="icons/chatbubble.png" alt="Chat" class="details-icon"> ${index + 1}. ${user.username} / ${user.location}</div>`
+                    ).join('')}
                 </div>
             </div>
             <div class="chat-button-container">
-                ${room.users.length < 5 ? `
-                    <button class="enter-chat-button" data-room-id="${room.id}" data-room-type="${room.type}" data-room-name="${room.name}">
+                ${room.users.length < 5 ? 
+                    `<button class="enter-chat-button" data-room-id="${room.id}" data-room-type="${room.type}" data-room-name="${room.name}">
                         Enter <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
-                    </button>
-                ` : `
-                    <button class="enter-chat-button" disabled>
+                    </button>`
+                 : 
+                    `<button class="enter-chat-button" disabled>
                         Room Full
-                    </button>
-                `}
-            </div>
-        `;
+                    </button>`
+                }
+            </div>`;
         return roomElement;
     }
 
@@ -372,14 +374,3 @@ document.addEventListener('DOMContentLoaded', () => {
         usersCountElement.textContent = `${usersCount} user(s) online`;
     });
 });
-
-function sanitizeHtmlClient(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, (m) => map[m]);
-}

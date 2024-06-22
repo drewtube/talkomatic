@@ -45,8 +45,10 @@ socket.on('typing', (data) => {
 });
 
 socket.on('userBanned', (banExpiration) => {
+    clearTimeout(inactivityTimeout); // Clear the inactivity timeout
     const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
     setCookie('banned', 'true', banDuration / 86400);
+    setCookie('banExpiration', banExpiration, banDuration / 86400);
     window.location.href = 'removed.html';
 });
 
@@ -65,10 +67,13 @@ const inactivityLimit = 120000; // 2 minutes
 function resetInactivityTimeout() {
     clearTimeout(inactivityTimeout);
     inactivityTimeout = setTimeout(() => {
-        toastr.error('You were removed from the room for being inactive for 30 seconds.');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 3000); // Wait for 3 seconds to show the toastr message
+        if (document.cookie.indexOf('banned=true') === -1) {
+            socket.emit('userDisconnected', { userId });
+            toastr.error('You were removed from the room for being inactive for 2 minutes.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000); // Wait for 3 seconds to show the toastr message
+        }
     }, inactivityLimit);
 }
 

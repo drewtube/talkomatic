@@ -109,6 +109,18 @@
             // If no ban expiration found, redirect to the homepage
             window.location.href = '/';
         }
+
+        function checkBanExpiration() {
+    const banExpiration = getCookie('banExpiration');
+    if (!banExpiration || Date.now() >= parseInt(banExpiration)) {
+        deleteCookie('banned');
+        deleteCookie('banExpiration');
+        window.location.href = 'index.html';
+    }
+}
+
+// Check every second
+setInterval(checkBanExpiration, 1000);
     </script>
 </body>
 </html>

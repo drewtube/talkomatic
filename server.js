@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
-const sanitizeHtml = require('sanitize-html');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
@@ -87,109 +86,122 @@ io.on('connection', (socket) => {
         updateCounts();
     });
 
-// Handle room creation
-socket.on('createRoom', (roomData) => {
-    const { username, location, userId, name, type } = roomData;
+    // Handle room creation
+    socket.on('createRoom', (roomData) => {
+        const { username, location, userId, name, type } = roomData;
 
-    // Validate inputs
-    if (!username || !location || !userId || !name || !['public', 'private'].includes(type)) {
-        socket.emit('error', 'Invalid input');
-        return;
-    }
-
-    if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || name.length > MAX_CHAR_LENGTH) {
-        socket.emit('error', 'Input exceeds maximum length');
-        return;
-    }
-
-    // Sanitize inputs
-    const sanitizedUsername = sanitizeHtml(username);
-    const sanitizedLocation = sanitizeHtml(location);
-    const sanitizedUserId = sanitizeHtml(userId);
-    const sanitizedName = sanitizeHtml(name);
-
-    const roomId = generateRoomId();
-    const room = {
-        id: roomId,
-        name: sanitizedName,
-        type: type,
-        users: [{ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id }]
-    };
-    rooms.set(roomId, room);
-
-    // Emit 'roomCreated' only to other clients
-    socket.broadcast.emit('roomCreated', room);
-    
-    // Emit 'roomUpdated' to all clients, including the creator
-    io.emit('roomUpdated', room);
-
-    socket.join(roomId);
-    socket.emit('roomJoined', { 
-        roomId, 
-        username: sanitizedUsername, 
-        location: sanitizedLocation, 
-        userId: sanitizedUserId, 
-        roomType: type, 
-        roomName: sanitizedName 
-    });
-    socket.emit('initializeUsers', room.users);
-
-    updateCounts();
-});
-
-// Handle room joining
-socket.on('joinRoom', (data) => {
-    const { roomId, username, location, userId } = data;
-
-    // Validate inputs
-    if (!roomId || !username || !location || !userId) {
-        socket.emit('error', 'Invalid input');
-        return;
-    }
-
-    if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
-        socket.emit('error', 'Input exceeds maximum length');
-        return;
-    }
-
-    // Sanitize inputs
-    const sanitizedUsername = sanitizeHtml(username);
-    const sanitizedLocation = sanitizeHtml(location);
-    const sanitizedUserId = sanitizeHtml(userId);
-
-    const room = rooms.get(roomId);
-    if (room) {
-        // Check if the user is already in the room
-        const existingUser = room.users.find(user => user.userId === sanitizedUserId);
-        if (existingUser) {
-            socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: 'index.html' });
+        // Validate inputs
+        if (!username || !location || !userId || !name || !['public', 'private'].includes(type)) {
+            socket.emit('error', 'Invalid input');
             return;
         }
 
-        // Clear any existing deletion timeout for the room
-        if (roomDeletionTimeouts.has(roomId)) {
-            clearTimeout(roomDeletionTimeouts.get(roomId));
-            roomDeletionTimeouts.delete(roomId);
-        }
-
-        if (room.users.length < 5) {
-            room.users.push({ username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, socketId: socket.id });
-        } else {
-            socket.emit('roomFull');
+        if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || name.length > MAX_CHAR_LENGTH) {
+            socket.emit('error', 'Input exceeds maximum length');
             return;
         }
+
+        // Check for offensive words
+        if (containsOffensiveWords(username)) {
+            socket.emit('offensiveWord', 'username');
+            return;
+        }
+        if (containsOffensiveWords(location)) {
+            socket.emit('offensiveWord', 'location');
+            return;
+        }
+        if (containsOffensiveWords(name)) {
+            socket.emit('offensiveWord', 'room name');
+            return;
+        }
+
+        const roomId = generateRoomId();
+        const room = {
+            id: roomId,
+            name: name,
+            type: type,
+            users: [{ username: username, location: location, userId: userId, socketId: socket.id }]
+        };
+        rooms.set(roomId, room);
+
+        // Emit 'roomCreated' only to other clients
+        socket.broadcast.emit('roomCreated', room);
+        
+        // Emit 'roomUpdated' to all clients, including the creator
+        io.emit('roomUpdated', room);
 
         socket.join(roomId);
-        io.emit('roomUpdated', room);
-        socket.emit('roomJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId, roomType: room.type, roomName: room.name });
+        socket.emit('roomJoined', { 
+            roomId, 
+            username, 
+            location, 
+            userId, 
+            roomType: type, 
+            roomName: name 
+        });
         socket.emit('initializeUsers', room.users);
-        socket.to(roomId).emit('userJoined', { roomId, username: sanitizedUsername, location: sanitizedLocation, userId: sanitizedUserId });
 
         updateCounts();
-    } else {
-        socket.emit('roomNotFound');
-    }
-});
+    });
+
+    // Handle room joining
+    socket.on('joinRoom', (data) => {
+        const { roomId, username, location, userId } = data;
+
+        // Validate inputs
+        if (!roomId || !username || !location || !userId) {
+            socket.emit('error', 'Invalid input');
+            return;
+        }
+
+        if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
+            socket.emit('error', 'Input exceeds maximum length');
+            return;
+        }
+
+        // Check for offensive words
+        if (containsOffensiveWords(username)) {
+            socket.emit('offensiveWord', 'username');
+            return;
+        }
+        if (containsOffensiveWords(location)) {
+            socket.emit('offensiveWord', 'location');
+            return;
+        }
+
+        const room = rooms.get(roomId);
+        if (room) {
+            // Check if the user is already in the room
+            const existingUser = room.users.find(user => user.userId === userId);
+            if (existingUser) {
+                socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: 'index.html' });
+                return;
+            }
+
+            // Clear any existing deletion timeout for the room
+            if (roomDeletionTimeouts.has(roomId)) {
+                clearTimeout(roomDeletionTimeouts.get(roomId));
+                roomDeletionTimeouts.delete(roomId);
+            }
+
+            if (room.users.length < 5) {
+                room.users.push({ username, location, userId, socketId: socket.id });
+            } else {
+                socket.emit('roomFull');
+                return;
+            }
+
+            socket.join(roomId);
+            io.emit('roomUpdated', room);
+            socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name });
+            socket.emit('initializeUsers', room.users);
+            socket.to(roomId).emit('userJoined', { roomId, username, location, userId });
+
+            updateCounts();
+        } else {
+            socket.emit('roomNotFound');
+        }
+    });
 
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
@@ -221,11 +233,8 @@ socket.on('joinRoom', (data) => {
     socket.on('typing', (data) => {
         const { roomId, userId, message } = data;
 
-        // Sanitize message
-        const sanitizedMessage = sanitizeHtml(message);
-
         // Check for offensive words
-        if (containsOffensiveWords(sanitizedMessage)) {
+        if (containsOffensiveWords(message)) {
             const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
             bannedUsers.set(userId, banExpiration);
             socket.emit('userBanned', banExpiration);
@@ -235,18 +244,15 @@ socket.on('joinRoom', (data) => {
             return;
         }
 
-        socket.to(roomId).emit('typing', { userId, message: sanitizedMessage });
+        socket.to(roomId).emit('typing', { userId, message });
     });
 
     // Handle sending messages
     socket.on('message', (data) => {
         const { roomId, userId, message } = data;
 
-        // Sanitize message
-        const sanitizedMessage = sanitizeHtml(message);
-
         // Check for offensive words
-        if (containsOffensiveWords(sanitizedMessage)) {
+        if (containsOffensiveWords(message)) {
             const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
             bannedUsers.set(userId, banExpiration);
             socket.emit('userBanned', banExpiration);
@@ -256,7 +262,7 @@ socket.on('joinRoom', (data) => {
             return;
         }
 
-        socket.to(roomId).emit('message', { userId, message: sanitizedMessage });
+        socket.to(roomId).emit('message', { userId, message });
     });
 
     // Handle socket disconnection
