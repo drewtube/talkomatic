@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const noRoomsMessage = document.createElement('div');
     noRoomsMessage.id = 'noRoomsMessage';
     noRoomsMessage.className = 'no-rooms-message';
-    noRoomsMessage.innerText = 'No active rooms right now. Create a new room and start the conversation!';
+    noRoomsMessage.innerText = 'No active public rooms right now. Create a new room and start the conversation!';
 
     function generateUserId() {
         return 'user_' + Math.random().toString(36).substr(2, 9);
