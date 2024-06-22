@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setCookie('banExpiration', banExpiration, banDuration / 86400);
         window.location.href = 'removed.html';
     });
-
+    
     if (getCookie('banned') === 'true') {
         const banExpiration = getCookie('banExpiration');
         const remainingTime = Math.floor((banExpiration - Date.now()) / 1000);
@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000); // Wait for 3 seconds to show the toastr message
     });
 
-    socket.on('offensiveWord', (field) => {
-        toastr.error(`The ${field} contains offensive words and is not allowed.`);
+    socket.on('offensiveWordError', (message) => {
+        toastr.error(message);
     });
 
     const createRoomBtn = document.getElementById('createRoomBtn');
@@ -86,12 +86,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
+    function containsOffensiveWord(text) {
+        const OFFENSIVE_WORDS = ['badword']; // Ensure this matches the server list
+        return OFFENSIVE_WORDS.some(word => text.toLowerCase().includes(word.toLowerCase()));
+    }
+
     window.updateUsername = function () {
         const oldUsername = getCookie('username');
         const oldLocation = getCookie('location');
         const username = document.getElementById('name').value.trim();
         const location = document.getElementById('location').value.trim();
         let updateMessage = [];
+
+        if (containsOffensiveWord(username)) {
+            toastr.error('Username contains offensive words.');
+            return;
+        }
+
+        if (containsOffensiveWord(location)) {
+            toastr.error('Location contains offensive words.');
+            return;
+        }
 
         if (username !== oldUsername) {
             setCookie('username', username, 30);
@@ -143,6 +158,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (containsOffensiveWord(username)) {
+            toastr.error('Username contains offensive words.');
+            return;
+        }
+
+        if (containsOffensiveWord(location)) {
+            toastr.error('Location contains offensive words.');
+            return;
+        }
+
+        if (containsOffensiveWord(roomName)) {
+            toastr.error('Room name contains offensive words.');
+            return;
+        }
+
         const roomData = {
             username: username,
             location: location,
@@ -169,6 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!location) {
                 toastr.error('Please enter your location.');
                 console.log('Room joining failed - missing location');
+                return;
+            }
+
+            if (containsOffensiveWord(username)) {
+                toastr.error('Username contains offensive words.');
+                return;
+            }
+
+            if (containsOffensiveWord(location)) {
+                toastr.error('Location contains offensive words.');
                 return;
             }
 
@@ -362,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${room.users.length < 5 ? 
                     `<button class="enter-chat-button" data-room-id="${room.id}" data-room-type="${room.type}" data-room-name="${room.name}">
                         Enter <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
-                    </button>`
+                    </button>` 
                  : 
                     `<button class="enter-chat-button" disabled>
                         Room Full

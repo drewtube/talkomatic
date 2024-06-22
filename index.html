@@ -28,8 +28,8 @@
     <script src="client.js"></script>
     <script src="amount.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
-<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
-<link rel="manifest" href="manifest.json">
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+    <link rel="manifest" href="manifest.json">
     <style>
         .social-media {
             display: flex;
@@ -80,16 +80,16 @@
             width: 100%;
         }
         .join-private-link {
-    display: block;
-    margin-top: 0px;
-    color: #FF9800;
-    text-decoration: none;
-    font-size: 14px;
-}
+            display: block;
+            margin-top: 0px;
+            color: #FF9800;
+            text-decoration: none;
+            font-size: 14px;
+        }
 
-.join-private-link:hover {
-    text-decoration: underline;
-}
+        .join-private-link:hover {
+            text-decoration: underline;
+        }
 
         @media (min-width: 768px) {
             #searchRoomId {
@@ -125,7 +125,6 @@
             padding-bottom: 50px; /* Add bottom padding to prevent content from being covered by the footer */
             scrollbar-width: thin; /* For Firefox */
             scrollbar-color: #FF9800 white; /* For Firefox */
-            
         }
 
         /* For WebKit browsers (Chrome, Safari) */
@@ -194,6 +193,12 @@
                     <input type="radio" name="roomType" value="private">
                     <img src="icons/private.png" alt="Private" class="radio-icon">
                     Private 
+                    <span class="radio-checkmark"></span>
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="roomType" value="secret">
+                    <img src="icons/key.png" alt="Secret" class="radio-icon">
+                    Secret
                     <span class="radio-checkmark"></span>
                 </label>
                 <a href="rooms.html" class="join-private-link">How to use private rooms</a>

@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const helmet = require('helmet');
-const OFFENSIVE_WORDS = require('./offensiveWords'); // Import the offensive words
+const OFFENSIVE_WORDS = require('./offensiveWords.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -55,6 +55,15 @@ app.get('/why-was-i-removed.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'why-was-i-removed.html'));
 });
 
+app.get('/offensive-words', (req, res) => {
+    res.json(OFFENSIVE_WORDS);
+});
+
+// Utility function to check for offensive words
+function containsOffensiveWord(text) {
+    return OFFENSIVE_WORDS.some(word => text.toLowerCase().includes(word.toLowerCase()));
+}
+
 // Socket.IO setup
 io.on('connection', (socket) => {
     // Handle user connection
@@ -75,7 +84,11 @@ io.on('connection', (socket) => {
     // Handle room search
     socket.on('searchRoom', (roomId) => {
         const room = rooms.get(roomId);
-        socket.emit('searchResult', room || null);
+        if (room && room.type !== 'secret') {
+            socket.emit('searchResult', room);
+        } else {
+            socket.emit('searchResult', null);
+        }
     });
 
     // Handle request to get existing rooms
@@ -95,7 +108,7 @@ io.on('connection', (socket) => {
         const { username, location, userId, name, type } = roomData;
 
         // Validate inputs
-        if (!username || !location || !userId || !name || !['public', 'private'].includes(type)) {
+        if (!username || !location || !userId || !name || !['public', 'private', 'secret'].includes(type)) {
             socket.emit('error', 'Invalid input');
             return;
         }
@@ -105,17 +118,18 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // Check for offensive words
-        if (containsOffensiveWords(username)) {
-            socket.emit('offensiveWord', 'username');
+        if (containsOffensiveWord(username)) {
+            socket.emit('offensiveWordError', 'Username contains offensive words');
             return;
         }
-        if (containsOffensiveWords(location)) {
-            socket.emit('offensiveWord', 'location');
+
+        if (containsOffensiveWord(location)) {
+            socket.emit('offensiveWordError', 'Location contains offensive words');
             return;
         }
-        if (containsOffensiveWords(name)) {
-            socket.emit('offensiveWord', 'room name');
+
+        if (containsOffensiveWord(name)) {
+            socket.emit('offensiveWordError', 'Room name contains offensive words');
             return;
         }
 
@@ -129,7 +143,9 @@ io.on('connection', (socket) => {
         rooms.set(roomId, room);
 
         // Emit 'roomCreated' only to other clients
-        socket.broadcast.emit('roomCreated', room);
+        if (room.type !== 'secret') {
+            socket.broadcast.emit('roomCreated', room);
+        }
         
         // Emit 'roomUpdated' to all clients, including the creator
         io.emit('roomUpdated', room);
@@ -162,13 +178,13 @@ io.on('connection', (socket) => {
             return;
         }
     
-        // Check for offensive words
-        if (containsOffensiveWords(username)) {
-            socket.emit('offensiveWord', 'username');
+        if (containsOffensiveWord(username)) {
+            socket.emit('offensiveWordError', 'Username contains offensive words');
             return;
         }
-        if (containsOffensiveWords(location)) {
-            socket.emit('offensiveWord', 'location');
+
+        if (containsOffensiveWord(location)) {
+            socket.emit('offensiveWordError', 'Location contains offensive words');
             return;
         }
     
@@ -232,18 +248,6 @@ io.on('connection', (socket) => {
     // Handle typing event
     socket.on('typing', (data) => {
         const { roomId, userId, message } = data;
-
-        // Check for offensive words
-        if (containsOffensiveWords(message)) {
-            const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
-            bannedUsers.set(userId, banExpiration);
-            socket.emit('userBanned', banExpiration);
-            setTimeout(() => {
-                socket.disconnect(); // Disconnect the user from the server
-            }, 100); // Slight delay to allow the event to be processed
-            return;
-        }
-
         socket.to(roomId).emit('typing', { userId, message });
     });
 
@@ -251,14 +255,29 @@ io.on('connection', (socket) => {
     socket.on('message', (data) => {
         const { roomId, userId, message } = data;
 
-        // Check for offensive words
-        if (containsOffensiveWords(message)) {
-            const banExpiration = Date.now() + 30 * 1000; // 30 seconds from now
+        if (containsOffensiveWord(message)) {
+            // Ban the user for 30 seconds
+            const banDuration = 30 * 1000; // Ban for 30 seconds
+            const banExpiration = Date.now() + banDuration;
             bannedUsers.set(userId, banExpiration);
+
+            // Emit 'userBanned' event to the user
             socket.emit('userBanned', banExpiration);
-            setTimeout(() => {
-                socket.disconnect(); // Disconnect the user from the server
-            }, 100); // Slight delay to allow the event to be processed
+
+            // Remove the user from the room
+            const room = rooms.get(roomId);
+            if (room) {
+                const userIndex = room.users.findIndex((user) => user.userId === userId);
+                if (userIndex !== -1) {
+                    room.users.splice(userIndex, 1);
+                    socket.leave(roomId);
+                    io.emit('roomUpdated', room);
+                    socket.to(roomId).emit('userLeft', { roomId, userId });
+                }
+            }
+
+            // Disconnect the socket
+            socket.disconnect();
             return;
         }
 
@@ -304,14 +323,8 @@ function updateCounts() {
     io.emit('updateCounts', { roomsCount: publicRoomsCount, usersCount });
 }
 
-
 function generateRoomId() {
     return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-function containsOffensiveWords(message) {
-    const lowerCaseMessage = message.toLowerCase();
-    return OFFENSIVE_WORDS.some(word => lowerCaseMessage.includes(word));
 }
 
 function isUserBanned(userId) {

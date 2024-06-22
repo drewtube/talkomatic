@@ -1,17 +1,38 @@
 const socket = io();
 
 const urlParams = new URLSearchParams(window.location.search);
-const roomId = sanitizeHtmlClient(urlParams.get('roomId'));
-const roomType = sanitizeHtmlClient(urlParams.get('roomType'));
-const roomName = sanitizeHtmlClient(urlParams.get('roomName'));
-const username = sanitizeHtmlClient(urlParams.get('username'));
-const userLocation = sanitizeHtmlClient(urlParams.get('location'));
-const userId = sanitizeHtmlClient(urlParams.get('userId'));
+const roomId = urlParams.get('roomId');
+const roomType = urlParams.get('roomType');
+const roomName = urlParams.get('roomName');
+const username = urlParams.get('username');
+const userLocation = urlParams.get('location');
+const userId = urlParams.get('userId');
+
+let OFFENSIVE_WORDS = [];
+
+// Fetch offensive words list from server
+fetch('/offensive-words')
+    .then(response => response.json())
+    .then(words => {
+        OFFENSIVE_WORDS = words;
+    })
+    .catch(error => console.error('Error fetching offensive words:', error));
+
+// Check if user is banned before connecting
+if (getCookie('banned') === 'true') {
+    const banExpiration = getCookie('banExpiration');
+    if (banExpiration && Date.now() < parseInt(banExpiration)) {
+        window.location.href = 'removed.html';
+    } else {
+        deleteCookie('banned');
+        deleteCookie('banExpiration');
+    }
+}
 
 socket.emit('userConnected', { userId });
 
 const chatRoom = document.getElementById('chatRoom');
-const joinSound = document.getElementById('joinSound'); // Get the audio element
+const joinSound = document.getElementById('joinSound');
 
 socket.emit('joinRoom', { roomId, username, location: userLocation, userId });
 
@@ -45,19 +66,17 @@ socket.on('typing', (data) => {
 });
 
 socket.on('userBanned', (banExpiration) => {
-    clearTimeout(inactivityTimeout); // Clear the inactivity timeout
     const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
     setCookie('banned', 'true', banDuration / 86400);
-    setCookie('banExpiration', banExpiration, banDuration / 86400);
+    setCookie('banExpiration', banExpiration.toString(), banDuration / 86400);
     window.location.href = 'removed.html';
 });
 
-// Handle duplicate user event
 socket.on('duplicateUser', (data) => {
     toastr.error(data.message);
     setTimeout(() => {
         window.location.href = data.redirectUrl;
-    }, 3000); // Wait for 3 seconds to show the toastr message
+    }, 3000);
 });
 
 // Inactivity timeout
@@ -72,16 +91,30 @@ function resetInactivityTimeout() {
             toastr.error('You were removed from the room for being inactive for 2 minutes.');
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 3000); // Wait for 3 seconds to show the toastr message
+            }, 3000);
         }
     }, inactivityLimit);
 }
 
-// Reset the inactivity timeout whenever user types or moves the mouse
 document.addEventListener('keydown', resetInactivityTimeout);
 document.addEventListener('mousemove', resetInactivityTimeout);
 
-resetInactivityTimeout(); // Initialize the inactivity timeout
+resetInactivityTimeout();
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+function containsOffensiveWord(text) {
+    return OFFENSIVE_WORDS.some(word => text.toLowerCase().includes(word.toLowerCase()));
+}
 
 function createUserElement(user) {
     const userElement = document.createElement('div');
@@ -93,7 +126,7 @@ function createUserElement(user) {
 
     const userInfo = document.createElement('div');
     userInfo.classList.add('sub-row');
-    userInfo.innerHTML = `<span>${sanitizeHtmlClient(user.username)}</span><span>/</span><span>${sanitizeHtmlClient(user.location)}</span>`;
+    userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
     
     userInfo.style.backgroundColor = '#333';
     userInfo.style.color = 'white';
@@ -104,6 +137,7 @@ function createUserElement(user) {
     const userTyping = document.createElement('textarea');
     userTyping.classList.add('sub-row');
     userTyping.disabled = user.userId !== userId;
+    userTyping.maxLength = 1000;
 
     userTyping.style.width = '100%';
     userTyping.style.height = '100%';
@@ -120,8 +154,18 @@ function createUserElement(user) {
     if (user.userId === userId) {
         userTyping.style.border = '1px solid white';
         userTyping.addEventListener('input', () => {
-            socket.emit('typing', { roomId, userId, message: sanitizeHtmlClient(userTyping.value) });
-            resetInactivityTimeout(); // Reset the inactivity timeout on input
+            if (userTyping.value.length >= userTyping.maxLength) {
+                toastr.error(`Message is too long! Maximum length is ${userTyping.maxLength} characters.`);
+            } else {
+                if (containsOffensiveWord(userTyping.value)) {
+                    toastr.error('Message contains offensive words.');
+                    socket.emit('message', { roomId, userId, message: userTyping.value });
+                    userTyping.value = '';
+                } else {
+                    socket.emit('typing', { roomId, userId, message: userTyping.value });
+                    resetInactivityTimeout();
+                }
+            }
         });
     } else {
         userTyping.style.border = 'none';
@@ -148,15 +192,18 @@ function setCookie(name, value, days) {
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
-function sanitizeHtmlClient(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, (m) => map[m]);
+function getCookie(name) {
+    let cookieArray = document.cookie.split(';');
+    for (let i = 0; i < cookieArray.length; i++) {
+        let cookiePair = cookieArray[i].split('=');
+        if (name == cookiePair[0].trim()) {
+            return decodeURIComponent(cookiePair[1]);
+        }    }
+    return null;
+}
+
+function deleteCookie(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {

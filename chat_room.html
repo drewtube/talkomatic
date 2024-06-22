@@ -51,7 +51,6 @@
         .header .room-id {
             font-size: 16px;
             color: white;
-
         }
         .row {
             flex: 1;
@@ -130,11 +129,25 @@
         .vertical-layout .row {
             flex-direction: column;
         }
+        .invite-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .invite-section p{
+            font-size: 16px;
+            color: white;
+            margin-bottom: 0px;
+        }
         .invite-link {
-            margin-top: 10px;
             display: flex;
             align-items: center;
-            padding: 0 10px;
+            padding: 10px;
+            width: 100%;
         }
         .invite-link input {
             flex-grow: 1;
@@ -167,12 +180,15 @@
             <div class="room-id">Room ID: <span id="headerRoomId"></span></div>
             <button id="layoutButton" class="layout-button">Switch Layout</button>
         </div>
-        <div class="invite-link">
-            <input type="text" id="inviteLink" readonly>
-            <button id="copyButton" onclick="copyInviteLink()">Copy Invite Link</button>
-        </div>
         <audio id="joinSound" src="sound.wav" preload="auto"></audio>
         <div id="chatRoom" class="row"></div>
+        <div class="invite-section">
+            <p>Invite others to join this room with you!</p>
+            <div class="invite-link">
+                <input type="text" id="inviteLink" readonly>
+                <button id="copyButton" onclick="copyInviteLink()">Copy Invite Link</button>
+            </div>
+        </div>
         <div class="footer">
             <div class="room-info">
                 <div>Name: <span id="roomName"></span></div>
@@ -189,15 +205,23 @@
     <script src="chat_room.js"></script>
     <script>
         function checkBan() {
-    const banned = getCookie('banned');
-    const banExpiration = getCookie('banExpiration');
-    if (banned === 'true' && banExpiration && Date.now() < parseInt(banExpiration)) {
-        window.location.href = 'removed.html';
-    }
-}
+            const banned = getCookie('banned');
+            const banExpiration = getCookie('banExpiration');
+            if (banned === 'true' && banExpiration && Date.now() < parseInt(banExpiration)) {
+                window.location.href = 'removed.html';
+            }
+        }
 
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', checkBan);
+        // Call this function when the page loads and periodically
+        document.addEventListener('DOMContentLoaded', checkBan);
+        setInterval(checkBan, 1000); // Check every second
+
+        // Prevent caching of this page to ensure the script runs on back button
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                checkBan();
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', (event) => {
             const urlParams = new URLSearchParams(window.location.search);

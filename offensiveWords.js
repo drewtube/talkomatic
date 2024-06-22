@@ -111,6 +111,8 @@ const OFFENSIVE_WORDS = [
   'twatlips', 'twat lips',
   'wank stain', 'wankstain',
   'wanker',
+  'http',
+  'www.',
   'wetback',
   '9/11/2001',
   '2001/9/11',
