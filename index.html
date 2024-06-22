@@ -181,7 +181,6 @@
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
-                <a href="rooms.html" class="learn-more-link">Learn More</a>
             </div>
             <div class="room-creation mt-2">
                 <input type="text" id="roomName" name="roomName" placeholder="Room name" class="room-name-input" maxlength="20">
@@ -221,14 +220,20 @@
                 </div>
             </div>
         </div>
-        <!-- Right Column -->
+       <!-- Right Column -->
         <div id="roomListContainer" class="right-column bg-black md:flex-1 md:max-h-screen overflow-y-auto">
-            <h2 class="right-column-header">Join a room...</h2>
-            <div id="roomsCount">1 room(s) available</div>
-            <div id="usersCount">2 user(s) online</div>
+            <div class="right-column-header">
+                <div class="header-left">
+                    Join a room...
+                </div>
+                <div class="header-right">
+                    <div id="roomsCount">1 room(s) available</div>
+                    <div id="usersCount">2 user(s) online</div>
+                </div>
+            </div>
             
             <!-- Search Bar, Search Button and Refresh Button -->
-            <div class="flex items-center justify-between p-4">
+            <div class="flex items-center justify-between p-4 utility">
                 <div class="flex items-center w-full">
                     <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400 w-full md:w-64">
                     <button id="searchRoomBtn" class="ml-2 p-2 searchbtn text-white ">Search</button>
@@ -244,9 +249,8 @@
             <footer class="footer">
                 Copyright 2024 Talkomatic.co | Made with love by the community ❤️
             </footer>
-            
         </div>
-    </div>
+
     <script>
         function checkBan() {
     const banned = getCookie('banned');

@@ -15,6 +15,28 @@ body, p, h1, h2, h3, h4, h5, h6 {
   margin-right: 1px;
 }
 
+.no-rooms-message {
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  padding-top: 50px;
+  padding-right: 50px;
+  padding-left: 50px;
+}
+
+/* Mobile Specific Adjustments */
+@media (max-width: 768px) {
+  .no-rooms-message {
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    padding-top: 50px;
+    padding-right: 50px;
+    padding-left: 50px;
+  }
+}
+
+
 .custom-orange {
   color: #FF9800; /* Orange color */
   font-weight: bold;
@@ -244,55 +266,54 @@ body, p, h1, h2, h3, h4, h5, h6 {
 
 
 /* Right Column */
-
-/* Right Column */
 .right-column-header {
   color: #FF9800;
   font-size: 28px;
-  padding: 12px 0 0 20px; /* Top padding of 12px, left padding of 20px */
+  padding: 12px 20px; /* Top padding of 12px, left and right padding of 20px */
   margin: 0; /* Remove margin */
   font-family: 'Consolas', monospace;
   background-color: #202020;
-  height: auto; /* Adjust height as needed */
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between; /* Space between left and right sections */
+  height: auto; /* Adjust height as needed */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column; /* Stack counts vertically */
+  align-items: flex-end;
+  gap: 8px; /* Space between rooms count and users count */
 }
 
 #roomsCount, #usersCount {
   color: #ffffff;
   font-size: 13px;
-  padding: 8px 0 0 20px; /* Top padding of 8px, left padding of 20px */
-  margin: 0; /* Remove margin */
   font-family: 'Consolas', monospace;
-  background-color: #202020;
-  height: auto; /* Adjust height as needed */
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  margin: 0; /* Remove margin */
   border: none; /* Ensure no borders */
-}
-
-#usersCount {
-  padding-bottom: 20px; /* Bottom padding of 20px */
 }
 
 /* Mobile Specific Adjustments */
 @media (max-width: 768px) {
+  .right-column-header {
+    flex-direction: column; /* Stack vertically on small screens */
+    align-items: flex-start;
+    padding: 12px 10px; /* Reduce padding for mobile */
+  }
+
+  .header-right {
+    align-items: flex-start;
+  }
+
   #roomsCount, #usersCount {
-    padding: 8px 0 0 20px; /* Top padding of 8px, left padding of 20px */
-    margin: 0; /* Remove margin */
-    border: none; /* Ensure no borders */
+    padding: 0; /* Remove padding */
   }
-
-  #usersCount {
-    padding-bottom: 20px; /* Bottom padding of 20px */
-  }
-}
-
-
-#usersCount {
-  padding-bottom: 20px; /* Bottom padding of 20px */
 }
 
 
@@ -427,4 +448,8 @@ body, p, h1, h2, h3, h4, h5, h6 {
 .social-color {
   color: white;
   margin-top: 30px;
+}
+
+.utility {
+  border-bottom: 1px solid white;
 }

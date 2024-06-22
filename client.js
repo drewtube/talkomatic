@@ -52,6 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchRoomBtn = document.getElementById('searchRoomBtn');
     const refreshRoomsBtn = document.getElementById('refreshRoomsBtn');
     const searchRoomIdInput = document.getElementById('searchRoomId');
+    const noRoomsMessage = document.createElement('div');
+    noRoomsMessage.id = 'noRoomsMessage';
+    noRoomsMessage.className = 'no-rooms-message';
+    noRoomsMessage.innerText = 'No active rooms right now. Create a new room and start the conversation!';
 
     function generateUserId() {
         return 'user_' + Math.random().toString(36).substr(2, 9);
@@ -372,10 +376,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateRoomCount() {
         const roomCount = document.querySelectorAll('.room-details-container').length;
         roomsCountElement.textContent = `${roomCount} room(s) available`;
+        if (roomCount === 0) {
+            if (!document.getElementById('noRoomsMessage')) {
+                roomList.appendChild(noRoomsMessage);
+            }
+        } else {
+            const noRoomsMessageElement = document.getElementById('noRoomsMessage');
+            if (noRoomsMessageElement) {
+                noRoomsMessageElement.remove();
+            }
+        }
     }
 
     socket.on('updateCounts', ({ roomsCount, usersCount }) => {
         roomsCountElement.textContent = `${roomsCount} room(s) available`;
         usersCountElement.textContent = `${usersCount} user(s) online`;
+        if (roomsCount === 0) {
+            if (!document.getElementById('noRoomsMessage')) {
+                roomList.appendChild(noRoomsMessage);
+            }
+        } else {
+            const noRoomsMessageElement = document.getElementById('noRoomsMessage');
+            if (noRoomsMessageElement) {
+                noRoomsMessageElement.remove();
+            }
+        }
     });
 });
