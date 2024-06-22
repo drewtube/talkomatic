@@ -297,10 +297,11 @@ function sendRandomRooms(socket) {
 }
 
 function updateCounts() {
-    const roomsCount = rooms.size;
+    const publicRoomsCount = Array.from(rooms.values()).filter(room => room.type === 'public').length;
     const usersCount = Array.from(rooms.values()).reduce((acc, room) => acc + room.users.length, 0);
-    io.emit('updateCounts', { roomsCount, usersCount });
+    io.emit('updateCounts', { roomsCount: publicRoomsCount, usersCount });
 }
+
 
 function generateRoomId() {
     return Math.floor(100000 + Math.random() * 900000).toString();

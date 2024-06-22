@@ -216,14 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existingRoomElement) {
             existingRoomElement.remove(); // Remove existing room element if it exists
         }
-        const searchRoomId = searchRoomIdInput.value.trim();
-        if (room.type === 'public' && (!searchRoomId || (searchRoomId && room.id === searchRoomId))) {
+        if (room.type === 'public') {
             const roomElement = createRoomElement(room);
             roomList.appendChild(roomElement);
             console.log('Room created:', room);
             updateRoomCount();
         }
-
+    
         if (socket.id === creatorSocketId) {
             window.location.href = `chat_room.html?roomId=${room.id}&username=${room.users[0].username}&location=${room.users[0].location}&userId=${room.users[0].userId}&roomType=${room.type}&roomName=${room.name}`;
         }
@@ -374,7 +373,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateRoomCount() {
-        const roomCount = document.querySelectorAll('.room-details-container').length;
+        const publicRoomElements = Array.from(document.querySelectorAll('.room-details-container')).filter(room => !room.classList.contains('private'));
+        const roomCount = publicRoomElements.length;
         roomsCountElement.textContent = `${roomCount} room(s) available`;
         if (roomCount === 0) {
             if (!document.getElementById('noRoomsMessage')) {
