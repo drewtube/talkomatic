@@ -43,6 +43,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/join.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'join.html'));
+});
+
 app.get('/removed', (req, res) => {
     res.sendFile(path.join(__dirname, 'removed.html'));
 });
@@ -185,22 +189,20 @@ io.on('connection', (socket) => {
     
             if (room.users.length < 5) {
                 room.users.push({ username, location, userId, socketId: socket.id });
+                socket.join(roomId);
+                io.emit('roomUpdated', room);
+                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name });
+                socket.emit('initializeUsers', room.users);
+                socket.to(roomId).emit('userJoined', { roomId, username, location, userId });
+                updateCounts();
             } else {
                 socket.emit('roomFull');
-                return;
             }
-    
-            socket.join(roomId);
-            io.emit('roomUpdated', room);
-            socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name });
-            socket.emit('initializeUsers', room.users);
-            socket.to(roomId).emit('userJoined', { roomId, username, location, userId });
-    
-            updateCounts();
         } else {
             socket.emit('roomNotFound');
         }
     });
+
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
         const { roomId, userId } = data;

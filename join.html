@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joining Chat Room - Talkomatic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .message {
+            font-size: 20px;
+            color: #ffffff;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = `expires=${date.toUTCString()}`;
+            document.cookie = `${name}=${value};${expires};path=/`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = urlParams.get('roomId');
+            
+            let userId = getCookie('userId');
+            let username = getCookie('username');
+            let location = getCookie('location');
+
+            if (!userId) {
+                userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                setCookie('userId', userId, 30);
+            }
+            if (!username) {
+                username = 'Anonymous';
+                setCookie('username', username, 30);
+            }
+            if (!location) {
+                location = 'Earth';
+                setCookie('location', location, 30);
+            }
+
+            socket.emit('joinRoom', { roomId, username, location, userId });
+
+            socket.on('roomJoined', (data) => {
+                window.location.href = `chat_room.html?roomId=${data.roomId}&username=${data.username}&location=${data.location}&userId=${data.userId}&roomType=${data.roomType}&roomName=${data.roomName}`;
+            });
+
+            socket.on('roomNotFound', () => {
+                toastr.error('Room not found. Redirecting to lobby.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            });
+
+            socket.on('roomFull', () => {
+                toastr.warning('Room is full. Redirecting to lobby.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            });
+
+            socket.on('duplicateUser', (data) => {
+                toastr.info('You are already in this room. Redirecting to lobby.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            });
+
+            socket.on('error', (message) => {
+                toastr.error(`Error: ${message}. Redirecting to lobby.`);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            });
+        });
+    </script>
+</head>
+<body>
+    <p class="message">Joining chat room...</p>
+</body>
+</html>

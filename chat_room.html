@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Talkomatic Chat Room</title>
-        <meta name="description" content="Join a Talkomatic chat room for real-time, multi-user conversations. Experience our innovative layout options and user-friendly interface.">
-        <meta name="keywords" content="Talkomatic, chat room, online chat, real-time communication, multi-user chat">
-        <meta name="author" content="Talkomatic">
-        <meta property="og:title" content="Talkomatic Chat Room - Join the Conversation">
-        <meta property="og:description" content="Engage in real-time chat with multiple users in Talkomatic's innovative chat rooms. Switch between horizontal and vertical layouts for optimal viewing.">
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="https://talkomatic.co/chat_room.html">
-        <link rel="canonical" href="https://talkomatic.co/chat_room.html">
-        <meta name="robots" content="noindex, nofollow">
-        <link rel="manifest" href="manifest.json">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkomatic Chat Room</title>
+    <meta name="description" content="Join a Talkomatic chat room for real-time, multi-user conversations. Experience our innovative layout options and user-friendly interface.">
+    <meta name="keywords" content="Talkomatic, chat room, online chat, real-time communication, multi-user chat">
+    <meta name="author" content="Talkomatic">
+    <meta property="og:title" content="Talkomatic Chat Room - Join the Conversation">
+    <meta property="og:description" content="Engage in real-time chat with multiple users in Talkomatic's innovative chat rooms. Switch between horizontal and vertical layouts for optimal viewing.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://talkomatic.co/chat_room.html">
+    <link rel="canonical" href="https://talkomatic.co/chat_room.html">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         body {
             display: flex;
@@ -54,6 +51,7 @@
         .header .room-id {
             font-size: 16px;
             color: white;
+
         }
         .row {
             flex: 1;
@@ -121,12 +119,44 @@
             .layout-button {
                 display: none;
             }
+
+            .room-id {
+                margin-right: 15px;
+            }
         }
         .vertical-layout {
             flex-direction: row;
         }
         .vertical-layout .row {
             flex-direction: column;
+        }
+        .invite-link {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+        .invite-link input {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #333;
+            color: white;
+        }
+        .invite-link button {
+            margin-left: 10px;
+            padding: 8px 10px;
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .invite-link button.copied {
+            background-color: #FF4500;
+            color: rgb(255, 255, 255);
         }
     </style>
 </head>
@@ -136,6 +166,10 @@
             <button onclick="window.location.href='index.html'">Back to Lobby</button>
             <div class="room-id">Room ID: <span id="headerRoomId"></span></div>
             <button id="layoutButton" class="layout-button">Switch Layout</button>
+        </div>
+        <div class="invite-link">
+            <input type="text" id="inviteLink" readonly>
+            <button id="copyButton" onclick="copyInviteLink()">Copy Invite Link</button>
         </div>
         <audio id="joinSound" src="sound.wav" preload="auto"></audio>
         <div id="chatRoom" class="row"></div>
@@ -174,7 +208,30 @@ document.addEventListener('DOMContentLoaded', checkBan);
             document.getElementById('headerRoomId').textContent = roomId;
             document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
             document.getElementById('roomName').textContent = roomName;
+            const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
+            document.getElementById('inviteLink').value = inviteLink;
         });
+
+        function copyInviteLink() {
+            const inviteLinkInput = document.getElementById('inviteLink');
+            inviteLinkInput.select();
+            document.execCommand('copy');
+
+            const copyButton = document.getElementById('copyButton');
+            copyButton.classList.add('copied');
+            copyButton.textContent = 'Copied';
+            
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+                copyButton.textContent = 'Copy Invite Link';
+            }, 2000); // Reset button after 2 seconds
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
     </script>
 </body>
 </html>
