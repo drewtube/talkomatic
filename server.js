@@ -144,21 +144,20 @@ io.on('connection', (socket) => {
         updateCounts();
     });
 
-    // Handle room joining
     socket.on('joinRoom', (data) => {
         const { roomId, username, location, userId } = data;
-
+    
         // Validate inputs
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
             return;
         }
-
+    
         if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
             socket.emit('error', 'Input exceeds maximum length');
             return;
         }
-
+    
         // Check for offensive words
         if (containsOffensiveWords(username)) {
             socket.emit('offensiveWord', 'username');
@@ -168,7 +167,7 @@ io.on('connection', (socket) => {
             socket.emit('offensiveWord', 'location');
             return;
         }
-
+    
         const room = rooms.get(roomId);
         if (room) {
             // Check if the user is already in the room
@@ -177,32 +176,31 @@ io.on('connection', (socket) => {
                 socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: 'index.html' });
                 return;
             }
-
+    
             // Clear any existing deletion timeout for the room
             if (roomDeletionTimeouts.has(roomId)) {
                 clearTimeout(roomDeletionTimeouts.get(roomId));
                 roomDeletionTimeouts.delete(roomId);
             }
-
+    
             if (room.users.length < 5) {
                 room.users.push({ username, location, userId, socketId: socket.id });
             } else {
                 socket.emit('roomFull');
                 return;
             }
-
+    
             socket.join(roomId);
             io.emit('roomUpdated', room);
             socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name });
             socket.emit('initializeUsers', room.users);
             socket.to(roomId).emit('userJoined', { roomId, username, location, userId });
-
+    
             updateCounts();
         } else {
             socket.emit('roomNotFound');
         }
     });
-
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
         const { roomId, userId } = data;

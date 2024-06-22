@@ -171,10 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const roomId = event.target.dataset.roomId;
             const roomType = event.target.dataset.roomType;
             const roomName = event.target.dataset.roomName;
+
             socket.emit('joinRoom', { roomId, username, location, userId });
             console.log('Room joining request sent:', { roomId, username, location, userId });
 
-            window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}&roomType=${roomType}&roomName=${roomName}`;
+            socket.on('roomJoined', (data) => {
+                if (data.roomId === roomId) {
+                    window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}&roomType=${roomType}&roomName=${roomName}`;
+                }
+            });
         }
     });
 
