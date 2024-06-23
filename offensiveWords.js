@@ -129,7 +129,8 @@ const OFFENSIVE_WORDS = [
   'go die', 'godie',
   'i hate you', 'i hate u',
   'shut up bitch', 'shutup bitch', 'stfu bitch',
-  'you suck', 'u suck'
+  'you suck', 'u suck',
+  'rape', 'hoe'
 ];
 
 module.exports = OFFENSIVE_WORDS;

@@ -113,7 +113,10 @@ function escapeHtml(text) {
 }
 
 function containsOffensiveWord(text) {
-    return OFFENSIVE_WORDS.some(word => text.toLowerCase().includes(word.toLowerCase()));
+    return OFFENSIVE_WORDS.some(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'i');
+        return regex.test(text);
+    });
 }
 
 function createUserElement(user) {

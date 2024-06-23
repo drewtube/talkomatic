@@ -88,7 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function containsOffensiveWord(text) {
         const OFFENSIVE_WORDS = ['badword']; // Ensure this matches the server list
-        return OFFENSIVE_WORDS.some(word => text.toLowerCase().includes(word.toLowerCase()));
+        return OFFENSIVE_WORDS.some(word => {
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            return regex.test(text);
+        });
     }
 
     window.updateUsername = function () {
