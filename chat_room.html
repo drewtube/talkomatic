@@ -228,6 +228,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="chat_room.js"></script>
     <script>
+
+
         function checkBan() {
             const banned = getCookie('banned');
             const banExpiration = getCookie('banExpiration');
@@ -248,16 +250,27 @@
         };
 
         document.addEventListener('DOMContentLoaded', (event) => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomId = urlParams.get('roomId');
-            const roomType = urlParams.get('roomType');
-            const roomName = urlParams.get('roomName');
-            document.getElementById('roomId').textContent = roomId;
-            document.getElementById('headerRoomId').textContent = roomId;
-            document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
-            const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
-            document.getElementById('inviteLink').value = inviteLink;
-        });
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('roomId');
+        const roomType = urlParams.get('roomType');
+        const roomName = urlParams.get('roomName');
+        const userColorName = decodeURIComponent(urlParams.get('txtclr')) || 'white';
+        const userColor = getColorHex(userColorName);
+        
+        document.getElementById('roomId').textContent = roomId;
+        document.getElementById('headerRoomId').textContent = roomId;
+        document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
+        const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
+        document.getElementById('inviteLink').value = inviteLink;
+
+        // Set the user color cookie when joining the room
+        setCookie('userColor', userColorName, 30);
+
+        // Pass the user color to the chat room
+        if (userColor) {
+            window.userColor = userColor;
+        }
+    });
 
         function copyInviteLink() {
             const inviteLinkInput = document.getElementById('inviteLink');

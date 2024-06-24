@@ -402,9 +402,10 @@
                 height: 40px;
             }
         }
+        .color-button.active {
+    border: 2px solid black;
+}
     </style>
-    
-    
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
@@ -480,6 +481,9 @@
                             <img src="socials/discord.png" alt="Discord" class="social-icon"> Discord
                         </a>
                     </div>
+                    <div id="userIdDisplay" class="mt-4">
+                        Your User ID: <span id="userIdSpan"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -508,8 +512,8 @@
                     </button>
                 </div>
             </div>
-<!-- Settings Modal -->
-<div id="settingsModal" class="modal">
+ <!-- Your right column content, including settings modal -->
+ <div id="settingsModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2 class="text-2xl font-bold mb-4">Settings</h2>
@@ -522,27 +526,16 @@
         </div>
         <div class="tab-content active" id="color">
             <div class="color-buttons">
-                <span class="color-button" style="background-color: #FFFFFF;" data-color="#FFFFFF"></span>
-                <span class="color-button" style="background-color: #FF9800;" data-color="#FF9800"></span>
-                <span class="color-button" style="background-color: #00FFFF;" data-color="#00FFFF"></span>
-                <span class="color-button" style="background-color: #00FF00;" data-color="#00FF00"></span>
-                <span class="color-button" style="background-color: #FF00FF;" data-color="#FF00FF"></span>
-                <span class="color-button" style="background-color: #FFFF00;" data-color="#FFFF00"></span>
+                <span class="color-button" style="background-color: #FFFFFF;" data-color="white"></span>
+                <span class="color-button" style="background-color: #FF9800;" data-color="orange"></span>
+                <span class="color-button" style="background-color: #00FFFF;" data-color="blue"></span>
+                <span class="color-button" style="background-color: #00FF00;" data-color="green"></span>
+                <span class="color-button" style="background-color: #FF00FF;" data-color="pink"></span>
+                <span class="color-button" style="background-color: #FFFF00;" data-color="yellow"></span>
             </div>
             <textarea class="preview-textarea" readonly>This is what your text color will look like.</textarea>
         </div>
-        <div class="tab-content" id="avatar">
-            <p class="text-lg">Coming soon...</p>
-        </div>
-        <div class="tab-content" id="theme">
-            <p class="text-lg">Coming soon...</p>
-        </div>
-        <div class="tab-content" id="font">
-            <p class="text-lg">Coming soon...</p>
-        </div>
-        <div class="tab-content" id="settings">
-            <p class="text-lg">Coming soon...</p>
-        </div>
+        <!-- Other tab contents -->
     </div>
 </div>
 
@@ -560,14 +553,22 @@
 
     <script>
 
-         // Get the modal and buttons
+        // Add this at the beginning of your script in index.html
+    const colorMap = {
+        'white': '#FFFFFF',
+        'orange': '#FF9800',
+        'blue': '#00FFFF',
+        'green': '#00FF00',
+        'pink': '#FF00FF',
+        'yellow': '#FFFF00'
+    };
+        // Get the modal and buttons
         var modal = document.getElementById("settingsModal");
         var settingsBtn = document.getElementById("settingsbtn");
         var closeModalBtn = document.getElementsByClassName("close")[0];
-        var colorButtons = document.getElementsByClassName("color-button");
-        var previewTextarea = document.getElementsByClassName("preview-textarea")[0];
         var tabs = document.getElementsByClassName("tab");
         var tabContents = document.getElementsByClassName("tab-content");
+        var selectedColor = getCookie('userColor') || "#FFFFFF";
 
         // Open the modal when the settings button is clicked
         settingsBtn.onclick = function() {
@@ -585,14 +586,15 @@
                 modal.style.display = "none";
             }
         }
-
-        // Change the preview textarea color when a color button is clicked
-        Array.from(colorButtons).forEach(function(button) {
-            button.addEventListener('click', function() {
-                var selectedColor = this.getAttribute('data-color');
-                previewTextarea.style.color = selectedColor;
-            });
-        });
+        function updateActiveColorButton() {
+    document.querySelectorAll('.color-button').forEach(button => {
+        if (button.getAttribute('data-color') === selectedColor) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+}
 
         // Switch between tabs
         Array.from(tabs).forEach(function(tab) {
@@ -608,23 +610,69 @@
                 document.getElementById(tabId).classList.add('active');
             });
         });
-        
-        function checkBan() {
-            const banned = getCookie('banned');
-            const banExpiration = getCookie('banExpiration');
-            if (banned === 'true' && banExpiration && Date.now() < parseInt(banExpiration)) {
-                window.location.href = 'removed.html';
+
+        // Color selection
+        // Update the color selection logic
+        Array.from(document.getElementsByClassName('color-button')).forEach(function(button) {
+    button.addEventListener('click', function() {
+        selectedColor = this.getAttribute('data-color');
+        document.querySelector('.preview-textarea').style.color = colorMap[selectedColor];
+        setCookie('userColor', selectedColor, 30); // Store the color name in a cookie
+        toastr.success('Text color changed');
+        updateActiveColorButton();
+    });
+});
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.preview-textarea').style.color = selectedColor;
+            updateActiveColorButton();
+        });
+
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
             }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
         }
 
-        // Call this function when the page loads
-        document.addEventListener('DOMContentLoaded', checkBan);
+        // Creating room
+        document.getElementById('createRoomBtn').addEventListener('click', function() {
+            const username = document.getElementById('name').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const roomName = document.getElementById('roomName').value.trim();
+            const roomType = document.querySelector('input[name="roomType"]:checked').value;
+            
+            if (!username || !location || !roomName) {
+                toastr.error('Please fill in all fields.');
+                return;
+            }
 
-        function changeColor(color) {
-    socket.emit('changeColor', { userId, color });
-    previewTextarea.style.color = color;
-    setCookie('userColor', color, 30); // Store the selected color in a cookie
-  }
+            const roomData = {
+                username: username,
+                location: location,
+                userId: getCookie('userId'),
+                name: roomName,
+                type: roomType,
+                color: selectedColor
+            };
+
+            socket.emit('createRoom', roomData);
+        });
+
+        function getCookie(name) {
+            let cookieArray = document.cookie.split(';');
+            for (let i = 0; i < cookieArray.length; i++) {
+                let cookiePair = cookieArray[i].split('=');
+                if (name == cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        // Your existing scripts, including socket.io connections and event handlers
     </script>
 </body>
 </html>

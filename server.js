@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
 
     // Handle room creation
     socket.on('createRoom', (roomData) => {
-        const { username, location, userId, name, type } = roomData;
+        const { username, location, userId, name, type, color } = roomData;
 
         // Validate inputs
         if (!username || !location || !userId || !name || !['public', 'private', 'secret'].includes(type)) {
@@ -146,7 +146,7 @@ io.on('connection', (socket) => {
             id: roomId,
             name: name,
             type: type,
-            users: [{ username: username, location: location, userId: userId, socketId: socket.id }]
+            users: [{ username: username, location: location, userId: userId, socketId: socket.id, color: color }]
         };
         rooms.set(roomId, room);
 
@@ -165,15 +165,16 @@ io.on('connection', (socket) => {
             location, 
             userId, 
             roomType: type, 
-            roomName: name 
+            roomName: name,
+            color: color // Ensure color is being passed back
         });
         socket.emit('initializeUsers', room.users);
-
+    
         updateCounts();
     });
 
     socket.on('joinRoom', (data) => {
-        const { roomId, username, location, userId } = data;
+        const { roomId, username, location, userId, color } = data;
     
         // Validate inputs
         if (!roomId || !username || !location || !userId) {
@@ -212,12 +213,12 @@ io.on('connection', (socket) => {
             }
     
             if (room.users.length < 5) {
-                room.users.push({ username, location, userId, socketId: socket.id });
+                room.users.push({ username, location, userId, socketId: socket.id, color });
                 socket.join(roomId);
                 io.emit('roomUpdated', room);
-                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name });
+                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color });
                 socket.emit('initializeUsers', room.users);
-                socket.to(roomId).emit('userJoined', { roomId, username, location, userId });
+                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color });
                 updateCounts();
             } else {
                 socket.emit('roomFull');

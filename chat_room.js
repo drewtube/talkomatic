@@ -1,6 +1,17 @@
-// chat_room.js
-
 const socket = io();
+
+// At the top of chat_room.js, add this color mapping function
+function getColorHex(colorName) {
+    const colorMap = {
+        'white': '#FFFFFF',
+        'orange': '#FF9800',
+        'blue': '#00FFFF',
+        'green': '#00FF00',
+        'pink': '#FF00FF',
+        'yellow': '#FFFF00'
+    };
+    return colorMap[colorName] || '#FFFFFF'; // Default to white if color not found
+}
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId');
@@ -9,6 +20,9 @@ const roomName = urlParams.get('roomName');
 const username = urlParams.get('username');
 const userLocation = urlParams.get('location');
 const userId = urlParams.get('userId');
+const userColorName = getCookie('userColor') || decodeURIComponent(urlParams.get('txtclr')) || 'white';
+const userColor = getColorHex(userColorName);
+
 
 let OFFENSIVE_WORDS = [];
 let birthdayCelebrated = false;
@@ -37,7 +51,7 @@ socket.emit('userConnected', { userId });
 const chatRoom = document.getElementById('chatRoom');
 const joinSound = document.getElementById('joinSound');
 
-socket.emit('joinRoom', { roomId, username, location: userLocation, userId });
+socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName });
 
 socket.on('initializeUsers', (users) => {
     chatRoom.innerHTML = '';
@@ -203,8 +217,8 @@ function createUserElement(user) {
     userTyping.style.height = '100%';
     userTyping.style.resize = 'none';
     userTyping.style.backgroundColor = 'black';
-    userTyping.style.color = user.color || '#FFA500';
-    userTyping.style.webkitTextFillColor = user.color || '#FFA500';
+    userTyping.style.color = user.userId === userId ? userColor : (getColorHex(user.color) || '#FFA500');
+    userTyping.style.webkitTextFillColor = user.userId === userId ? userColor : (getColorHex(user.color) || '#FFA500');
     userTyping.style.padding = '10px';
     userTyping.style.fontSize = '16px';
     userTyping.style.boxSizing = 'border-box';
@@ -219,14 +233,14 @@ function createUserElement(user) {
             } else {
                 if (containsOffensiveWord(userTyping.value)) {
                     showLimitedToast('error', 'Message contains offensive words.');
-                    socket.emit('message', { roomId, userId, message: userTyping.value });
+                    socket.emit('message', { roomId, userId, message: userTyping.value, color: userColor });
                     userTyping.value = '';
                 } else {
-                    socket.emit('typing', { roomId, userId, message: userTyping.value });
+                    socket.emit('typing', { roomId, userId, message: userTyping.value, color: userColor });
                     resetInactivityTimeout();
 
                     if (isBirthdayMessage(userTyping.value)) {
-                        socket.emit('message', { roomId, userId, message: userTyping.value });
+                        socket.emit('message', { roomId, userId, message: userTyping.value, color: userColor });
                     }
                 }
             }
@@ -242,15 +256,19 @@ function createUserElement(user) {
     return userElement;
 }
 
-socket.on('userColorChanged', (data) => {
-    const { userId, color } = data;
-    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+socket.on('typing', (data) => {
+    const userElement = document.querySelector(`[data-user-id="${data.userId}"]`);
     if (userElement) {
         const textareaElement = userElement.querySelector('textarea');
-        textareaElement.style.color = color;
-        textareaElement.style.webkitTextFillColor = color;
+        textareaElement.value = data.message;
+        if (data.userId !== userId) {
+            const colorHex = getColorHex(data.color);
+            textareaElement.style.color = colorHex || '#FFA500';
+            textareaElement.style.webkitTextFillColor = colorHex || '#FFA500';
+        }
     }
 });
+
 
 socket.on('message', (data) => {
     const { userId: messageUserId, message, color } = data;
@@ -258,8 +276,11 @@ socket.on('message', (data) => {
     if (userElement) {
         const textareaElement = userElement.querySelector('textarea');
         textareaElement.value = message;
-        textareaElement.style.color = color;
-        textareaElement.style.webkitTextFillColor = color;
+        if (messageUserId !== userId) {
+            const colorHex = getColorHex(color);
+            textareaElement.style.color = colorHex || '#FFA500';
+            textareaElement.style.webkitTextFillColor = colorHex || '#FFA500';
+        }
     }
 });
 
@@ -277,6 +298,18 @@ function changeColor(color) {
 window.addEventListener('beforeunload', () => {
     socket.emit('userDisconnected', { userId });
 });
+
+function updateUserColor(newColor) {
+    userColor = getColorHex(newColor);
+    setCookie('userColor', newColor, 30);
+    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+    if (userElement) {
+        const textareaElement = userElement.querySelector('textarea');
+        textareaElement.style.color = userColor;
+        textareaElement.style.webkitTextFillColor = userColor;
+    }
+    socket.emit('changeColor', { roomId, userId, color: newColor });
+}
 
 function setCookie(name, value, days) {
     var expires = "";
@@ -302,47 +335,3 @@ function getCookie(name) {
 function deleteCookie(name) {
     document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
-
-window.addEventListener('DOMContentLoaded', (event) => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get('roomId');
-    const roomType = urlParams.get('roomType');
-    const roomName = urlParams.get('roomName');
-    document.getElementById('roomId').textContent = roomId;
-    document.getElementById('headerRoomId').textContent = roomId;
-    document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
-    document.getElementById('roomName').textContent = roomName;
-
-    // Load user's color preference from cookie
-    const userColor = getCookie('userColor');
-    if (userColor) {
-        changeColor(userColor);
-    }
-
-    // Add event listeners for color buttons
-    const colorButtons = document.querySelectorAll('.color-button');
-    colorButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const selectedColor = this.getAttribute('data-color');
-            changeColor(selectedColor);
-        });
-    });
-});
-
-const layoutButton = document.getElementById('layoutButton');
-
-layoutButton.addEventListener('click', () => {
-    if (chatRoom.classList.contains('vertical-layout')) {
-        chatRoom.classList.remove('vertical-layout');
-        layoutButton.textContent = 'Switch Layout';
-    } else {
-        chatRoom.classList.add('vertical-layout');
-        layoutButton.textContent = 'Switch Layout';
-    }
-});
-
-// Listen for birthday messages and show toastr notification
-socket.on('happyBirthday', (data) => {
-    const { username } = data;
-    showLimitedToast('success', `Happy birthday ${username}!`);
-});
