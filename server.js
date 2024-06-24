@@ -22,6 +22,8 @@ const birthdayCelebrated = new Map(); // Store users who have celebrated birthda
 
 const MAX_CHAR_LENGTH = 20;
 
+
+
 // Middleware setup
 app.use(express.static(path.join(__dirname)));
 app.use(cookieParser());

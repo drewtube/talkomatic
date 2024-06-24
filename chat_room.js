@@ -203,12 +203,12 @@ function createUserElement(user) {
     userTyping.style.height = '100%';
     userTyping.style.resize = 'none';
     userTyping.style.backgroundColor = 'black';
-    userTyping.style.color = '#FFA500';
+    userTyping.style.color = user.color || '#FFA500';
+    userTyping.style.webkitTextFillColor = user.color || '#FFA500';
     userTyping.style.padding = '10px';
     userTyping.style.fontSize = '16px';
     userTyping.style.boxSizing = 'border-box';
     userTyping.style.fontFamily = '"Courier New", Courier, monospace';
-    userTyping.style.webkitTextFillColor = '#FFA500';
     userTyping.style.opacity = '1';
 
     if (user.userId === userId) {
@@ -225,7 +225,6 @@ function createUserElement(user) {
                     socket.emit('typing', { roomId, userId, message: userTyping.value });
                     resetInactivityTimeout();
 
-                    // Remove the birthdayCelebrated check
                     if (isBirthdayMessage(userTyping.value)) {
                         socket.emit('message', { roomId, userId, message: userTyping.value });
                     }
@@ -241,6 +240,38 @@ function createUserElement(user) {
     userElement.appendChild(userTyping);
 
     return userElement;
+}
+
+socket.on('userColorChanged', (data) => {
+    const { userId, color } = data;
+    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+    if (userElement) {
+        const textareaElement = userElement.querySelector('textarea');
+        textareaElement.style.color = color;
+        textareaElement.style.webkitTextFillColor = color;
+    }
+});
+
+socket.on('message', (data) => {
+    const { userId: messageUserId, message, color } = data;
+    const userElement = document.querySelector(`[data-user-id="${messageUserId}"]`);
+    if (userElement) {
+        const textareaElement = userElement.querySelector('textarea');
+        textareaElement.value = message;
+        textareaElement.style.color = color;
+        textareaElement.style.webkitTextFillColor = color;
+    }
+});
+
+function changeColor(color) {
+    socket.emit('changeColor', { userId, color });
+    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+    if (userElement) {
+        const textareaElement = userElement.querySelector('textarea');
+        textareaElement.style.color = color;
+        textareaElement.style.webkitTextFillColor = color;
+    }
+    setCookie('userColor', color, 30); // Store the selected color in a cookie
 }
 
 window.addEventListener('beforeunload', () => {
@@ -281,6 +312,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('headerRoomId').textContent = roomId;
     document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
     document.getElementById('roomName').textContent = roomName;
+
+    // Load user's color preference from cookie
+    const userColor = getCookie('userColor');
+    if (userColor) {
+        changeColor(userColor);
+    }
+
+    // Add event listeners for color buttons
+    const colorButtons = document.querySelectorAll('.color-button');
+    colorButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const selectedColor = this.getAttribute('data-color');
+            changeColor(selectedColor);
+        });
+    });
 });
 
 const layoutButton = document.getElementById('layoutButton');
@@ -299,15 +345,4 @@ layoutButton.addEventListener('click', () => {
 socket.on('happyBirthday', (data) => {
     const { username } = data;
     showLimitedToast('success', `Happy birthday ${username}!`);
-});
-
-
-// Listen for messages
-socket.on('message', (data) => {
-    const { userId: messageUserId, message } = data;
-    const userElement = document.querySelector(`[data-user-id="${messageUserId}"]`);
-    if (userElement) {
-        const textareaElement = userElement.querySelector('textarea');
-        textareaElement.value = message;
-    }
 });

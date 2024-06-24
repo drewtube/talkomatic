@@ -229,7 +229,7 @@
                 margin-top: 2rem;
                 padding: 1rem;
             }
-    
+        
             /* Mobile-specific styles for buttons */
             .button-container {
                 width: 100%;
@@ -244,7 +244,7 @@
                 align-items: center;
             }
         }
-    
+        
         /* Additional CSS for desktop view */
         @media (min-width: 1021px) {
             .utility {
@@ -266,6 +266,140 @@
             }
             #searchRoomId {
                 width: auto;
+            }
+            .refreshbtn,
+            .refreshbtn img {
+                display: inline-block;
+                vertical-align: middle;
+            }
+            #settingsbtn {
+                padding: 10px 20px; /* ensure consistent padding */
+            }
+            #settingsbtn img {
+                width: 20px;
+                height: 20px;
+            }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-content {
+            background-color: #393937;
+            margin: auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 800px;
+            max-width: 90%;
+            height: 600px;
+            max-height: 90%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: #fff;
+        }
+
+        .color-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+
+        .color-button {
+            width: 40px;
+            height: 40px;
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .preview-textarea {
+            width: 100%;
+            height: 120px;
+            background-color: #000;
+            color: #fff;
+            padding: 15px;
+            resize: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .modal-content {
+                height: auto;
+            }
+
+            .color-buttons {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 5px;
+                justify-items: center;
+                padding: 0 50px;
+            }
+
+            .color-button {
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -374,6 +508,44 @@
                     </button>
                 </div>
             </div>
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Settings</h2>
+        <div class="tabs">
+            <div class="tab active" data-tab="color">Color</div>
+            <div class="tab" data-tab="avatar">Avatar</div>
+            <div class="tab" data-tab="theme">Theme</div>
+            <div class="tab" data-tab="font">Font</div>
+            <div class="tab" data-tab="settings">Settings</div>
+        </div>
+        <div class="tab-content active" id="color">
+            <div class="color-buttons">
+                <span class="color-button" style="background-color: #FFFFFF;" data-color="#FFFFFF"></span>
+                <span class="color-button" style="background-color: #FF9800;" data-color="#FF9800"></span>
+                <span class="color-button" style="background-color: #00FFFF;" data-color="#00FFFF"></span>
+                <span class="color-button" style="background-color: #00FF00;" data-color="#00FF00"></span>
+                <span class="color-button" style="background-color: #FF00FF;" data-color="#FF00FF"></span>
+                <span class="color-button" style="background-color: #FFFF00;" data-color="#FFFF00"></span>
+            </div>
+            <textarea class="preview-textarea" readonly>This is what your text color will look like.</textarea>
+        </div>
+        <div class="tab-content" id="avatar">
+            <p class="text-lg">Coming soon...</p>
+        </div>
+        <div class="tab-content" id="theme">
+            <p class="text-lg">Coming soon...</p>
+        </div>
+        <div class="tab-content" id="font">
+            <p class="text-lg">Coming soon...</p>
+        </div>
+        <div class="tab-content" id="settings">
+            <p class="text-lg">Coming soon...</p>
+        </div>
+    </div>
+</div>
+
             
             <div id="roomList">
                 <!-- Rooms will be dynamically added here -->
@@ -387,6 +559,56 @@
     </div>
 
     <script>
+
+         // Get the modal and buttons
+        var modal = document.getElementById("settingsModal");
+        var settingsBtn = document.getElementById("settingsbtn");
+        var closeModalBtn = document.getElementsByClassName("close")[0];
+        var colorButtons = document.getElementsByClassName("color-button");
+        var previewTextarea = document.getElementsByClassName("preview-textarea")[0];
+        var tabs = document.getElementsByClassName("tab");
+        var tabContents = document.getElementsByClassName("tab-content");
+
+        // Open the modal when the settings button is clicked
+        settingsBtn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // Close the modal when the close button is clicked
+        closeModalBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when the user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Change the preview textarea color when a color button is clicked
+        Array.from(colorButtons).forEach(function(button) {
+            button.addEventListener('click', function() {
+                var selectedColor = this.getAttribute('data-color');
+                previewTextarea.style.color = selectedColor;
+            });
+        });
+
+        // Switch between tabs
+        Array.from(tabs).forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var tabId = this.getAttribute('data-tab');
+                Array.from(tabs).forEach(function(tab) {
+                    tab.classList.remove('active');
+                });
+                this.classList.add('active');
+                Array.from(tabContents).forEach(function(content) {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
         function checkBan() {
             const banned = getCookie('banned');
             const banExpiration = getCookie('banExpiration');
@@ -397,6 +619,12 @@
 
         // Call this function when the page loads
         document.addEventListener('DOMContentLoaded', checkBan);
+
+        function changeColor(color) {
+    socket.emit('changeColor', { userId, color });
+    previewTextarea.style.color = color;
+    setCookie('userColor', color, 30); // Store the selected color in a cookie
+  }
     </script>
 </body>
 </html>
