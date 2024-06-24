@@ -1,3 +1,5 @@
+// server.js
+
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -16,6 +18,7 @@ const rooms = new Map();
 const activeUsers = new Set();
 const roomDeletionTimeouts = new Map();
 const bannedUsers = new Map(); // Store banned users and their ban expiration times
+const birthdayCelebrated = new Map(); // Store users who have celebrated birthdays
 
 const MAX_CHAR_LENGTH = 20;
 
@@ -225,7 +228,7 @@ io.on('connection', (socket) => {
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
         const { roomId, userId } = data;
-
+    
         const room = rooms.get(roomId);
         if (room) {
             const userIndex = room.users.findIndex((user) => user.userId === userId);
@@ -234,7 +237,11 @@ io.on('connection', (socket) => {
                 socket.leave(roomId);
                 io.emit('roomUpdated', room);
                 socket.to(roomId).emit('userLeft', { roomId, userId: user.userId });
-
+    
+                // Remove the birthday celebration record when user leaves the room
+                const roomBirthdayKey = `${roomId}-${userId}`;
+                birthdayCelebrated.delete(roomBirthdayKey);
+    
                 if (room.users.length === 0) {
                     roomDeletionTimeouts.set(roomId, setTimeout(() => {
                         rooms.delete(roomId);
@@ -242,7 +249,7 @@ io.on('connection', (socket) => {
                         roomDeletionTimeouts.delete(roomId);
                     }, 10000));
                 }
-
+    
                 updateCounts();
             }
         }
@@ -282,9 +289,49 @@ io.on('connection', (socket) => {
             // Disconnect the socket
             socket.disconnect();
             return;
-        }
+        } else {
+            console.log('Message received:', message);
+        io.to(roomId).emit('message', { userId, message });
 
-        socket.to(roomId).emit('message', { userId, message });
+        // Check for birthday message
+        if (message.toLowerCase().includes("it's my birthday") || 
+            message.toLowerCase().includes("it is my birthday") ||
+            message.toLowerCase().includes("today is my birthday") ||
+            message.toLowerCase().includes("today's my birthday") ||
+            message.toLowerCase().includes("my birthday is today") ||
+            message.toLowerCase().includes("i'm celebrating my birthday") ||
+            message.toLowerCase().includes("im celebrating my birthday") ||
+            message.toLowerCase().includes("today is my bday") ||
+            message.toLowerCase().includes("its my bday") ||
+            message.toLowerCase().includes("it's my bday") ||
+            message.toLowerCase().includes("my bday is today") ||
+            message.toLowerCase().includes("celebrating my bday") ||
+            message.toLowerCase().includes("my birthday party is today") ||
+            message.toLowerCase().includes("having my birthday party") ||
+            message.toLowerCase().includes("born on this day")) {
+            
+            const roomBirthdayKey = `${roomId}-${userId}`;
+            if (!birthdayCelebrated.has(roomBirthdayKey)) {
+                console.log('Birthday message detected on server');
+                const room = rooms.get(roomId);
+                const user = room.users.find(u => u.userId === userId);
+                if (user) {
+                    io.in(roomId).emit('happyBirthday', { username: user.username });
+                    birthdayCelebrated.set(roomBirthdayKey, true);
+                }
+            }
+        }
+    }
+});
+
+    // Handle birthday messages
+    socket.on('birthdayMessage', (data) => {
+        const { roomId, username } = data;
+        const roomBirthdayKey = `${roomId}-${socket.userId}`;
+        if (!birthdayCelebrated.has(roomBirthdayKey)) {
+            io.to(roomId).emit('happyBirthday', { username });
+            birthdayCelebrated.set(roomBirthdayKey, true);
+        }
     });
 
     // Handle socket disconnection
@@ -311,6 +358,13 @@ io.on('connection', (socket) => {
                 updateCounts();
             }
         });
+
+        // Clean up birthday celebrated map
+        for (const [key, value] of birthdayCelebrated.entries()) {
+            if (key.endsWith(`-${socket.userId}`)) {
+                birthdayCelebrated.delete(key);
+            }
+        }
     });
 });
 

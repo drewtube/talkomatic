@@ -20,6 +20,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="custom-toastr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -30,6 +31,28 @@
     <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
     <link rel="manifest" href="manifest.json">
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut",
+            "opacity": 1,
+            "maxOpened": 2,
+            "autoDismiss": true
+        };
+    </script>
     <style>
         .social-media {
             display: grid;
@@ -51,7 +74,6 @@
             height: 20px;
             margin-right: 10px;
         }
-    
         .footer {
             padding: 10px 0;
             background-color: #FF9800;
@@ -74,9 +96,6 @@
         .room-creation {
             margin-bottom: 20px;
         }
-        #searchRoomId {
-            width: 100%;
-        }
         .join-private-link {
             display: block;
             margin-top: 0px;
@@ -87,21 +106,16 @@
         .join-private-link:hover {
             text-decoration: underline;
         }
-        @media (min-width: 768px) {
-            #searchRoomId {
-                width: 250px;
-            }
-        }
-        .refreshbtn, .searchbtn, .button-style, .join-room-button {
+        .refreshbtn, .searchbtn, .settingsbtn, .button-style, .join-room-button {
             background-color: #222222;
             border-radius: 4px;
             padding: 10px 20px;
             transition: background-color 0.3s ease;
         }
-        .refreshbtn:hover, .searchbtn:hover, .button-style:hover, .join-room-button:hover {
+        .refreshbtn:hover, .searchbtn:hover, .settingsbtn:hover, .button-style:hover, .join-room-button:hover {
             background-color: #444444;
         }
-        .refreshbtn:active, .searchbtn:active, .button-style:active, .join-room-button:active {
+        .refreshbtn:active, .searchbtn:active, .settingsbtn:active, .button-style:active, .join-room-button:active {
             background-color: #666666;
         }
         .right-column {
@@ -128,6 +142,62 @@
             background-color: #FF9800;
             border-radius: 10px;
         }
+        .utility {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+    }
+    .search-container,
+    .search-btn-container,
+    .buttons-container {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    #searchRoomId,
+    #searchRoomBtn,
+    #refreshRoomsBtn {
+        width: 100%;
+    }
+    .buttons-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    #refreshRoomsBtn {
+        flex-grow: 1;
+        margin-right: 0.5rem;
+    }
+    #settingsBtn {
+        width: auto;
+    }
+    @media (min-width: 768px) {
+        .utility {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .search-container {
+            flex-grow: 1;
+            display: flex;
+            margin-right: 0.5rem;
+        }
+        #searchRoomId {
+            flex-grow: 1;
+            margin-right: 0.5rem;
+        }
+        .search-btn-container {
+            width: auto;
+        }
+        .buttons-container {
+            width: auto;
+            margin-bottom: 0;
+            margin-left: 0.5rem;
+        }
+        #searchRoomBtn,
+        #refreshRoomsBtn,
+        #settingsBtn {
+            width: auto;
+        }
+    }
         @media (max-width: 1020px) {
             body {
                 font-size: 16px;
@@ -135,7 +205,6 @@
             .flex {
                 flex-direction: column;
             }
-            
             .left-column, .right-column {
                 width: 100%;
                 max-height: none;
@@ -204,23 +273,6 @@
                 text-align: center;
                 margin-bottom: 0.5rem;
             }
-            .utility {
-                flex-direction: column;
-                padding: 1rem;
-            }
-            .search-container {
-                width: 100%;
-            }
-            #searchRoomId, 
-            #searchRoomBtn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-            .button-container {
-                display: flex;
-                gap: 10px; /* optional for spacing between buttons */
-                right: 0;
-            }
             #roomList {
                 padding: 1rem;
             }
@@ -229,48 +281,8 @@
                 margin-top: 2rem;
                 padding: 1rem;
             }
-    
-            /* Mobile-specific styles for buttons */
-            .button-container {
-                width: 100%;
-            }
-            #refreshRoomsBtn {
-                width: 80%;
-            }
-            #settingsbtn {
-                width: 20%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-        }
-    
-        /* Additional CSS for desktop view */
-        @media (min-width: 1021px) {
-            .utility {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .search-container {
-                display: flex;
-                align-items: center;
-                flex: 1;
-                gap: 10px; /* added gap for spacing */
-            }
-            .button-container {
-                display: flex;
-                align-items: center;
-                margin-left: auto;
-                gap: 10px; /* added gap for spacing */
-            }
-            #searchRoomId {
-                width: auto;
-            }
         }
     </style>
-    
-    
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
@@ -361,16 +373,18 @@
                 </div>
             </div>
             
-            <!-- Search Bar, Search Button and Refresh Button -->
-            <div class="flex items-center justify-between p-4 utility">
+            <!-- Search Bar, Search Button, Refresh Button and Settings Button -->
+            <div class="utility">
                 <div class="search-container">
                     <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400">
-                    <button id="searchRoomBtn" class="p-2 searchbtn text-white">Search</button>
+                    <div class="search-btn-container">
+                        <button id="searchRoomBtn" class="p-2 searchbtn text-white">Search</button>
+                    </div>
                 </div>
-                <div class="button-container">
-                    <button id="refreshRoomsBtn" class="p-2 searchbtn text-white">Refresh Room List</button>
-                    <button id="settingsbtn" class="p-2 refreshbtn text-white">
-                        <img src="icons/settings.png" alt="Settings" style="width: 20px; height: 20px;">
+                <div class="buttons-container">
+                    <button id="refreshRoomsBtn" class="p-2 refreshbtn text-white">Refresh Room List</button>
+                    <button id="settingsBtn" class="p-2 settingsbtn text-white">
+                        <img src="icons/settings.png" alt="Settings" class="w-6 h-6">
                     </button>
                 </div>
             </div>

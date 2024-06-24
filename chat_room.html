@@ -15,9 +15,33 @@
     <link rel="canonical" href="https://talkomatic.co/chat_room.html">
     <meta name="robots" content="noindex, nofollow">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="custom-toastr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // Add this at the beginning of your chat_room.js file
+        toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": true,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut",
+    "opacity": 1,
+    "maxOpened": 2, // Limits the number of toasts that can be shown at one time
+    "autoDismiss": true // Automatically dismiss the oldest toast when a new one is shown (if at maxOpened)
+};
+    </script>
     <style>
         body {
             display: flex;
@@ -231,7 +255,6 @@
             document.getElementById('roomId').textContent = roomId;
             document.getElementById('headerRoomId').textContent = roomId;
             document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
-            document.getElementById('roomName').textContent = roomName;
             const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
             document.getElementById('inviteLink').value = inviteLink;
         });

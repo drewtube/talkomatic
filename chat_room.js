@@ -1,3 +1,5 @@
+// chat_room.js
+
 const socket = io();
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -9,6 +11,7 @@ const userLocation = urlParams.get('location');
 const userId = urlParams.get('userId');
 
 let OFFENSIVE_WORDS = [];
+let birthdayCelebrated = false;
 
 // Fetch offensive words list from server
 fetch('/offensive-words')
@@ -73,7 +76,7 @@ socket.on('userBanned', (banExpiration) => {
 });
 
 socket.on('duplicateUser', (data) => {
-    toastr.error(data.message);
+    showLimitedToast('error', data.message);
     setTimeout(() => {
         window.location.href = data.redirectUrl;
     }, 3000);
@@ -88,7 +91,7 @@ function resetInactivityTimeout() {
     inactivityTimeout = setTimeout(() => {
         if (document.cookie.indexOf('banned=true') === -1) {
             socket.emit('userDisconnected', { userId });
-            toastr.error('You were removed from the room for being inactive for 2 minutes.');
+            showLimitedToast('error', 'You were removed from the room for being inactive for 2 minutes.');
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 3000);
@@ -100,6 +103,39 @@ document.addEventListener('keydown', resetInactivityTimeout);
 document.addEventListener('mousemove', resetInactivityTimeout);
 
 resetInactivityTimeout();
+
+let activeToasts = [];
+
+function showLimitedToast(type, message) {
+    // Remove any existing toasts with the same message
+    const existingToast = activeToasts.find(toast => toast && toast.options && toast.options.message === message);
+    if (existingToast) {
+        toastr.remove(existingToast);
+        activeToasts = activeToasts.filter(toast => toast !== existingToast);
+    }
+    
+    // If we're at the max number of toasts, remove the oldest one
+    if (activeToasts.length >= toastr.options.maxOpened) {
+        const oldestToast = activeToasts.shift();
+        if (oldestToast) {
+            toastr.remove(oldestToast);
+        }
+    }
+    
+    // Show the new toast
+    const newToast = toastr[type](message);
+    
+    // Add the new toast to our array
+    activeToasts.push(newToast);
+    
+    // Remove the toast from our array when it's hidden
+    newToast.on('hidden.bs.toast', function() {
+        const index = activeToasts.indexOf(newToast);
+        if (index > -1) {
+            activeToasts.splice(index, 1);
+        }
+    });
+}
 
 function escapeHtml(text) {
     const map = {
@@ -117,6 +153,27 @@ function containsOffensiveWord(text) {
         const regex = new RegExp(`\\b${word}\\b`, 'i');
         return regex.test(text);
     });
+}
+
+function isBirthdayMessage(text) {
+    const birthdayPhrases = [
+        "today is my birthday",
+        "it's my birthday",
+        "it is my birthday",
+        "today's my birthday",
+        "my birthday is today",
+        "i'm celebrating my birthday",
+        "im celebrating my birthday",
+        "today is my bday",
+        "its my bday",
+        "it's my bday",
+        "my bday is today",
+        "celebrating my bday",
+        "my birthday party is today",
+        "having my birthday party",
+        "born on this day"
+    ];
+    return birthdayPhrases.some(phrase => text.toLowerCase().includes(phrase));
 }
 
 function createUserElement(user) {
@@ -158,15 +215,20 @@ function createUserElement(user) {
         userTyping.style.border = '1px solid white';
         userTyping.addEventListener('input', () => {
             if (userTyping.value.length >= userTyping.maxLength) {
-                toastr.error(`Message is too long! Maximum length is ${userTyping.maxLength} characters.`);
+                showLimitedToast('error', `Message is too long! Maximum length is ${userTyping.maxLength} characters.`);
             } else {
                 if (containsOffensiveWord(userTyping.value)) {
-                    toastr.error('Message contains offensive words.');
+                    showLimitedToast('error', 'Message contains offensive words.');
                     socket.emit('message', { roomId, userId, message: userTyping.value });
                     userTyping.value = '';
                 } else {
                     socket.emit('typing', { roomId, userId, message: userTyping.value });
                     resetInactivityTimeout();
+
+                    // Remove the birthdayCelebrated check
+                    if (isBirthdayMessage(userTyping.value)) {
+                        socket.emit('message', { roomId, userId, message: userTyping.value });
+                    }
                 }
             }
         });
@@ -201,7 +263,8 @@ function getCookie(name) {
         let cookiePair = cookieArray[i].split('=');
         if (name == cookiePair[0].trim()) {
             return decodeURIComponent(cookiePair[1]);
-        }    }
+        }    
+    }
     return null;
 }
 
@@ -229,5 +292,22 @@ layoutButton.addEventListener('click', () => {
     } else {
         chatRoom.classList.add('vertical-layout');
         layoutButton.textContent = 'Switch Layout';
+    }
+});
+
+// Listen for birthday messages and show toastr notification
+socket.on('happyBirthday', (data) => {
+    const { username } = data;
+    showLimitedToast('success', `Happy birthday ${username}!`);
+});
+
+
+// Listen for messages
+socket.on('message', (data) => {
+    const { userId: messageUserId, message } = data;
+    const userElement = document.querySelector(`[data-user-id="${messageUserId}"]`);
+    if (userElement) {
+        const textareaElement = userElement.querySelector('textarea');
+        textareaElement.value = message;
     }
 });

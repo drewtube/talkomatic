@@ -1,0 +1,35 @@
+/* custom-toastr.css */
+
+/* Increase opacity for all toastr messages */
+.toast {
+  opacity: 1 !important;
+}
+
+/* Customize background colors for different message types */
+.toast-success {
+  background-color: rgba(11, 180, 11, 0.9) !important;
+}
+
+.toast-error {
+  background-color: rgba(255, 0, 0, 0.9) !important;
+}
+
+.toast-info {
+  background-color: rgba(73, 73, 230, 0.9) !important;
+}
+
+.toast-warning {
+  background-color: rgba(255, 165, 0, 0.9) !important;
+}
+
+/* Ensure text is fully opaque */
+.toast-message {
+  color: white !important;
+}
+
+/* Optional: Customize the close button */
+.toast-close-button {
+  color: white !important;
+  opacity: 1 !important;
+}
+
