@@ -1,211 +1,207 @@
+/* General Styles */
 body, p, h1, h2, h3, h4, h5, h6 {
-  font-family: 'Consolas', monospace; /* Sets Consolas as the primary font, with monospace as a fallback */
+  font-family: 'Consolas', monospace;
   background-color: #616161;
 }
 
+/* Typography */
 .custom-orange, .custom-white {
   font-family: 'Consolas', monospace;
+}
+
+.custom-orange {
+  color: #FF9800;
+  font-weight: bold;
+}
+
+.custom-white {
+  color: #FFFFFF;
+  font-weight: 100;
 }
 
 .italic-k {
   font-family: 'Consolas', monospace;
   font-style: italic;
-  display: inline-block;  /* Allows transformation to affect only this element */
-  transform: skewX(10deg); /* Counteracts the italic slant */
+  display: inline-block;
+  transform: skewX(10deg);
   margin-right: 1px;
 }
 
-.no-rooms-message {
-  color: white;
-  font-size: 24px;
-  text-align: center;
-  padding-top: 50px;
-  padding-right: 50px;
-  padding-left: 50px;
-}
-
-/* Mobile Specific Adjustments */
-@media (max-width: 768px) {
-  .no-rooms-message {
-    color: white;
-    font-size: 18px;
-    text-align: center;
-    padding-top: 50px;
-    padding-right: 50px;
-    padding-left: 50px;
-  }
-}
-
-
-.custom-orange {
-  color: #FF9800; /* Orange color */
-  font-weight: bold;
-}
-
-.custom-white {
-  color: #FFFFFF; /* White color */
-  font-weight: 100;
-}
-
+/* Layout */
 .custom-bg {
-  background-color: #616161; /* Dark Gray */
+  background-color: #616161;
 }
+
 .header-text {
-  font-size: 1.8rem; /* Slightly reduced size */
-  color: #FFFFFF; /* Default text color, can be omitted if you want specific control */
-  margin-top: 4px; /* Margin top set to 4px */
-  margin-bottom: 0px; /* Increased bottom margin for header text to 14px */
-
+  font-size: 1.8rem;
+  color: #FFFFFF;
+  margin-top: 4px;
+  margin-bottom: 0px;
 }
 
-.custom-orange {
-  color: #FF9800; /* Orange for "Talkomatic" */
-}
-.custom-white {
-  color: #FFFFFF; /* White for "Lobby" */
-}
 .custom-link {
-  color: #ffffff; /* White for link */
-  margin-top: 4px; /* Reduced top margin between links */
-  font-size: 16px; /* Set font size */
-  text-decoration: underline; /* Add underline to links */
+  color: #ffffff;
+  margin-top: 4px;
+  font-size: 16px;
+  text-decoration: underline;
 }
+
 .custom-link-hover:hover {
-  color: #FFFFFF; /* White on hover for link */
+  color: #FFFFFF;
 }
+
+/* Banners */
 .full-width-banner {
-  width: 100%; /* Ensures it spans the full width */
-  background-color: #FDF5E6; /* Set a distinct background color for visibility */
-  color: #000000; /* Text color */
-  font-size: 16px; /* Increased font size */
-  padding: 16px 0; /* Top and bottom padding */
-  display: flex; /* Ensures text is properly aligned */
-  align-items: center; /* Centers text vertically */
-  justify-content: flex-start; /* Aligns text to the left */
+  width: 100%;
+  background-color: #FDF5E6;
+  color: #000000;
+  font-size: 16px;
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   font-weight: bold;
 }
 
 .banner-text {
-  margin-left: 25px; /* Ensures some spacing inside the banner */
-}
-.info-box {
-  margin: 30px; /* Adds 10px margin to all sides */
-  border: 1px solid #FF9800; /* Orange border with 1px thickness */
-  display: flex; /* Makes the container a flexbox */
-  flex-direction: column; /* Stacks children vertically */
-  padding: 15px; /* Adds padding inside the box */
-}
-.info-item {
-  display: flex; /* Ensures items are in a column */
-  flex-direction: column; /* Stacks label on top of input and button */
-  margin-bottom: 10px; /* Adds space between the rows */
+  margin-left: 25px;
 }
 
-.info-item div {
-  display: flex; /* Ensures label and input are in a row */
-  flex-grow: 1; /* Allows the div to take up available space */
-  align-items: center; /* Centers items vertically */
+/* Info Box */
+.info-box {
+  margin: 15px;
+  border: 1px solid #FF9800;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 .info-item label {
-
-  color: #d6d6d6; /* Text color set to orange */
+  color: #d6d6d6;
   padding-bottom: 5px;
-
 }
 
 .info-item input {
-  flex-grow: 1; /* Allows the input to grow and take available space */
-  height: 30px; /* Fixed height for cleaner appearance */
-  margin-right: 10px; /* Space between input and button */
-  width: 60%; /* Smaller width for the textbox */
-  height: 30px; /* Fixed height */
-  background-color: #616161; /* Background color */
-  color: #ffffff; /* Text color */
-  border: 1px solid #000000; /* Border color */
-  padding: 0 10px; /* Padding */
+  width: 100%;
+  height: 30px;
+  background-color: #616161;
+  color: #ffffff;
+  border: 1px solid #000000;
+  padding: 0 10px;
 }
 
 .button-style {
-  padding: 5px 10px; /* Padding inside buttons */
-  height: 30px; /* Matches height of the input field */
-  text-align: center; /* Centers text inside buttons */
-  background-color: #000000; /* Black background */
-  color: #FFFFFF; /* White text */
-  border: 1px solid #FF9800; /* Orange border */
-  cursor: pointer; /* Pointer cursor on hover */
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 1px solid #FF9800;
+  cursor: pointer;
   font-size: 12px;
-  padding: 10px 10px; /* Adequate padding */
-  font-size: 12px; /* Text size */
-  cursor: pointer; /* Pointer on hover */
-  display: flex; /* Flexbox for alignment */
-  align-items: center; /* Center items vertically */
-  justify-content: center; /* Center content */
-  border-radius: 5px; /* Rounded corners */
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
   height: 30px;
+  width: 100%;
 }
 
-.learn-more-link {
-  background-color: #333; /* Gray background */
-  color: #FFFFFF; /* White text */
-  padding: 4px 16px; /* Padding around the text */
-  text-decoration: none; /* Removes underline */
-  margin-left: 110px;
-  margin-bottom: 0px;
-  font-size: 14px;;
+/* Buttons */
+  .join-room-button {
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 1px solid #FF9800;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  height: 30px;
+
 }
+
+.join-room-button {
+  font-size: 16px;
+  justify-content: space-between;
+  align-self: flex-end;
+  margin-top: 10px;
+  width: auto;
+}
+
+.button-icon {
+  height: 15px;
+  width: auto;
+  margin-left: 10px;
+}
+
+/* Room Creation */
 .room-creation {
-  width: 100%; /* Ensures it spans the full width */
-  display: flex; /* Ensures elements are in a column */
-  flex-direction: column; /* Stacks items vertically */
-  padding: 16px 16px 0px 16px; /* Padding inside the container */
-  background-color: #616161; /* Background to match the theme */
-  margin-bottom: 0px; /* Bottom margin for spacing */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px 0px 16px;
+  background-color: #616161;
+  margin-bottom: 0px;
 }
+
 .room-name-input {
-  height: 35px; /* Fixed height for the input */
-  background-color: #FDF5E6; /* Light background for visibility */
-  border: 1px solid #FFFFFF; /* White border */
-  margin-bottom: 30px; /* Increased margin below the textbox */
-  padding: 5px 10px; /* Padding inside the textbox */
-  color: #000000; /* Text color */
+  height: 35px;
+  background-color: #FDF5E6;
+  border: 1px solid #FFFFFF;
+  margin-bottom: 15px;
+  padding: 5px 10px;
+  color: #000000;
 }
+
+/* Radio Buttons */
 .radio-container {
-  display: flex; /* Change display to flex to align items inline */
-  align-items: center; /* Align items vertically */
+  display: flex;
+  align-items: center;
   position: relative;
-  padding-left: 35px; /* Adjusted padding to make space for the checkmark */
-  padding-left: 25px; /* Adjusted padding to make space for the checkmark */
+  padding-left: 25px;
   margin-bottom: 12px;
   cursor: pointer;
   font-size: 16px;
   user-select: none;
-  color: #FFFFFF; /* Set text color to white */
+  color: #FFFFFF;
 }
+
 .radio-checkmark {
   position: absolute;
-  top: 50%; /* Center vertically */
-  left: 0; /* Align left */
-  transform: translateY(-50%); /* Offset by half its height for perfect centering */
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
   height: 15px;
   width: 15px;
   background-color: #eee;
   border-radius: 50%;
 }
+
 .radio-container:hover input ~ .radio-checkmark {
   background-color: #ccc;
 }
+
 .radio-container input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
-  height: 15px; /* Ensure input has the same size as the checkmark */
-  width: 15px; /* Ensure input has the same size as the checkmark */
-  margin-right: 8px; /* Space between the checkmark and the text */
+  height: 15px;
+  width: 15px;
+  margin-right: 8px;
 }
+
 .radio-container input:checked ~ .radio-checkmark {
   background-color: #FF9800;
 }
+
 .radio-checkmark:after {
   content: "";
   position: absolute;
@@ -217,66 +213,30 @@ body, p, h1, h2, h3, h4, h5, h6 {
   border-radius: 50%;
   background: white;
 }
+
 .radio-container input:checked ~ .radio-checkmark:after {
   display: block;
 }
-.label-text {
-  color: #FFFFFF; /* White text for visibility */
-  font-size: 18px; /* Matching font size for consistency */
-  margin-top: 10px; /* Space before the layout label */
-  margin-bottom: 15px; /* Space between the label and the radio buttons */
-}
-
-.join-room-button {
-  background-color: #000000; /* Changed background color to black */
-  color: #FFFFFF; /* White text for visibility */
-  border: none; /* No border for a cleaner look */
-  padding: 10px 15px; /* Adequate padding for comfort */
-  border: 1px solid #FF9800; /* Added orange border */
-  font-size: 16px; /* Legible text size */
-  cursor: pointer; /* Pointer on hover for better UX */
-  display: flex; /* Enables flexbox layout */
-  align-items: center; /* Centers items vertically */
-  justify-content: space-between; /* Positions items to fill the available space */
-  align-self: flex-end; /* Aligns the button to the right */
-  margin-top: 10px; /* Space above the button */
-  width: auto; /* Auto width based on content size */
-  border-radius: 5px; /* Rounded corners for a smoother look */
-  height: 30px;
-}
-
-
-.button-icon {
-  height: 15px; /* Fixed height for the icon */
-  width: auto; /* Maintain aspect ratio */
-  margin-left: 10px; /* Space between text and icon */
-}
-
 
 .radio-icon {
-  height: 20px; /* Fixed height for all icons */
-  width: auto; /* Maintain aspect ratio */
-  margin-right: 6px; /* Space between icon and text */
-  vertical-align: middle; /* Aligns icon with text vertically */
+  height: 20px;
+  width: auto;
+  margin-right: 6px;
+  vertical-align: middle;
 }
-
-.version-n {
-  color: white;
-}
-
 
 /* Right Column */
 .right-column-header {
   color: #FF9800;
   font-size: 28px;
-  padding: 12px 20px; /* Top padding of 12px, left and right padding of 20px */
-  margin: 0; /* Remove margin */
+  padding: 12px 20px;
+  margin: 0;
   font-family: 'Consolas', monospace;
   background-color: #202020;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space between left and right sections */
-  height: auto; /* Adjust height as needed */
+  justify-content: space-between;
+  height: auto;
 }
 
 .header-left {
@@ -286,37 +246,20 @@ body, p, h1, h2, h3, h4, h5, h6 {
 
 .header-right {
   display: flex;
-  flex-direction: column; /* Stack counts vertically */
+  flex-direction: column;
   align-items: flex-end;
-  gap: 8px; /* Space between rooms count and users count */
+  gap: 8px;
 }
 
 #roomsCount, #usersCount {
   color: #ffffff;
   font-size: 13px;
   font-family: 'Consolas', monospace;
-  margin: 0; /* Remove margin */
-  border: none; /* Ensure no borders */
+  margin: 0;
+  border: none;
 }
 
-/* Mobile Specific Adjustments */
-@media (max-width: 768px) {
-  .right-column-header {
-    flex-direction: column; /* Stack vertically on small screens */
-    align-items: flex-start;
-    padding: 12px 10px; /* Reduce padding for mobile */
-  }
-
-  .header-right {
-    align-items: flex-start;
-  }
-
-  #roomsCount, #usersCount {
-    padding: 0; /* Remove padding */
-  }
-}
-
-
+/* Room Details */
 .room-details-container {
   display: flex;
   border-top: 1px solid #FFFFFF;
@@ -338,9 +281,7 @@ body, p, h1, h2, h3, h4, h5, h6 {
 .room-header {
   font-size: 18px;
   color: #fff;
-  margin-bottom: 0; /* Removes bottom margin */
-  margin-top: 0; /* Ensures no top margin */
-  margin-left: 10px;
+  margin: 0 0 0 10px;
 }
 
 .public-room-info {
@@ -385,7 +326,7 @@ body, p, h1, h2, h3, h4, h5, h6 {
 }
 
 .enter-chat-button {
-  padding: 10px 10px;
+  padding: 10px;
   font-size: 16px;
   background-color: #000000;
   color: #FFFFFF;
@@ -395,15 +336,29 @@ body, p, h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 12px;
-  margin-right: 12px;
-  margin-bottom: 12px;;
+  margin: 12px 12px 12px 0;
 }
 
-.button-icon {
-  margin-left: 5px;
-  height: 20px;
-  width: auto;
+/* Miscellaneous */
+.version-n {
+  color: white;
+}
+
+.no-rooms-message {
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  padding: 50px 50px 0;
+}
+
+.learn-more-link {
+  background-color: #333;
+  color: #FFFFFF;
+  padding: 4px 16px;
+  text-decoration: none;
+  margin-left: 110px;
+  margin-bottom: 0px;
+  font-size: 14px;
 }
 
 .bottom-left {
@@ -411,21 +366,49 @@ body, p, h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0px;
 }
 
-/* Media query for desktop devices */
+.social-color {
+  color: white;
+}
+
+.utility {
+  border-bottom: 1px solid white;
+}
+
+/* Media Queries */
 @media (min-width: 768px) {
   .left-column {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .right-column {
     height: 100vh;
     overflow-y: auto;
-
   }
 
   .left-column::-webkit-scrollbar {
     width: 0;
     background: transparent;
   }
+
+  .md\:w-383 {
+    width: 450px; /* Increased from 350px to 383px */
+  }
+
+  #searchRoomId {
+    width: 250px;
+  }
+
+  .button-style1 {
+    margin-top: 10px;
+  }
+
+  .info-item input,
+  .button-style {
+    width: 100%;
+  }
 }
 
-/* Media query for mobile devices */
 @media (max-width: 767px) {
   .md\:w-350 {
     width: 100%;
@@ -435,22 +418,33 @@ body, p, h1, h2, h3, h4, h5, h6 {
     height: auto;
   }
 
-  .left-column {
-    height: auto;
-    overflow-y: visible;
-  }
-
-  .right-column {
+  .left-column, .right-column {
     height: auto;
     overflow-y: visible;
   }
 }
 
-.social-color {
-  color: white;
-  margin-top: 30px;
-}
+@media (max-width: 768px) {
+  .no-rooms-message {
+    font-size: 18px;
+  }
 
-.utility {
-  border-bottom: 1px solid white;
+  .info-item input,
+  .button-style {
+    width: 100%;
+  }
+
+  .right-column-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 10px;
+  }
+
+  .header-right {
+    align-items: flex-start;
+  }
+
+  #roomsCount, #usersCount {
+    padding: 0;
+  }
 }

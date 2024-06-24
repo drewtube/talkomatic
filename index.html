@@ -31,37 +31,36 @@
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
     <link rel="manifest" href="manifest.json">
     <style>
-        .social-media {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-top: 10px; /* Added space between "Connect with us" and the social media links */
-        }
-        .social-media a {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
-            text-decoration: none;
-            color: inherit;
-        }
-        .social-media a:hover {
-            text-decoration: underline;
-        }
-        .social-media img {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-        }
+    .social-media {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .social-media a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+    }
+    .social-media a:hover {
+        text-decoration: underline;
+    }
+    .social-media img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+
         .footer {
             padding: 10px 0;
-            background-color: #FF9800; /* Set background color to orange */
-            color: black; /* Set text color to black */
-            text-align: center; /* Center align the text */
+            background-color: #FF9800;
+            color: black;
+            text-align: center;
             width: 100%;
             position: sticky;
             bottom: 0;
             left: 0;
-
         }
         .version {
             margin-top: auto;
@@ -73,9 +72,8 @@
             font-weight: bold;
         }
         .room-creation {
-            margin-bottom: 20px; /* Added space below "Create Room" button */
+            margin-bottom: 20px;
         }
-
         #searchRoomId {
             width: 100%;
         }
@@ -86,32 +84,26 @@
             text-decoration: none;
             font-size: 14px;
         }
-
         .join-private-link:hover {
             text-decoration: underline;
         }
-
         @media (min-width: 768px) {
             #searchRoomId {
                 width: 250px;
             }
         }
-        @media (max-width: 768px) {
-            .footer {
-                margin-top: 350px; /* Add top margin to show the footer a bit later on mobile */
-                font-size: 12px;
-            }
-
-            .join-private-link {
-                text-decoration: underline;
-            }
-        }
-        .refreshbtn, .searchbtn {
+        .refreshbtn, .searchbtn, .button-style, .join-room-button {
             background-color: #222222;
             border-radius: 4px;
             padding: 10px 20px;
+            transition: background-color 0.3s ease;
         }
-
+        .refreshbtn:hover, .searchbtn:hover, .button-style:hover, .join-room-button:hover {
+            background-color: #444444;
+        }
+        .refreshbtn:active, .searchbtn:active, .button-style:active, .join-room-button:active {
+            background-color: #666666;
+        }
         .right-column {
             display: flex;
             flex-direction: column;
@@ -122,32 +114,125 @@
         #roomList {
             flex: 1;
             overflow-y: auto;
-            padding-bottom: 50px; /* Add bottom padding to prevent content from being covered by the footer */
-            scrollbar-width: thin; /* For Firefox */
-            scrollbar-color: #FF9800 white; /* For Firefox */
+            padding-bottom: 50px;
+            scrollbar-width: thin;
+            scrollbar-color: #FF9800 white;
         }
-
-        /* For WebKit browsers (Chrome, Safari) */
         #roomList::-webkit-scrollbar {
             width: 8px;
         }
-
         #roomList::-webkit-scrollbar-track {
             background: white;
         }
-
         #roomList::-webkit-scrollbar-thumb {
             background-color: #FF9800;
             border-radius: 10px;
+        }
+        @media (max-width: 1020px) {
+            body {
+                font-size: 16px;
+            }
+            .flex {
+                flex-direction: column;
+            }
+            
+            .left-column, .right-column {
+                width: 100%;
+                max-height: none;
+                overflow-y: visible;
+            }
+            .header-text {
+                font-size: 1.5rem;
+                text-align: center;
+                margin: 1rem 0;
+            }
+            .custom-link {
+                display: inline-block;
+                margin: 0.5rem;
+            }
+            .full-width-banner {
+                padding: 0.5rem;
+                text-align: center;
+            }
+            .info-box {
+                margin: 1rem;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+            }
+            .info-item {
+                margin-bottom: 0.5rem;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+            .input-group input {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            .button-style {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+            #signOutBtn {
+                margin-top: 1rem;
+            }
+            .radio-container {
+                display: flex;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            .radio-icon {
+                margin-right: 0.5rem;
+            }
+            .social-media {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-around;
+            }
+            .social-media a {
+                width: 45%;
+                margin-bottom: 0.5rem;
+            }
+            .right-column-header {
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem;
+            }
+            .header-left, .header-right {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            .utility {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .search-container {
+                width: 100%;
+            }
+            #searchRoomId, 
+            #searchRoomBtn, 
+            #refreshRoomsBtn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            #roomList {
+                padding: 1rem;
+            }
+            .footer {
+                position: static;
+                margin-top: 2rem;
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
         <!-- Left Column -->
-        <div class="left-column custom-bg md:w-350 md:max-h-screen overflow-y-auto">
+        <div class="left-column custom-bg md:w-383 md:max-h-screen overflow-y-auto">
             <div class="p-2 flex flex-col items-center">
-                <!-- Reduced padding -->
                 <div class="header-text mt-1 mb-4">
                     <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
                 </div>
@@ -157,26 +242,21 @@
             <div class="full-width-banner mt=2">
                 <span class="banner-text">Be Known As...</span>
             </div>
-            <!-- New Rectangle Box -->
             <div class="info-box mt-2 p-3 border-orange">
-                <div class="info-item mb=2">
+                <div class="info-item">
                     <label for="name">Your name:</label>
-                    <div class="input-group">
-                        <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
-                        <button class="button-style" onclick="updateUsername()">
-                            Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
-                        </button>
-                    </div>
+                    <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
                 </div>
                 <div class="info-item">
                     <label for="location">Location:</label>
-                    <div class="input-group">
-                        <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
-                        <button class="button-style" onclick="signOut()">
-                            Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
-                        </button>
-                    </div>
+                    <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
                 </div>
+                <button class="button-style" onclick="updateUsername()">
+                    Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
+                </button>
+                <button id="signOutBtn" class="button-style button-style1" onclick="signOut()">
+                    Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
+                </button>
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
@@ -206,26 +286,26 @@
                     Create Room
                     <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
                 </button>
-                <div class="p-2 text-gray-500 text-sm flex flex-col items-start w-full bottom-left social-color">
+                <div class="p-2 text-gray-500 text-sm w-full bottom-left social-color">
                     <p>Connect with us on our official socials:</p>
                     <div class="social-media">
                         <a href="https://www.reddit.com/r/talkomatic/" target="_blank">
-                            <img src="socials/reddit.png" alt="Reddit" class="social-icon"> - Reddit
+                            <img src="socials/reddit.png" alt="Reddit" class="social-icon"> Reddit
                         </a>
                         <a href="https://www.instagram.com/talkomaticofficial/" target="_blank">
-                            <img src="socials/instagram.png" alt="Instagram" class="social-icon"> - Instagram
+                            <img src="socials/instagram.png" alt="Instagram" class="social-icon"> Instagram
                         </a>
                         <a href="https://twitter.com/talkomatic_co" target="_blank">
-                            <img src="socials/x.png" alt="Twitter" class="social-icon"> - Twitter/X
+                            <img src="socials/x.png" alt="Twitter" class="social-icon"> Twitter/X
                         </a>
                         <a href="https://discord.gg/AY7Bk6zgze" target="_blank">
-                            <img src="socials/discord.png" alt="Discord" class="social-icon"> - Discord
+                            <img src="socials/discord.png" alt="Discord" class="social-icon"> Discord
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-       <!-- Right Column -->
+        <!-- Right Column -->
         <div id="roomListContainer" class="right-column bg-black md:flex-1 md:max-h-screen overflow-y-auto">
             <div class="right-column-header">
                 <div class="header-left">
@@ -239,11 +319,11 @@
             
             <!-- Search Bar, Search Button and Refresh Button -->
             <div class="flex items-center justify-between p-4 utility">
-                <div class="flex items-center w-full">
-                    <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400 w-full md:w-64">
-                    <button id="searchRoomBtn" class="ml-2 p-2 searchbtn text-white ">Search</button>
+                <div class="search-container">
+                    <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400">
+                    <button id="searchRoomBtn" class="p-2 searchbtn text-white">Search</button>
                 </div>
-                <button id="refreshRoomsBtn" class="ml-2 p-2 refreshbtn text-white ">Refresh</button>
+                <button id="refreshRoomsBtn" class="p-2 refreshbtn text-white">Refresh Room List</button>
             </div>
             
             <div id="roomList">
@@ -255,18 +335,19 @@
                 Copyright 2024 Talkomatic.co | Revived by the community
             </footer>
         </div>
+    </div>
 
     <script>
         function checkBan() {
-    const banned = getCookie('banned');
-    const banExpiration = getCookie('banExpiration');
-    if (banned === 'true' && banExpiration && Date.now() < parseInt(banExpiration)) {
-        window.location.href = 'removed.html';
-    }
-}
+            const banned = getCookie('banned');
+            const banExpiration = getCookie('banExpiration');
+            if (banned === 'true' && banExpiration && Date.now() < parseInt(banExpiration)) {
+                window.location.href = 'removed.html';
+            }
+        }
 
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', checkBan);
+        // Call this function when the page loads
+        document.addEventListener('DOMContentLoaded', checkBan);
     </script>
 </body>
 </html>
