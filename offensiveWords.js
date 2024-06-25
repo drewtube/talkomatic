@@ -100,7 +100,6 @@ const OFFENSIVE_WORDS = [
   'slutface', 'slut face',
   'smegma',
   'spic', 'spick',
-  'spook',
   'tard',
   'ass',
   'boobs',
