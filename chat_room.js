@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName });
+    // Include modMode status when joining a room
+    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, modMode: getCookie('modMode') === 'true' });
 
     socket.on('initializeUsers', (users) => {
         chatRoom.innerHTML = '';
@@ -107,11 +108,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userInfo.className = 'user-info';
         userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
 
+        userInfo.style.display = 'flex'; // Use flexbox for alignment
+        userInfo.style.alignItems = 'center'; // Align items vertically center
         userInfo.style.backgroundColor = '#333';
         userInfo.style.color = 'white';
         userInfo.style.padding = '5px';
         userInfo.style.paddingLeft = '12px';
         userInfo.style.marginBottom = '5px';
+
+        // Apply mod mode styles if activated
+        if (user.modMode) {
+            userInfo.style.color = 'yellow';
+            const modIcon = document.createElement('img');
+            modIcon.src = 'images/crown.gif'; // Update with the correct path to your GIF
+            modIcon.style.width = '20px';
+            modIcon.style.height = '20px';
+            modIcon.style.marginRight = '5px';
+            userInfo.prepend(modIcon);
+        }
 
         const textarea = document.createElement('textarea');
         textarea.className = 'user-textarea';

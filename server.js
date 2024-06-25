@@ -72,16 +72,16 @@ function containsOffensiveWord(text) {
 io.on('connection', (socket) => {
     // Handle user connection
     socket.on('userConnected', (data) => {
-        const { userId } = data;
+        const { userId, modMode } = data;
         if (isUserBanned(userId)) {
             socket.emit('userBanned', getBanExpiration(userId));
             return;
         }
 
         socket.userId = userId;
+        socket.modMode = modMode || false;
         activeUsers.add(userId);
         updateCounts();
-        // Send the existing rooms to the newly connected client
         sendRandomRooms(socket);
     });
 
@@ -109,7 +109,7 @@ io.on('connection', (socket) => {
 
     // Handle room creation
     socket.on('createRoom', (roomData) => {
-        const { username, location, userId, name, type, color } = roomData;
+        const { username, location, userId, name, type, color, modMode } = roomData;
 
         // Validate inputs
         if (!username || !location || !userId || !name || !['public', 'private', 'secret'].includes(type)) {
@@ -142,8 +142,8 @@ io.on('connection', (socket) => {
             id: roomId,
             name: name,
             type: type,
-            users: [{ username: username, location: location, userId: userId, socketId: socket.id, color: color }],
-            birthdayMessagesSent: new Set() // Track birthday messages sent
+            users: [{ username: username, location: location, userId: userId, socketId: socket.id, color: color, modMode: modMode }],
+            birthdayMessagesSent: new Set()
         };
         rooms.set(roomId, room);
 
@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
         if (room.type !== 'secret') {
             socket.broadcast.emit('roomCreated', room);
         }
-        
+
         // Emit 'roomUpdated' to all clients, including the creator
         io.emit('roomUpdated', room);
 
@@ -163,7 +163,8 @@ io.on('connection', (socket) => {
             userId, 
             roomType: type, 
             roomName: name,
-            color: color // Ensure color is being passed back
+            color: color, 
+            modMode: modMode 
         });
         socket.emit('initializeUsers', room.users);
     
@@ -171,19 +172,19 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinRoom', (data) => {
-        const { roomId, username, location, userId, color } = data;
-    
+        const { roomId, username, location, userId, color, modMode } = data;
+
         // Validate inputs
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
             return;
         }
-    
+
         if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
             socket.emit('error', 'Input exceeds maximum length');
             return;
         }
-    
+
         if (containsOffensiveWord(username)) {
             socket.emit('offensiveWordError', 'Username contains offensive words');
             return;
@@ -193,7 +194,7 @@ io.on('connection', (socket) => {
             socket.emit('offensiveWordError', 'Location contains offensive words');
             return;
         }
-    
+
         const room = rooms.get(roomId);
         if (room) {
             // Check if the user is already in the room
@@ -202,20 +203,20 @@ io.on('connection', (socket) => {
                 socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: 'index.html' });
                 return;
             }
-    
+
             // Clear any existing deletion timeout for the room
             if (roomDeletionTimeouts.has(roomId)) {
                 clearTimeout(roomDeletionTimeouts.get(roomId));
                 roomDeletionTimeouts.delete(roomId);
             }
-    
+
             if (room.users.length < 5) {
-                room.users.push({ username, location, userId, socketId: socket.id, color });
+                room.users.push({ username, location, userId, socketId: socket.id, color, modMode });
                 socket.join(roomId);
                 io.emit('roomUpdated', room);
-                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color });
+                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color, modMode });
                 socket.emit('initializeUsers', room.users);
-                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color });
+                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color, modMode });
                 updateCounts();
             } else {
                 socket.emit('roomFull');
@@ -228,7 +229,7 @@ io.on('connection', (socket) => {
     // Handle room leaving
     socket.on('leaveRoom', (data) => {
         const { roomId, userId } = data;
-    
+
         const room = rooms.get(roomId);
         if (room) {
             const userIndex = room.users.findIndex((user) => user.userId === userId);
@@ -237,11 +238,11 @@ io.on('connection', (socket) => {
                 socket.leave(roomId);
                 io.emit('roomUpdated', room);
                 socket.to(roomId).emit('userLeft', { roomId, userId: user.userId });
-    
+
                 // Remove the birthday celebration record when user leaves the room
                 const roomBirthdayKey = `${roomId}-${userId}`;
                 birthdayCelebrated.delete(roomBirthdayKey);
-    
+
                 if (room.users.length === 0) {
                     roomDeletionTimeouts.set(roomId, setTimeout(() => {
                         rooms.delete(roomId);
@@ -249,7 +250,7 @@ io.on('connection', (socket) => {
                         roomDeletionTimeouts.delete(roomId);
                     }, 10000));
                 }
-    
+
                 updateCounts();
             }
         }

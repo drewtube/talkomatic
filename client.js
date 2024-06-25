@@ -1,8 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
 
-    document.getElementById('name').value = getCookie('username') || '';
-    document.getElementById('location').value = getCookie('location') || '';
+    const modMode = getCookie('modMode') === 'true';
+    const defaultUsername = modMode ? '<' : getCookie('username') || '';
+    const defaultLocation = modMode ? 'dev>' : getCookie('location') || '';
+
+    document.getElementById('name').value = defaultUsername;
+    document.getElementById('location').value = defaultLocation;
+    
     let selectedColor = getCookie('userColor') || "#FFFFFF"; // Default color
 
     let userId = getCookie('userId');
@@ -144,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('userDisconnected', { userId });
     };
 
-
     createRoomBtn.addEventListener('click', () => {
         const username = document.getElementById('name').value.trim();
         const location = document.getElementById('location').value.trim();
@@ -192,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
             type: roomType,
             color: selectedColor // This is now the color name, not a hex value
         });
-    
+
         console.log('Sending room creation request:', roomData);
         socket.emit('createRoom', roomData);
-    });  
+    });
 
     roomList.addEventListener('click', (event) => {
         if (event.target.classList.contains('enter-chat-button')) {
@@ -230,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userColor = getCookie('userColor') || 'white'; // Get color from cookie
             socket.emit('joinRoom', { roomId, username, location, userId, color: userColor });
             console.log('Room joining request sent:', { roomId, username, location, userId, color: userColor });
-    
+
             socket.on('roomJoined', (data) => {
                 if (data.roomId === roomId) {
                     window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}&roomType=${roomType}&roomName=${roomName}&txtclr=${encodeURIComponent(userColor)}`;
@@ -239,8 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-     // Add a socket event listener for color changes
-     socket.on('colorChanged', (data) => {
+    // Add a socket event listener for color changes
+    socket.on('colorChanged', (data) => {
         const { userId, color } = data;
         // Update UI or other necessary changes when a user's color changes
         // This might be needed if you want to reflect color changes in real-time
@@ -281,19 +285,19 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Room created:', room);
             updateRoomCount();
         }
-    
+
         if (socket.id === creatorSocketId) {
             window.location.href = `chat_room.html?roomId=${room.id}&username=${room.users[0].username}&location=${room.users[0].location}&userId=${room.users[0].userId}&roomType=${room.type}&roomName=${room.name}&txtclr=${encodeURIComponent(selectedColor)}`;
         }
     });
 
-        // Initialize the color of the preview textarea
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedColor = getCookie('userColor');
-            if (savedColor) {
-                previewTextarea.style.color = savedColor;
-            }
-        });
+    // Initialize the color of the preview textarea
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedColor = getCookie('userColor');
+        if (savedColor) {
+            previewTextarea.style.color = savedColor;
+        }
+    });
 
     socket.on('existingRooms', (rooms) => {
         roomList.innerHTML = '';
