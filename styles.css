@@ -368,6 +368,7 @@ body, h1, h3, h4, h5, h6 {
 
 .social-color {
   color: white;
+  margin-top: 20px;
 }
 
 .utility {
@@ -392,7 +393,7 @@ body, h1, h3, h4, h5, h6 {
   }
 
   .md\:w-383 {
-    width: 450px; /* Increased from 350px to 383px */
+    width: 400px; /* Increased from 350px to 383px */
   }
 
   #searchRoomId {
