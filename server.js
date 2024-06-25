@@ -1,5 +1,3 @@
-// server.js
-
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -21,8 +19,6 @@ const bannedUsers = new Map(); // Store banned users and their ban expiration ti
 const birthdayCelebrated = new Map(); // Store users who have celebrated birthdays
 
 const MAX_CHAR_LENGTH = 20;
-
-
 
 // Middleware setup
 app.use(express.static(path.join(__dirname)));
@@ -260,13 +256,13 @@ io.on('connection', (socket) => {
 
     // Handle typing event
     socket.on('typing', (data) => {
-        const { roomId, userId, message } = data;
-        socket.to(roomId).emit('typing', { userId, message });
+        const { roomId, userId, message, color } = data;
+        socket.to(roomId).emit('typing', { userId, message, color });
     });
 
     // Handle sending messages
     socket.on('message', (data) => {
-        const { roomId, userId, message } = data;
+        const { roomId, userId, message, color } = data;
 
         if (containsOffensiveWord(message)) {
             // Ban the user for 30 seconds
@@ -293,39 +289,37 @@ io.on('connection', (socket) => {
             socket.disconnect();
             return;
         } else {
-            console.log('Message received:', message);
-        io.to(roomId).emit('message', { userId, message });
+            io.to(roomId).emit('message', { userId, message, color });
 
-        // Check for birthday message
-        if (message.toLowerCase().includes("it's my birthday") || 
-            message.toLowerCase().includes("it is my birthday") ||
-            message.toLowerCase().includes("today is my birthday") ||
-            message.toLowerCase().includes("today's my birthday") ||
-            message.toLowerCase().includes("my birthday is today") ||
-            message.toLowerCase().includes("i'm celebrating my birthday") ||
-            message.toLowerCase().includes("im celebrating my birthday") ||
-            message.toLowerCase().includes("today is my bday") ||
-            message.toLowerCase().includes("its my bday") ||
-            message.toLowerCase().includes("it's my bday") ||
-            message.toLowerCase().includes("my bday is today") ||
-            message.toLowerCase().includes("celebrating my bday") ||
-            message.toLowerCase().includes("my birthday party is today") ||
-            message.toLowerCase().includes("having my birthday party") ||
-            message.toLowerCase().includes("born on this day")) {
-            
-            const roomBirthdayKey = `${roomId}-${userId}`;
-            if (!birthdayCelebrated.has(roomBirthdayKey)) {
-                console.log('Birthday message detected on server');
-                const room = rooms.get(roomId);
-                const user = room.users.find(u => u.userId === userId);
-                if (user) {
-                    io.in(roomId).emit('happyBirthday', { username: user.username });
-                    birthdayCelebrated.set(roomBirthdayKey, true);
+            // Check for birthday message
+            if (message.toLowerCase().includes("it's my birthday") || 
+                message.toLowerCase().includes("it is my birthday") ||
+                message.toLowerCase().includes("today is my birthday") ||
+                message.toLowerCase().includes("today's my birthday") ||
+                message.toLowerCase().includes("my birthday is today") ||
+                message.toLowerCase().includes("i'm celebrating my birthday") ||
+                message.toLowerCase().includes("im celebrating my birthday") ||
+                message.toLowerCase().includes("today is my bday") ||
+                message.toLowerCase().includes("its my bday") ||
+                message.toLowerCase().includes("it's my bday") ||
+                message.toLowerCase().includes("my bday is today") ||
+                message.toLowerCase().includes("celebrating my bday") ||
+                message.toLowerCase().includes("my birthday party is today") ||
+                message.toLowerCase().includes("having my birthday party") ||
+                message.toLowerCase().includes("born on this day")) {
+                
+                const roomBirthdayKey = `${roomId}-${userId}`;
+                if (!birthdayCelebrated.has(roomBirthdayKey)) {
+                    const room = rooms.get(roomId);
+                    const user = room.users.find(u => u.userId === userId);
+                    if (user) {
+                        io.in(roomId).emit('happyBirthday', { username: user.username });
+                        birthdayCelebrated.set(roomBirthdayKey, true);
+                    }
                 }
             }
         }
-    }
-});
+    });
 
     // Handle birthday messages
     socket.on('birthdayMessage', (data) => {

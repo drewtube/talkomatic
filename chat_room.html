@@ -20,27 +20,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        // Add this at the beginning of your chat_room.js file
         toastr.options = {
-    "closeButton": true,
-    "debug": false,
-    "newestOnTop": true,
-    "progressBar": true,
-    "positionClass": "toast-top-right",
-    "preventDuplicates": true,
-    "onclick": null,
-    "showDuration": "300",
-    "hideDuration": "1000",
-    "timeOut": "5000",
-    "extendedTimeOut": "1000",
-    "showEasing": "swing",
-    "hideEasing": "linear",
-    "showMethod": "fadeIn",
-    "hideMethod": "fadeOut",
-    "opacity": 1,
-    "maxOpened": 2, // Limits the number of toasts that can be shown at one time
-    "autoDismiss": true // Automatically dismiss the oldest toast when a new one is shown (if at maxOpened)
-};
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut",
+            "opacity": 1,
+            "maxOpened": 2,
+            "autoDismiss": true
+        };
     </script>
     <style>
         body {
@@ -51,6 +50,7 @@
             color: white;
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
+            overflow: hidden; /* Prevent scrolling */
         }
         .header {
             display: flex;
@@ -81,7 +81,7 @@
             display: flex;
             flex-direction: column;
             padding: 10px;
-            overflow-y: auto;
+            overflow-y: hidden; /* Prevent vertical scrolling */
         }
         .footer {
             padding: 10px;
@@ -121,6 +121,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            width: 100%;
         }
         input, textarea {
             font-size: 16px;
@@ -151,7 +152,19 @@
             flex-direction: row;
         }
         .vertical-layout .row {
+            flex-direction: row;
+        }
+        .horizontal-layout {
             flex-direction: column;
+        }
+        .horizontal-layout .row {
+            flex-direction: column;
+        }
+        .user-container {
+            display: flex;
+            flex-direction: column;
+            border: none;
+            box-sizing: border-box;
         }
         .invite-section {
             display: flex;
@@ -161,8 +174,7 @@
             margin: 0 auto;
             text-align: center;
         }
-
-        .invite-section p{
+        .invite-section p {
             font-size: 16px;
             color: white;
             margin-bottom: 0px;
@@ -197,7 +209,7 @@
         }
     </style>
 </head>
-<body>
+<body class="horizontal-layout">
     <div class="container">
         <div class="header">
             <button onclick="window.location.href='index.html'">Back to Lobby</button>
@@ -228,8 +240,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="chat_room.js"></script>
     <script>
-
-
         function checkBan() {
             const banned = getCookie('banned');
             const banExpiration = getCookie('banExpiration');
@@ -238,11 +248,9 @@
             }
         }
 
-        // Call this function when the page loads and periodically
         document.addEventListener('DOMContentLoaded', checkBan);
-        setInterval(checkBan, 1000); // Check every second
+        setInterval(checkBan, 1000);
 
-        // Prevent caching of this page to ensure the script runs on back button
         window.onpageshow = function(event) {
             if (event.persisted) {
                 checkBan();
@@ -250,27 +258,39 @@
         };
 
         document.addEventListener('DOMContentLoaded', (event) => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomId = urlParams.get('roomId');
-        const roomType = urlParams.get('roomType');
-        const roomName = urlParams.get('roomName');
-        const userColorName = decodeURIComponent(urlParams.get('txtclr')) || 'white';
-        const userColor = getColorHex(userColorName);
-        
-        document.getElementById('roomId').textContent = roomId;
-        document.getElementById('headerRoomId').textContent = roomId;
-        document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
-        const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
-        document.getElementById('inviteLink').value = inviteLink;
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = urlParams.get('roomId');
+            const roomType = urlParams.get('roomType');
+            const roomName = urlParams.get('roomName');
+            const userColorName = decodeURIComponent(urlParams.get('txtclr')) || 'white';
+            const userColor = getColorHex(userColorName);
+            
+            document.getElementById('roomId').textContent = roomId;
+            document.getElementById('headerRoomId').textContent = roomId;
+            document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
+            const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
+            document.getElementById('inviteLink').value = inviteLink;
 
-        // Set the user color cookie when joining the room
-        setCookie('userColor', userColorName, 30);
+            setCookie('userColor', userColorName, 30);
 
-        // Pass the user color to the chat room
-        if (userColor) {
-            window.userColor = userColor;
+            if (userColor) {
+                window.userColor = userColor;
+            }
+
+            document.getElementById('layoutButton').addEventListener('click', switchLayout);
+        });
+
+        function switchLayout() {
+            const body = document.body;
+            if (body.classList.contains('horizontal-layout')) {
+                body.classList.remove('horizontal-layout');
+                body.classList.add('vertical-layout');
+            } else {
+                body.classList.remove('vertical-layout');
+                body.classList.add('horizontal-layout');
+            }
+            updateUserContainerSizes();
         }
-    });
 
         function copyInviteLink() {
             const inviteLinkInput = document.getElementById('inviteLink');
@@ -284,7 +304,7 @@
             setTimeout(() => {
                 copyButton.classList.remove('copied');
                 copyButton.textContent = 'Copy Invite Link';
-            }, 2000); // Reset button after 2 seconds
+            }, 2000);
         }
 
         function getCookie(name) {

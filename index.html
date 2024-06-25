@@ -417,6 +417,7 @@
                 </div>
                 <a href="about.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
                 <a href="patch-notes.html" class="custom-link mt-2 hover:custom-link-hover">Patch Notes v2.1.1.0</a>
+                <a href="faq.html" class="custom-link mt-2 hover:custom-link-hover">FAQ</a>
             </div>        
             <div class="full-width-banner mt=2">
                 <span class="banner-text">Be Known As...</span>
@@ -480,9 +481,6 @@
                         <a href="https://discord.gg/AY7Bk6zgze" target="_blank">
                             <img src="socials/discord.png" alt="Discord" class="social-icon"> Discord
                         </a>
-                    </div>
-                    <div id="userIdDisplay" class="mt-4">
-                        Your User ID: <span id="userIdSpan"></span>
                     </div>
                 </div>
             </div>
@@ -637,29 +635,7 @@
             document.cookie = name + "=" + (value || "") + expires + "; path=/";
         }
 
-        // Creating room
-        document.getElementById('createRoomBtn').addEventListener('click', function() {
-            const username = document.getElementById('name').value.trim();
-            const location = document.getElementById('location').value.trim();
-            const roomName = document.getElementById('roomName').value.trim();
-            const roomType = document.querySelector('input[name="roomType"]:checked').value;
-            
-            if (!username || !location || !roomName) {
-                toastr.error('Please fill in all fields.');
-                return;
-            }
-
-            const roomData = {
-                username: username,
-                location: location,
-                userId: getCookie('userId'),
-                name: roomName,
-                type: roomType,
-                color: selectedColor
-            };
-
-            socket.emit('createRoom', roomData);
-        });
+        
 
         function getCookie(name) {
             let cookieArray = document.cookie.split(';');

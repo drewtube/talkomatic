@@ -1,7 +1,29 @@
 const socket = io();
 
-// At the top of chat_room.js, add this color mapping function
-function getColorHex(colorName) {
+document.addEventListener('DOMContentLoaded', (event) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get('roomId');
+    const roomType = urlParams.get('roomType');
+    const roomName = urlParams.get('roomName');
+    const username = urlParams.get('username');
+    const userLocation = urlParams.get('location');
+    const userId = urlParams.get('userId');
+    const userColorName = getCookie('userColor') || decodeURIComponent(urlParams.get('txtclr')) || 'white';
+
+    const chatRoom = document.getElementById('chatRoom');
+    const joinSound = document.getElementById('joinSound');
+    const inviteLinkButton = document.getElementById('copyButton');
+
+    document.getElementById('roomId').textContent = roomId;
+    document.getElementById('headerRoomId').textContent = roomId;
+    document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
+
+    const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
+    document.getElementById('inviteLink').value = inviteLink;
+
+    let OFFENSIVE_WORDS = [];
+    let birthdayCelebrated = false;
+
     const colorMap = {
         'white': '#FFFFFF',
         'orange': '#FF9800',
@@ -10,328 +32,276 @@ function getColorHex(colorName) {
         'pink': '#FF00FF',
         'yellow': '#FFFF00'
     };
-    return colorMap[colorName] || '#FFFFFF'; // Default to white if color not found
-}
 
-const urlParams = new URLSearchParams(window.location.search);
-const roomId = urlParams.get('roomId');
-const roomType = urlParams.get('roomType');
-const roomName = urlParams.get('roomName');
-const username = urlParams.get('username');
-const userLocation = urlParams.get('location');
-const userId = urlParams.get('userId');
-const userColorName = getCookie('userColor') || decodeURIComponent(urlParams.get('txtclr')) || 'white';
-const userColor = getColorHex(userColorName);
+    fetch('/offensive-words')
+        .then(response => response.json())
+        .then(words => {
+            OFFENSIVE_WORDS = words;
+        })
+        .catch(error => console.error('Error fetching offensive words:', error));
 
+    if (getCookie('banned') === 'true') {
+        const banExpiration = getCookie('banExpiration');
+        if (banExpiration && Date.now() < parseInt(banExpiration)) {
+            window.location.href = 'removed.html';
+        } else {
+            deleteCookie('banned');
+            deleteCookie('banExpiration');
+        }
+    }
 
-let OFFENSIVE_WORDS = [];
-let birthdayCelebrated = false;
+    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName });
 
-// Fetch offensive words list from server
-fetch('/offensive-words')
-    .then(response => response.json())
-    .then(words => {
-        OFFENSIVE_WORDS = words;
-    })
-    .catch(error => console.error('Error fetching offensive words:', error));
+    socket.on('initializeUsers', (users) => {
+        chatRoom.innerHTML = '';
+        users.forEach(user => addUserToRoom(user));
+        updateUserContainerSizes();
+    });
 
-// Check if user is banned before connecting
-if (getCookie('banned') === 'true') {
-    const banExpiration = getCookie('banExpiration');
-    if (banExpiration && Date.now() < parseInt(banExpiration)) {
+    socket.on('userJoined', (user) => {
+        addUserToRoom(user);
+        joinSound.play();
+        updateUserContainerSizes();
+    });
+
+    socket.on('userLeft', (user) => {
+        const userElement = document.getElementById(`user-${user.userId}`);
+        if (userElement) userElement.remove();
+        updateUserContainerSizes();
+    });
+
+    socket.on('typing', (data) => {
+        updateUserMessage(data.userId, data.message, data.color);
+    });
+
+    socket.on('message', (data) => {
+        updateUserMessage(data.userId, data.message, data.color);
+    });
+
+    socket.on('userBanned', (banExpiration) => {
+        const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
+        setCookie('banned', 'true', banDuration / 86400);
+        setCookie('banExpiration', banExpiration.toString(), banDuration / 86400);
         window.location.href = 'removed.html';
-    } else {
-        deleteCookie('banned');
-        deleteCookie('banExpiration');
-    }
-}
+    });
 
-socket.emit('userConnected', { userId });
+    socket.on('duplicateUser', (data) => {
+        showLimitedToast('error', data.message);
+        setTimeout(() => {
+            window.location.href = data.redirectUrl;
+        }, 3000);
+    });
 
-const chatRoom = document.getElementById('chatRoom');
-const joinSound = document.getElementById('joinSound');
+    socket.on('birthdayMessage', (username) => {
+        toastr.success(`Happy Birthday ${username}!`);
+    });
 
-socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName });
+    document.getElementById('layoutButton').addEventListener('click', switchLayout);
 
-socket.on('initializeUsers', (users) => {
-    chatRoom.innerHTML = '';
-    users.forEach((user, index) => {
-        const userElement = createUserElement(user, index);
+    function addUserToRoom(user) {
+        const userElement = document.createElement('div');
+        userElement.id = `user-${user.userId}`;
+        userElement.className = 'user-container';
+
+        const userInfo = document.createElement('div');
+        userInfo.className = 'user-info';
+        userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
+
+        userInfo.style.backgroundColor = '#333';
+        userInfo.style.color = 'white';
+        userInfo.style.padding = '5px';
+        userInfo.style.paddingLeft = '12px';
+        userInfo.style.marginBottom = '5px';
+
+        const textarea = document.createElement('textarea');
+        textarea.className = 'user-textarea';
+        textarea.readOnly = user.userId !== userId;
+        textarea.maxLength = 1000;
+        textarea.style.marginBottom = '5px';
+
+        textarea.style.width = '100%';
+        textarea.style.height = '100%';
+        textarea.style.resize = 'none';
+        textarea.style.backgroundColor = 'black';
+        textarea.style.color = colorMap[user.color] || '#FFFFFF';
+        textarea.style.padding = '10px';
+        textarea.style.fontSize = '16px';
+        textarea.style.boxSizing = 'border-box';
+        textarea.style.fontFamily = '"Courier New", Courier, monospace';
+        textarea.style.opacity = '1';
+        textarea.style.pointerEvents = user.userId === userId ? 'auto' : 'none';
+
+        if (user.userId === userId) {
+            textarea.style.border = '1px solid white';
+            textarea.addEventListener('input', handleInput);
+        } else {
+            textarea.style.border = 'none';
+            textarea.style.userSelect = 'none';
+        }
+
+        userElement.appendChild(userInfo);
+        userElement.appendChild(textarea);
         chatRoom.appendChild(userElement);
-    });
-});
-
-socket.on('userJoined', (user) => {
-    const userElement = createUserElement(user);
-    chatRoom.appendChild(userElement);
-    joinSound.play(); // Play the sound when a user joins
-});
-
-socket.on('userLeft', (user) => {
-    const userElement = document.querySelector(`[data-user-id="${user.userId}"]`);
-    if (userElement) {
-        userElement.remove();
     }
-});
 
-socket.on('typing', (data) => {
-    const userElement = document.querySelector(`[data-user-id="${data.userId}"]`);
-    if (userElement) {
-        const textareaElement = userElement.querySelector('textarea');
-        textareaElement.value = data.message;
-    }
-});
+    function handleInput(event) {
+        const textarea = event.target;
+        const message = textarea.value;
 
-socket.on('userBanned', (banExpiration) => {
-    const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
-    setCookie('banned', 'true', banDuration / 86400);
-    setCookie('banExpiration', banExpiration.toString(), banDuration / 86400);
-    window.location.href = 'removed.html';
-});
+        if (textarea.value.length >= textarea.maxLength) {
+            toastr.error(`Message is too long! Maximum length is ${textarea.maxLength} characters.`);
+        } else if (containsOffensiveWord(message)) {
+            toastr.error('Message contains offensive words.');
+            socket.emit('message', { roomId, userId, message, color: userColorName });
+            textarea.value = '';
+        } else {
+            socket.emit('typing', { roomId, userId, message, color: userColorName });
+            resetInactivityTimeout();
 
-socket.on('duplicateUser', (data) => {
-    showLimitedToast('error', data.message);
-    setTimeout(() => {
-        window.location.href = data.redirectUrl;
-    }, 3000);
-});
-
-// Inactivity timeout
-let inactivityTimeout;
-const inactivityLimit = 120000; // 2 minutes
-
-function resetInactivityTimeout() {
-    clearTimeout(inactivityTimeout);
-    inactivityTimeout = setTimeout(() => {
-        if (document.cookie.indexOf('banned=true') === -1) {
-            socket.emit('userDisconnected', { userId });
-            showLimitedToast('error', 'You were removed from the room for being inactive for 2 minutes.');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 3000);
-        }
-    }, inactivityLimit);
-}
-
-document.addEventListener('keydown', resetInactivityTimeout);
-document.addEventListener('mousemove', resetInactivityTimeout);
-
-resetInactivityTimeout();
-
-let activeToasts = [];
-
-function showLimitedToast(type, message) {
-    // Remove any existing toasts with the same message
-    const existingToast = activeToasts.find(toast => toast && toast.options && toast.options.message === message);
-    if (existingToast) {
-        toastr.remove(existingToast);
-        activeToasts = activeToasts.filter(toast => toast !== existingToast);
-    }
-    
-    // If we're at the max number of toasts, remove the oldest one
-    if (activeToasts.length >= toastr.options.maxOpened) {
-        const oldestToast = activeToasts.shift();
-        if (oldestToast) {
-            toastr.remove(oldestToast);
-        }
-    }
-    
-    // Show the new toast
-    const newToast = toastr[type](message);
-    
-    // Add the new toast to our array
-    activeToasts.push(newToast);
-    
-    // Remove the toast from our array when it's hidden
-    newToast.on('hidden.bs.toast', function() {
-        const index = activeToasts.indexOf(newToast);
-        if (index > -1) {
-            activeToasts.splice(index, 1);
-        }
-    });
-}
-
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, (m) => map[m]);
-}
-
-function containsOffensiveWord(text) {
-    return OFFENSIVE_WORDS.some(word => {
-        const regex = new RegExp(`\\b${word}\\b`, 'i');
-        return regex.test(text);
-    });
-}
-
-function isBirthdayMessage(text) {
-    const birthdayPhrases = [
-        "today is my birthday",
-        "it's my birthday",
-        "it is my birthday",
-        "today's my birthday",
-        "my birthday is today",
-        "i'm celebrating my birthday",
-        "im celebrating my birthday",
-        "today is my bday",
-        "its my bday",
-        "it's my bday",
-        "my bday is today",
-        "celebrating my bday",
-        "my birthday party is today",
-        "having my birthday party",
-        "born on this day"
-    ];
-    return birthdayPhrases.some(phrase => text.toLowerCase().includes(phrase));
-}
-
-function createUserElement(user) {
-    const userElement = document.createElement('div');
-    userElement.classList.add('row');
-    if (chatRoom.classList.contains('vertical-layout')) {
-        userElement.classList.add('column');
-    }
-    userElement.dataset.userId = user.userId;
-
-    const userInfo = document.createElement('div');
-    userInfo.classList.add('sub-row');
-    userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
-    
-    userInfo.style.backgroundColor = '#333';
-    userInfo.style.color = 'white';
-    userInfo.style.padding = '5px';
-    userInfo.style.paddingLeft = '12px';
-    userInfo.style.marginBottom = '10px';
-
-    const userTyping = document.createElement('textarea');
-    userTyping.classList.add('sub-row');
-    userTyping.disabled = user.userId !== userId;
-    userTyping.maxLength = 1000;
-
-    userTyping.style.width = '100%';
-    userTyping.style.height = '100%';
-    userTyping.style.resize = 'none';
-    userTyping.style.backgroundColor = 'black';
-    userTyping.style.color = user.userId === userId ? userColor : (getColorHex(user.color) || '#FFA500');
-    userTyping.style.webkitTextFillColor = user.userId === userId ? userColor : (getColorHex(user.color) || '#FFA500');
-    userTyping.style.padding = '10px';
-    userTyping.style.fontSize = '16px';
-    userTyping.style.boxSizing = 'border-box';
-    userTyping.style.fontFamily = '"Courier New", Courier, monospace';
-    userTyping.style.opacity = '1';
-
-    if (user.userId === userId) {
-        userTyping.style.border = '1px solid white';
-        userTyping.addEventListener('input', () => {
-            if (userTyping.value.length >= userTyping.maxLength) {
-                showLimitedToast('error', `Message is too long! Maximum length is ${userTyping.maxLength} characters.`);
-            } else {
-                if (containsOffensiveWord(userTyping.value)) {
-                    showLimitedToast('error', 'Message contains offensive words.');
-                    socket.emit('message', { roomId, userId, message: userTyping.value, color: userColor });
-                    userTyping.value = '';
-                } else {
-                    socket.emit('typing', { roomId, userId, message: userTyping.value, color: userColor });
-                    resetInactivityTimeout();
-
-                    if (isBirthdayMessage(userTyping.value)) {
-                        socket.emit('message', { roomId, userId, message: userTyping.value, color: userColor });
-                    }
-                }
+            if (isBirthdayMessage(message)) {
+                socket.emit('birthdayMessage', username);
+                toastr.success(`Happy Birthday ${username}!`);
             }
+        }
+    }
+
+    function updateUserMessage(userId, message, color) {
+        const userElement = document.getElementById(`user-${userId}`);
+        if (userElement) {
+            const textarea = userElement.querySelector('.user-textarea');
+            if (textarea) {
+                textarea.value = message;
+                textarea.style.color = colorMap[color] || '#FFFFFF';
+            }
+        }
+    }
+
+    function showLimitedToast(type, message) {
+        toastr[type](message);
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    function containsOffensiveWord(text) {
+        return OFFENSIVE_WORDS.some(word => {
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            return regex.test(text);
         });
+    }
+
+    function isBirthdayMessage(text) {
+        const birthdayPhrases = [
+            "today is my birthday", "it's my birthday", "it is my birthday",
+            "today's my birthday", "my birthday is today", "i'm celebrating my birthday",
+            "im celebrating my birthday", "today is my bday", "its my bday",
+            "it's my bday", "my bday is today", "celebrating my bday",
+            "my birthday party is today", "having my birthday party", "born on this day"
+        ];
+        return birthdayPhrases.some(phrase => text.toLowerCase().includes(phrase));
+    }
+
+    function changeColor(color) {
+        socket.emit('changeColor', { userId, color });
+        updateUserMessage(userId, '', color);
+        setCookie('userColor', color, 30);
+    }
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function deleteCookie(name) {
+        document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    }
+
+    let inactivityTimeout;
+    const inactivityLimit = 120000;
+
+    function resetInactivityTimeout() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+            if (document.cookie.indexOf('banned=true') === -1) {
+                socket.emit('userDisconnected', { userId });
+                toastr.error('You were removed from the room for being inactive for 2 minutes.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+            }
+        }, inactivityLimit);
+    }
+
+    document.addEventListener('keydown', resetInactivityTimeout);
+    document.addEventListener('mousemove', resetInactivityTimeout);
+
+    inviteLinkButton.addEventListener('click', () => {
+        const inviteLinkInput = document.getElementById('inviteLink');
+        inviteLinkInput.select();
+        document.execCommand('copy');
+
+        inviteLinkButton.classList.add('copied');
+        inviteLinkButton.textContent = 'Copied';
+
+        setTimeout(() => {
+            inviteLinkButton.classList.remove('copied');
+            inviteLinkButton.textContent = 'Copy Invite Link';
+        }, 2000);
+    });
+
+    window.addEventListener('beforeunload', () => {
+        socket.emit('leaveRoom', { roomId, userId });
+    });
+
+    resetInactivityTimeout();
+});
+
+function switchLayout() {
+    const body = document.body;
+    if (body.classList.contains('horizontal-layout')) {
+        body.classList.remove('horizontal-layout');
+        body.classList.add('vertical-layout');
     } else {
-        userTyping.style.border = 'none';
-        userTyping.style.userSelect = 'none';
+        body.classList.remove('vertical-layout');
+        body.classList.add('horizontal-layout');
     }
-    
-    userElement.appendChild(userInfo);
-    userElement.appendChild(userTyping);
-
-    return userElement;
+    updateUserContainerSizes();
 }
 
-socket.on('typing', (data) => {
-    const userElement = document.querySelector(`[data-user-id="${data.userId}"]`);
-    if (userElement) {
-        const textareaElement = userElement.querySelector('textarea');
-        textareaElement.value = data.message;
-        if (data.userId !== userId) {
-            const colorHex = getColorHex(data.color);
-            textareaElement.style.color = colorHex || '#FFA500';
-            textareaElement.style.webkitTextFillColor = colorHex || '#FFA500';
+function updateUserContainerSizes() {
+    const chatRoom = document.getElementById('chatRoom');
+    const userContainers = chatRoom.querySelectorAll('.user-container');
+    const numUsers = userContainers.length;
+    const isHorizontal = document.body.classList.contains('horizontal-layout');
+
+    userContainers.forEach(container => {
+        if (isHorizontal) {
+            container.style.width = '100%';
+            container.style.height = `${100 / numUsers}%`;
+            container.style.margin = '0'; // Remove any margin for horizontal layout
+        } else {
+            container.style.width = `${100 / numUsers}%`;
+            container.style.height = '100%';
+            container.style.margin = '0 5px'; // Add horizontal gap between user containers for vertical layout
         }
-    }
-});
-
-
-socket.on('message', (data) => {
-    const { userId: messageUserId, message, color } = data;
-    const userElement = document.querySelector(`[data-user-id="${messageUserId}"]`);
-    if (userElement) {
-        const textareaElement = userElement.querySelector('textarea');
-        textareaElement.value = message;
-        if (messageUserId !== userId) {
-            const colorHex = getColorHex(color);
-            textareaElement.style.color = colorHex || '#FFA500';
-            textareaElement.style.webkitTextFillColor = colorHex || '#FFA500';
-        }
-    }
-});
-
-function changeColor(color) {
-    socket.emit('changeColor', { userId, color });
-    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
-    if (userElement) {
-        const textareaElement = userElement.querySelector('textarea');
-        textareaElement.style.color = color;
-        textareaElement.style.webkitTextFillColor = color;
-    }
-    setCookie('userColor', color, 30); // Store the selected color in a cookie
-}
-
-window.addEventListener('beforeunload', () => {
-    socket.emit('userDisconnected', { userId });
-});
-
-function updateUserColor(newColor) {
-    userColor = getColorHex(newColor);
-    setCookie('userColor', newColor, 30);
-    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
-    if (userElement) {
-        const textareaElement = userElement.querySelector('textarea');
-        textareaElement.style.color = userColor;
-        textareaElement.style.webkitTextFillColor = userColor;
-    }
-    socket.emit('changeColor', { roomId, userId, color: newColor });
-}
-
-function setCookie(name, value, days) {
-    var expires = "";
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
-}
-
-function getCookie(name) {
-    let cookieArray = document.cookie.split(';');
-    for (let i = 0; i < cookieArray.length; i++) {
-        let cookiePair = cookieArray[i].split('=');
-        if (name == cookiePair[0].trim()) {
-            return decodeURIComponent(cookiePair[1]);
-        }    
-    }
-    return null;
-}
-
-function deleteCookie(name) {
-    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    });
 }

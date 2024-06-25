@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkomatic FAQ</title>
+    <meta name="description" content="Frequently Asked Questions for Talkomatic.">
+    <meta name="keywords" content="Talkomatic, FAQ, chatrooms, help">
+    <meta name="author" content="Talkomatic">
+    <meta property="og:title" content="Talkomatic FAQ">
+    <meta property="og:description" content="Frequently Asked Questions for Talkomatic.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://talkomatic.co/faq.html">
+    <link rel="canonical" href="https://talkomatic.co/faq.html">
+    <meta name="robots" content="index, follow">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #FF9800;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+        .back-to-lobby {
+            background-color: #FF9800;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 5px;
+        }
+        .back-to-lobby:hover {
+            background-color: white;
+            color: black;
+        }
+        .accordion {
+            margin-bottom: 20px;
+        }
+        .accordion-item {
+            background-color: #333;
+            border: 1px solid #FF9800;
+            margin-bottom: 10px;
+        }
+        .accordion-item button {
+            background-color: #333;
+            color: #FF9800;
+            cursor: pointer;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.2em;
+            transition: background-color 0.2s ease;
+        }
+        .accordion-item button:hover {
+            background-color: #444;
+        }
+        .accordion-item button.active {
+            background-color: #444;
+        }
+        .accordion-item .content {
+            padding: 0 15px 15px 15px;
+            display: none;
+            font-size: 1em;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header h1 {
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+            .back-to-lobby {
+                width: 100%;
+                text-align: center;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Talkomatic FAQ</h1>
+            <button class="back-to-lobby" onclick="window.location.href='index.html'">Back to Lobby</button>
+        </div>
+        <div class="accordion">
+          <div class="accordion-item">
+              <button>How do I join a room?</button>
+              <div class="content">
+                  <p>To join a room, simply press the "Enter" button next to the desired public room. For private rooms, enter the unique 6-digit room ID in the "Search Room ID" search bar and press "Search."</p>
+              </div>
+          </div>
+          <div class="accordion-item">
+              <button>How do I create a room?</button>
+              <div class="content">
+                  <p>To create a room:</p>
+                  <ol>
+                      <li>Ensure you have entered a username and location.</li>
+                      <li>In the "Create a Room" section, type a room name.</li>
+                      <li>Select the desired room type (Public or Private).</li>
+                      <li>Press the "Create Room" button.</li>
+                  </ol>
+                  <p><strong>Note:</strong> Private rooms will not be shown in the public room list. Secret rooms require a direct invite link to join.</p>
+              </div>
+          </div>
+          <div class="accordion-item">
+              <button>How can people join my private room?</button>
+              <div class="content">
+                  <p>When you create a private room, you'll receive a unique 6-digit room ID. Share this ID with the people you want to invite. They can join by entering the ID in the "Search Room ID" search bar on the home page and pressing "Search."</p>
+              </div>
+          </div>
+          <div class="accordion-item">
+              <button>What is the difference between public, private, and secret rooms?</button>
+              <div class="content">
+                  <p><strong>Public Rooms:</strong> Open and accessible to all users, listed on the public rooms list. Ideal for general discussions and meeting new people.</p>
+                  <p><strong>Private Rooms:</strong> Not listed publicly, accessible only via a unique room ID. Perfect for personal conversations and sensitive topics.</p>
+                  <p><strong>Secret Rooms:</strong> Highest level of privacy, accessible only via direct invite link. Suitable for highly confidential discussions.</p>
+              </div>
+          </div>
+          <div class="accordion-item">
+              <button>I was removed from a room. Why did this happen?</button>
+              <div class="content">
+                  <p>Users may be removed from chat rooms by our automated moderation system for engaging in:</p>
+                  <ul>
+                      <li>Mean behavior</li>
+                      <li>Hateful speech</li>
+                      <li>Disrespectful conduct</li>
+                  </ul>
+                  <p>This system is designed to maintain a positive and respectful environment for all users.</p>
+              </div>
+          </div>
+          <div class="accordion-item">
+              <button>The site isn't loading properly. What should I do?</button>
+              <div class="content">
+                  <p>Try the following steps:</p>
+                  <ul>
+                      <li>Refresh your browser.</li>
+                      <li>Clear your browser's cache and cookies.</li>
+                      <li>Try a different browser.</li>
+                      <li>If issues persist, please contact our support team.</li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+      
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.accordion-item button').forEach(button => {
+            button.addEventListener('click', () => {
+                const accordionContent = button.nextElementSibling;
+
+                button.classList.toggle('active');
+
+                if (button.classList.contains('active')) {
+                    accordionContent.style.display = 'block';
+                } else {
+                    accordionContent.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
