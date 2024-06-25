@@ -92,8 +92,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }, 3000);
     });
 
-    socket.on('birthdayMessage', (username) => {
-        toastr.success(`Happy Birthday ${username}!`);
+    socket.on('birthdayMessage', (data) => {
+        toastr.success(`Happy Birthday ${data.username}!`);
     });
 
     document.getElementById('layoutButton').addEventListener('click', switchLayout);
@@ -159,8 +159,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             resetInactivityTimeout();
 
             if (isBirthdayMessage(message)) {
-                socket.emit('birthdayMessage', username);
-                toastr.success(`Happy Birthday ${username}!`);
+                socket.emit('message', { roomId, userId, message, color: userColorName });
+                // toastr.success(`Happy Birthday ${username}!`);
             }
         }
     }
