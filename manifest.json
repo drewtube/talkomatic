@@ -2,7 +2,7 @@
   "background_color": "#616161",
   "description": "Talkomatic is the ultimate platform for creating and joining chat rooms. Connect with friends, discover new communities, and enjoy seamless real-time communication.",
   "dir": "ltr",
-  "display": "standalone",
+  "display": "fullscreen",
   "name": "Talkomatic",
   "orientation": "any",
   "scope": "/",
@@ -92,5 +92,10 @@
       "sizes": "2048x2732",
       "type": "image/png"
     }
+  ],
+  "lang": "en",
+  "categories": [
+    "entertainment",
+    "social"
   ]
 }
