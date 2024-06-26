@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const userLocation = urlParams.get('location');
     const userId = urlParams.get('userId');
     const userColorName = getCookie('userColor') || decodeURIComponent(urlParams.get('txtclr')) || 'white';
+    const userAvatar = urlParams.get('avatar') || 'avatar15'; // Default to avatar1 if not set
 
     const chatRoom = document.getElementById('chatRoom');
     const joinSound = document.getElementById('joinSound');
@@ -33,6 +34,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
         'yellow': '#FFFF00'
     };
 
+    const avatarMap = {
+        'avatar1': 'avatars/1.png',
+        'avatar2': 'avatars/2.png',
+        'avatar3': 'avatars/3.png',
+        'avatar4': 'avatars/4.png',
+        'avatar5': 'avatars/5.png',
+        'avatar6': 'avatars/6.png',
+        'avatar7': 'avatars/7.png',
+        'avatar8': 'avatars/8.png',
+        'avatar9': 'avatars/9.png',
+        'avatar10': 'avatars/10.png',
+        'avatar11': 'avatars/11.png',
+        'avatar12': 'avatars/12.png',
+        'avatar13': 'avatars/13.png',
+        'avatar14': 'avatars/14.png',
+        'avatar15': 'avatars/15.png'
+    };
+
     fetch('/offensive-words')
         .then(response => response.json())
         .then(words => {
@@ -50,7 +69,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, modMode: getCookie('modMode') === 'true' });
+    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, modMode: getCookie('modMode') === 'true', avatar: userAvatar });
 
     socket.on('initializeUsers', (users) => {
         chatRoom.innerHTML = '';
@@ -166,11 +185,31 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const userElement = document.createElement('div');
         userElement.id = `user-${user.userId}`;
         userElement.className = 'user-container';
-
+    
         const userInfo = document.createElement('div');
         userInfo.className = 'user-info';
-        userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
-
+    
+        // Add avatar
+        const avatarImg = document.createElement('img');
+        avatarImg.src = avatarMap[user.avatar] || avatarMap['avatar15']; // Default to avatar15 if not set
+        avatarImg.alt = 'User Avatar';
+        avatarImg.style.width = '20px';
+        avatarImg.style.height = '20px';
+        avatarImg.style.marginRight = '5px';
+        userInfo.appendChild(avatarImg);
+    
+        if (user.modMode) {
+            const modIcon = document.createElement('img');
+            modIcon.src = 'images/crown.gif';
+            modIcon.alt = 'Moderator';
+            modIcon.style.width = '20px';
+            modIcon.style.height = '20px';
+            modIcon.style.marginRight = '5px';
+            userInfo.appendChild(modIcon);
+        }
+    
+        userInfo.innerHTML += `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
+    
         userInfo.style.display = 'flex';
         userInfo.style.alignItems = 'center';
         userInfo.style.backgroundColor = '#333';
@@ -178,48 +217,52 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userInfo.style.padding = '5px';
         userInfo.style.paddingLeft = '12px';
         userInfo.style.marginBottom = '5px';
-
+    
         const thumbsDownButton = document.createElement('button');
         thumbsDownButton.className = 'thumbs-down-button';
-        thumbsDownButton.innerHTML = '👎';
         thumbsDownButton.style.marginLeft = 'auto';
         thumbsDownButton.style.cursor = 'pointer';
+        thumbsDownButton.style.background = 'none';
+        thumbsDownButton.style.border = 'none';
+        thumbsDownButton.style.padding = '0';
+    
+        const thumbsDownImg = document.createElement('img');
+        thumbsDownImg.src = 'images/thumbdown.png'; // Make sure this path is correct
+        thumbsDownImg.alt = 'Thumbs Down';
+        thumbsDownImg.style.width = '20px';
+        thumbsDownImg.style.height = '20px';
+    
+        thumbsDownButton.appendChild(thumbsDownImg);
         thumbsDownButton.addEventListener('click', () => {
             if (user.userId !== userId) {
                 socket.emit('thumbsDown', { roomId, targetUserId: user.userId });
             }
         });
-
+    
         userElement.thumbsDownButton = thumbsDownButton;
-
+    
         const thumbsDownCount = document.createElement('span');
         thumbsDownCount.className = 'thumbs-down-count';
         thumbsDownCount.style.marginLeft = '5px';
         thumbsDownCount.textContent = '0';
-
+    
         userInfo.appendChild(thumbsDownButton);
         userInfo.appendChild(thumbsDownCount);
-
+    
         if (user.userId === userId) {
             thumbsDownButton.style.visibility = 'hidden';
         }
-
+    
         if (user.modMode) {
             userInfo.style.color = 'yellow';
-            const modIcon = document.createElement('img');
-            modIcon.src = 'images/crown.gif';
-            modIcon.style.width = '20px';
-            modIcon.style.height = '20px';
-            modIcon.style.marginRight = '5px';
-            userInfo.prepend(modIcon);
         }
-
+    
         const textarea = document.createElement('textarea');
         textarea.className = 'user-textarea';
         textarea.readOnly = user.userId !== userId;
         textarea.maxLength = 1000;
         textarea.style.marginBottom = '5px';
-
+    
         textarea.style.width = '100%';
         textarea.style.height = '100%';
         textarea.style.resize = 'none';
@@ -231,7 +274,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         textarea.style.fontFamily = '"Courier New", Courier, monospace';
         textarea.style.opacity = '1';
         textarea.style.pointerEvents = user.userId === userId ? 'auto' : 'none';
-
+    
         if (user.userId === userId) {
             textarea.style.border = '1px solid white';
             textarea.addEventListener('input', handleInput);
@@ -239,11 +282,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
             textarea.style.border = 'none';
             textarea.style.userSelect = 'none';
         }
-
+    
         userElement.appendChild(userInfo);
         userElement.appendChild(textarea);
         chatRoom.appendChild(userElement);
     }
+    
 
     function updateThumbsDownButtonStates() {
         const userContainers = document.querySelectorAll('.user-container');

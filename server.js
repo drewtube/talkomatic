@@ -160,7 +160,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinRoom', (data) => {
-        const { roomId, username, location, userId, color, modMode } = data;
+        const { roomId, username, location, userId, color, modMode, avatar } = data;
 
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
@@ -196,12 +196,12 @@ io.on('connection', (socket) => {
             }
 
             if (room.users.length < 5) {
-                room.users.push({ username, location, userId, socketId: socket.id, color, modMode });
+                room.users.push({ username, location, userId, socketId: socket.id, color, modMode, avatar });
                 socket.join(roomId);
                 io.emit('roomUpdated', room);
-                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color, modMode });
+                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color, modMode, avatar });
                 socket.emit('initializeUsers', room.users);
-                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color, modMode });
+                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color, modMode, avatar });
 
                 // Send the current vote counts to the new user
                 const voteCounts = {};

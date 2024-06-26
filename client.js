@@ -154,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const location = document.getElementById('location').value.trim();
         const roomName = document.getElementById('roomName').value.trim();
         const roomType = document.querySelector('input[name="roomType"]:checked').value;
+        const avatar = getCookie('userAvatar') || 'avatar15'; // Get avatar from cookie or use default
 
         if (!username) {
             toastr.error('Please enter your username.');
@@ -188,15 +189,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        socket.emit('createRoom', {
+        const roomData = {
             username: username,
             location: location,
             userId: userId,
             name: roomName,
             type: roomType,
-            color: selectedColor // This is now the color name, not a hex value
-        });
-
+            color: selectedColor,
+            avatar: avatar
+        };
+    
         console.log('Sending room creation request:', roomData);
         socket.emit('createRoom', roomData);
     });
@@ -232,12 +234,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const roomType = event.target.dataset.roomType;
             const roomName = event.target.dataset.roomName;
             const userColor = getCookie('userColor') || 'white'; // Get color from cookie
-            socket.emit('joinRoom', { roomId, username, location, userId, color: userColor });
-            console.log('Room joining request sent:', { roomId, username, location, userId, color: userColor });
+            const userAvatar = getCookie('userAvatar') || 'avatar15'; // Default to avatar1 if not set
+            socket.emit('joinRoom', { roomId, username, location, userId, color: userColor, avatar: userAvatar });
+            console.log('Room joining request sent:', { roomId, username, location, userId, color: userColor, avatar: userAvatar });
 
             socket.on('roomJoined', (data) => {
                 if (data.roomId === roomId) {
-                    window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}&roomType=${roomType}&roomName=${roomName}&txtclr=${encodeURIComponent(userColor)}`;
+                    window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}&roomType=${roomType}&roomName=${roomName}&txtclr=${encodeURIComponent(userColor)}&avatar=${userAvatar}`;
                 }
             });
         }
@@ -274,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    socket.on('roomCreated', (room, creatorSocketId) => {
+    socket.on('roomCreated', (room) => {
         const existingRoomElement = document.getElementById(`room-${room.id}`);
         if (existingRoomElement) {
             existingRoomElement.remove(); // Remove existing room element if it exists
@@ -285,9 +288,21 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Room created:', room);
             updateRoomCount();
         }
-
-        if (socket.id === creatorSocketId) {
-            window.location.href = `chat_room.html?roomId=${room.id}&username=${room.users[0].username}&location=${room.users[0].location}&userId=${room.users[0].userId}&roomType=${room.type}&roomName=${room.name}&txtclr=${encodeURIComponent(selectedColor)}`;
+    
+        if (socket.id === room.users[0].socketId) {
+            const roomId = room.id;
+            const roomName = room.name;
+            const roomType = room.type;
+            const username = room.users[0].username;
+            const location = room.users[0].location;
+            const userId = room.users[0].userId;
+            const color = room.users[0].color;
+            const avatar = room.users[0].avatar || getCookie('userAvatar') || 'avatar15';
+    
+            const url = `chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
+            
+            console.log('Redirecting to:', url);
+            window.location.href = url;
         }
     });
 
@@ -333,10 +348,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateRoomCount();
     });
 
-    // Update the roomJoined event handler
-    socket.on('roomJoined', (data) => {
-        window.location.href = `chat_room.html?roomId=${data.roomId}&username=${data.username}&location=${data.location}&userId=${data.userId}&roomType=${data.roomType}&roomName=${data.roomName}&txtclr=${encodeURIComponent(data.color)}`;
-    });
+// Update the roomJoined event handler
+socket.on('roomJoined', (data) => {
+    const { roomId, username, location, userId, roomType, roomName, color, avatar } = data;
+    window.location.href = `chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
+});
 
     socket.on('roomUpdated', (room) => {
         const existingRoomElement = document.getElementById(`room-${room.id}`);

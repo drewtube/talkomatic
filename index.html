@@ -30,6 +30,7 @@
     <script src="amount.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+    <script src="avatarmap.js"></script> <!-- New avatarmap script -->
     <link rel="manifest" href="manifest.json">
     <script>
         toastr.options = {
@@ -430,7 +431,71 @@
         .color-button.active {
     border: 2px solid black;
 }
-    </style>
+.avatar-selection-heading {
+    text-align: center;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+}
+
+.avatar-buttons-container {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 0 50px;
+}
+
+.avatar-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.avatar-button {
+    background: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 2px;
+    transition: border-color 0.3s ease;
+}
+
+.avatar-button:hover,
+.avatar-button.active {
+    border-color: #FF9800;
+}
+
+.avatar-button img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.avatar-buttons-container::-webkit-scrollbar {
+    width: 8px;
+}
+.avatar-buttons-container::-webkit-scrollbar-track {
+    background: white;
+}
+.avatar-buttons-container::-webkit-scrollbar-thumb {
+    background-color: #FF9800;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .avatar-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .avatar-buttons-container {
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 0 30px;
+    }
+
+    .avatar-button {
+        padding: 1px;
+    }
+}
+</style>
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
@@ -441,7 +506,7 @@
                     <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
                 </div>
                 <a href="about.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
-                <a href="patch-notes.html" class="custom-link mt-2 hover:custom-link-hover">Patch Notes v2.2.0.0</a>
+                <a href="patch-notes.html" class="custom-link mt-2 hover:custom-link-hover">Patch Notes v2.3.0.0</a>
                 <a href="faq.html" class="custom-link mt-2 hover:custom-link-hover">FAQ</a>
             </div>        
             <div class="full-width-banner mt=2">
@@ -558,8 +623,27 @@
             </div>
             <textarea class="preview-textarea" readonly>This is what your text color will look like.</textarea>
         </div>
-        <div class="tab-content to" id="avatar" >
-            <p>Coming Soon</p>
+        <div class="tab-content" id="avatar">
+            <h3 class="avatar-selection-heading">Select the avatar you would like next to your name:</h3>
+            <div class="avatar-buttons-container">
+                <div class="avatar-buttons">
+                    <button class="avatar-button" data-avatar="avatar1"><img src="avatars/1.png" alt="Avatar 1"></button>
+                    <button class="avatar-button" data-avatar="avatar2"><img src="avatars/2.png" alt="Avatar 2"></button>
+                    <button class="avatar-button" data-avatar="avatar3"><img src="avatars/3.png" alt="Avatar 3"></button>
+                    <button class="avatar-button" data-avatar="avatar4"><img src="avatars/4.png" alt="Avatar 4"></button>
+                    <button class="avatar-button" data-avatar="avatar5"><img src="avatars/5.png" alt="Avatar 5"></button>
+                    <button class="avatar-button" data-avatar="avatar6"><img src="avatars/6.png" alt="Avatar 6"></button>
+                    <button class="avatar-button" data-avatar="avatar7"><img src="avatars/7.png" alt="Avatar 7"></button>
+                    <button class="avatar-button" data-avatar="avatar8"><img src="avatars/8.png" alt="Avatar 8"></button>
+                    <button class="avatar-button" data-avatar="avatar9"><img src="avatars/9.png" alt="Avatar 9"></button>
+                    <button class="avatar-button" data-avatar="avatar10"><img src="avatars/10.png" alt="Avatar 10"></button>
+                    <button class="avatar-button" data-avatar="avatar11"><img src="avatars/11.png" alt="Avatar 11"></button>
+                    <button class="avatar-button" data-avatar="avatar12"><img src="avatars/12.png" alt="Avatar 12"></button>
+                    <button class="avatar-button" data-avatar="avatar13"><img src="avatars/13.png" alt="Avatar 13"></button>
+                    <button class="avatar-button" data-avatar="avatar14"><img src="avatars/14.png" alt="Avatar 14"></button>
+                    <button class="avatar-button" data-avatar="avatar15"><img src="avatars/15.png" alt="Avatar 15"></button>
+                </div>
+            </div>
         </div>
         <div class="tab-content to" id="theme">
             <p>Coming Soon</p>
@@ -595,6 +679,25 @@
             'pink': '#FF00FF',
             'yellow': '#FFFF00'
         };
+
+        // Avatar map for avatar selection
+        const avatarMap = {
+            'avatar1': 'avatars/1.png',
+            'avatar2': 'avatars/2.png',
+            'avatar3': 'avatars/3.png',
+            'avatar4': 'avatars/4.png',
+            'avatar5': 'avatars/5.png',
+            'avatar6': 'avatars/6.png',
+            'avatar7': 'avatars/7.png',
+            'avatar8': 'avatars/8.png',
+            'avatar9': 'avatars/9.png',
+            'avatar10': 'avatars/10.png',
+            'avatar11': 'avatars/11.png',
+            'avatar12': 'avatars/12.png',
+            'avatar13': 'avatars/13.png',
+            'avatar14': 'avatars/14.png',
+            'avatar15': 'avatars/15.png'
+        };
     
         // Get the modal and buttons
         var modal = document.getElementById("settingsModal");
@@ -603,6 +706,7 @@
         var tabs = document.getElementsByClassName("tab");
         var tabContents = document.getElementsByClassName("tab-content");
         var selectedColor = getCookie('userColor') || "#FFFFFF";
+        var selectedAvatar = getCookie('userAvatar') || "avatar1";
     
         // Open the modal when the settings button is clicked
         settingsBtn.onclick = function() {
@@ -625,6 +729,17 @@
         function updateActiveColorButton() {
             document.querySelectorAll('.color-button').forEach(button => {
                 if (button.getAttribute('data-color') === selectedColor) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Update active avatar button
+        function updateActiveAvatarButton() {
+            document.querySelectorAll('.avatar-button').forEach(button => {
+                if (button.getAttribute('data-avatar') === selectedAvatar) {
                     button.classList.add('active');
                 } else {
                     button.classList.remove('active');
@@ -657,11 +772,22 @@
                 updateActiveColorButton();
             });
         });
+
+        // Avatar selection
+        Array.from(document.getElementsByClassName('avatar-button')).forEach(function(button) {
+            button.addEventListener('click', function() {
+                selectedAvatar = this.getAttribute('data-avatar');
+                setCookie('userAvatar', selectedAvatar, 30); // Store the avatar in a cookie
+                updateActiveAvatarButton();
+                toastr.success('Avatar changed');
+            });
+        });
     
         // Initialize color and mod mode on page load
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.preview-textarea').style.color = selectedColor;
             updateActiveColorButton();
+            updateActiveAvatarButton();
     
             // Check mod mode on page load
             if (getCookie('modMode') === 'true') {
@@ -709,8 +835,6 @@
         if (changeButton) {
             changeButton.addEventListener('click', checkModMode);
         }
-    
-        // Your existing scripts, including socket.io connections and event handlers
     </script>
 </body>
 </html>
