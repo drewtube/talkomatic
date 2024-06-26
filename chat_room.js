@@ -50,25 +50,27 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    // Include modMode status when joining a room
     socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, modMode: getCookie('modMode') === 'true' });
 
     socket.on('initializeUsers', (users) => {
         chatRoom.innerHTML = '';
         users.forEach(user => addUserToRoom(user));
         updateUserContainerSizes();
+        updateThumbsDownButtonStates();
     });
 
     socket.on('userJoined', (user) => {
         addUserToRoom(user);
         joinSound.play();
         updateUserContainerSizes();
+        updateThumbsDownButtonStates();
     });
 
     socket.on('userLeft', (user) => {
         const userElement = document.getElementById(`user-${user.userId}`);
         if (userElement) userElement.remove();
         updateUserContainerSizes();
+        updateThumbsDownButtonStates();
     });
 
     socket.on('typing', (data) => {
@@ -97,6 +99,67 @@ document.addEventListener('DOMContentLoaded', (event) => {
         toastr.success(`Happy Birthday ${data.username}!`);
     });
 
+    socket.on('updateThumbsDownCount', (data) => {
+        const { userId, count } = data;
+        const userElement = document.getElementById(`user-${userId}`);
+        if (userElement) {
+            const thumbsDownCountElement = userElement.querySelector('.thumbs-down-count');
+            if (thumbsDownCountElement) {
+                thumbsDownCountElement.textContent = count;
+            }
+            
+            const thumbsDownButton = userElement.querySelector('.thumbs-down-button');
+            if (thumbsDownButton) {
+                if (count > 0) {
+                    thumbsDownButton.classList.add('active');
+                } else {
+                    thumbsDownButton.classList.remove('active');
+                }
+            }
+        }
+    });
+
+    socket.on('updateAllThumbsDownCounts', (voteCounts) => {
+        for (const [userId, count] of Object.entries(voteCounts)) {
+            const userElement = document.getElementById(`user-${userId}`);
+            if (userElement) {
+                const thumbsDownCountElement = userElement.querySelector('.thumbs-down-count');
+                if (thumbsDownCountElement) {
+                    thumbsDownCountElement.textContent = count;
+                }
+                
+                const thumbsDownButton = userElement.querySelector('.thumbs-down-button');
+                if (thumbsDownButton) {
+                    if (count > 0) {
+                        thumbsDownButton.classList.add('active');
+                    } else {
+                        thumbsDownButton.classList.remove('active');
+                    }
+                }
+            }
+        }
+    });
+
+    socket.on('userVotedOut', (data) => {
+        toastr.error(`${data.username} was voted to be removed from the room`, "", {
+            timeOut: 3000,
+            closeButton: false,
+            progressBar: true
+        });
+    });
+
+    socket.on('removedFromRoom', () => {
+        window.location.href = 'index.html';
+    });
+
+    socket.on('votingDisabled', (data) => {
+        toastr.info(data.message, "", {
+            timeOut: 3000,
+            closeButton: false,
+            progressBar: true
+        });
+    });
+
     document.getElementById('layoutButton').addEventListener('click', switchLayout);
 
     function addUserToRoom(user) {
@@ -108,19 +171,43 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userInfo.className = 'user-info';
         userInfo.innerHTML = `<span>${escapeHtml(user.username)}</span><span>/</span><span>${escapeHtml(user.location)}</span>`;
 
-        userInfo.style.display = 'flex'; // Use flexbox for alignment
-        userInfo.style.alignItems = 'center'; // Align items vertically center
+        userInfo.style.display = 'flex';
+        userInfo.style.alignItems = 'center';
         userInfo.style.backgroundColor = '#333';
         userInfo.style.color = 'white';
         userInfo.style.padding = '5px';
         userInfo.style.paddingLeft = '12px';
         userInfo.style.marginBottom = '5px';
 
-        // Apply mod mode styles if activated
+        const thumbsDownButton = document.createElement('button');
+        thumbsDownButton.className = 'thumbs-down-button';
+        thumbsDownButton.innerHTML = '👎';
+        thumbsDownButton.style.marginLeft = 'auto';
+        thumbsDownButton.style.cursor = 'pointer';
+        thumbsDownButton.addEventListener('click', () => {
+            if (user.userId !== userId) {
+                socket.emit('thumbsDown', { roomId, targetUserId: user.userId });
+            }
+        });
+
+        userElement.thumbsDownButton = thumbsDownButton;
+
+        const thumbsDownCount = document.createElement('span');
+        thumbsDownCount.className = 'thumbs-down-count';
+        thumbsDownCount.style.marginLeft = '5px';
+        thumbsDownCount.textContent = '0';
+
+        userInfo.appendChild(thumbsDownButton);
+        userInfo.appendChild(thumbsDownCount);
+
+        if (user.userId === userId) {
+            thumbsDownButton.style.visibility = 'hidden';
+        }
+
         if (user.modMode) {
             userInfo.style.color = 'yellow';
             const modIcon = document.createElement('img');
-            modIcon.src = 'images/crown.gif'; // Update with the correct path to your GIF
+            modIcon.src = 'images/crown.gif';
             modIcon.style.width = '20px';
             modIcon.style.height = '20px';
             modIcon.style.marginRight = '5px';
@@ -158,6 +245,26 @@ document.addEventListener('DOMContentLoaded', (event) => {
         chatRoom.appendChild(userElement);
     }
 
+    function updateThumbsDownButtonStates() {
+        const userContainers = document.querySelectorAll('.user-container');
+        const isVotingEnabled = userContainers.length >= 3;
+
+        userContainers.forEach(container => {
+            const button = container.thumbsDownButton;
+            if (button) {
+                if (!isVotingEnabled) {
+                    button.disabled = true;
+                    button.style.opacity = '0.5';
+                    button.style.cursor = 'not-allowed';
+                } else {
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                    button.style.cursor = 'pointer';
+                }
+            }
+        });
+    }
+
     function handleInput(event) {
         const textarea = event.target;
         const message = textarea.value;
@@ -174,7 +281,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
             if (isBirthdayMessage(message)) {
                 socket.emit('message', { roomId, userId, message, color: userColorName });
-                // toastr.success(`Happy Birthday ${username}!`);
             }
         }
     }
@@ -311,11 +417,11 @@ function updateUserContainerSizes() {
         if (isHorizontal) {
             container.style.width = '100%';
             container.style.height = `${100 / numUsers}%`;
-            container.style.margin = '0'; // Remove any margin for horizontal layout
+            container.style.margin = '0';
         } else {
             container.style.width = `${100 / numUsers}%`;
             container.style.height = '100%';
-            container.style.margin = '0 5px'; // Add horizontal gap between user containers for vertical layout
+            container.style.margin = '0 5px';
         }
     });
 }
