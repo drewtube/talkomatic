@@ -1,10 +1,11 @@
 const OFFENSIVE_WORDS = [
-  'nigga', 'nigger', 'n1gger', 'n1gga', 'niggah', 'n igga', 'n gger', '69', 
+  'nigga', 'nigger', 'n1gger', 'n1gga', 'niggah', 'n igga', 'n gger', '69', 'nıgga', ' n i g g a',
   'faggot', 'fagot',
   'kill yourself', 'kys', 'kill urself',
   'i hate you', 'i hate u',
   'alpha male',
   'heil hitler', 'hail hitler',
+  'f4gg0t',
   'penis', 'p3nis',
   'vagina', 'v4gina',
   'sex', 's3x',
