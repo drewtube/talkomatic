@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talkomatic - Create and Join Chat Rooms | Online Community Platform</title>
-    <meta name="description" content="Talkomatic is the ultimate platform for creating and joining chat rooms. Connect with friends, discover new communities, and enjoy seamless real-time communication.">
-    <meta name="keywords" content="Talkomatic, chat rooms, online communication, social platform, join rooms, create rooms, community, real-time chat">
+    <title>Talkomatic 2024 - Create and Join Chat Rooms | Online Community Platform with Auto Moderation</title>
+    <meta name="description" content="Discover Talkomatic 2024, the advanced platform for creating and joining chat rooms with real-time communication and auto moderation. Connect with friends and new communities seamlessly.">
+    <meta name="keywords" content="Talkomatic 2024, chat rooms, online communication, social platform, join rooms, create rooms, community, real-time chat, auto moderation, online chat">
     <meta name="author" content="Talkomatic">
-    <meta property="og:title" content="Talkomatic - Create and Join Chat Rooms">
-    <meta property="og:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities in real-time.">
-    <meta property="og:image" content="https://www.talkomatic.co/images/talkomatic-og-image.jpg">
+    
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="Talkomatic 2024 - Create and Join Chat Rooms">
+    <meta property="og:description" content="Join Talkomatic 2024 to create and join chat rooms, connect with friends, and discover new communities in real-time with advanced auto moderation.">
+    <meta property="og:image" content="https://talkomatic.co/images/v2.2.0.0.png">
     <meta property="og:url" content="https://www.talkomatic.co">
     <meta property="og:type" content="website">
+
+    <!-- Twitter Card Metadata -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Talkomatic - Create and Join Chat Rooms">
-    <meta name="twitter:description" content="Join Talkomatic to create and join chat rooms, connect with friends, and discover new communities in real-time.">
-    <meta name="twitter:image" content="https://www.talkomatic.co/images/talkomatic-twitter-image.jpg">
+    <meta name="twitter:title" content="Talkomatic 2024 - Create and Join Chat Rooms">
+    <meta name="twitter:description" content="Join Talkomatic 2024 to create and join chat rooms, connect with friends, and discover new communities in real-time with advanced auto moderation.">
+    <meta name="twitter:image" content="https://talkomatic.co/images/v2.2.0.0.png">
+
     <link rel="canonical" href="https://www.talkomatic.co">
     <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="custom-toastr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -30,8 +36,22 @@
     <script src="amount.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
-    <script src="avatarmap.js"></script> <!-- New avatarmap script -->
     <link rel="manifest" href="manifest.json">
+
+    <!-- Structured Data for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": "Talkomatic 2024",
+      "url": "https://www.talkomatic.co",
+      "description": "Talkomatic 2024 is the original platform for creating and joining chat rooms with advanced auto moderation.",
+      "author": {
+        "@type": "Organization",
+        "name": "Talkomatic"
+      }
+    }
+    </script>
     <script>
         toastr.options = {
             "closeButton": true,
@@ -835,6 +855,54 @@
         if (changeButton) {
             changeButton.addEventListener('click', checkModMode);
         }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+                // Request permission for push notifications
+                Notification.requestPermission(status => {
+                    console.log('Notification permission status:', status);
+                    if (status === 'granted') {
+                    subscribeUserToPush(registration);
+                    }
+                });
+                }, err => {
+                console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+            }
+
+            function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+            }
+
+            function subscribeUserToPush(registration) {
+            const applicationServerKey = urlBase64ToUint8Array('BNReJ25f7VwJDUSVelEsoti78Tv1FtWUsDNXBRl4cAA9YEnFLS7ezpN9fXJbjH_-XmX7asrjkfWwk4XMnGHkG08');  // Private ke: cpQORbewEjhH1nDOJG9do-C6-ja_Ku2j8XYaxCIBPHw
+            registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: applicationServerKey
+            })
+            .then(subscription => {
+                console.log('User is subscribed:', subscription);
+                // Send the subscription to your server
+            })
+            .catch(err => {
+                console.log('Failed to subscribe the user: ', err);
+            });
+            }
     </script>
 </body>
 </html>

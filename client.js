@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('name').value = defaultUsername;
     document.getElementById('location').value = defaultLocation;
     
-    let selectedColor = getCookie('userColor') || "#FFFFFF"; // Default color
+    let selectedColor = getCookie('userColor') || "#FFFFFF";
 
     let userId = getCookie('userId');
     if (!userId) {
@@ -16,39 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
         setCookie('userId', userId, 30);
     }
 
+    let OFFENSIVE_WORDS = [];
+    fetch('/offensive-words')
+        .then(response => response.json())
+        .then(words => {
+            OFFENSIVE_WORDS = words;
+        })
+        .catch(error => console.error('Error fetching offensive words:', error));
+
     socket.emit('userConnected', { userId });
 
     window.addEventListener('beforeunload', () => {
         socket.emit('userDisconnected', { userId });
-    });
-
-    socket.on('userBanned', (banExpiration) => {
-        const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
-        setCookie('banned', 'true', banDuration / 86400);
-        setCookie('banExpiration', banExpiration, banDuration / 86400);
-        window.location.href = 'removed.html';
-    });
-    
-    if (getCookie('banned') === 'true') {
-        const banExpiration = getCookie('banExpiration');
-        const remainingTime = Math.floor((banExpiration - Date.now()) / 1000);
-        if (remainingTime > 0) {
-            window.location.href = 'removed.html';
-        } else {
-            deleteCookie('banned');
-            deleteCookie('banExpiration');
-        }
-    }
-
-    socket.on('duplicateUser', (data) => {
-        toastr.error(data.message);
-        setTimeout(() => {
-            window.location.href = data.redirectUrl;
-        }, 3000); // Wait for 3 seconds to show the toastr message
-    });
-
-    socket.on('offensiveWordError', (message) => {
-        toastr.error(message);
     });
 
     const createRoomBtn = document.getElementById('createRoomBtn');
@@ -92,18 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
-    function containsOffensiveWord(text) {
-        const OFFENSIVE_WORDS = ['badword']; // Ensure this matches the server list
-        return OFFENSIVE_WORDS.some(word => {
-            const regex = new RegExp(`\\b${word}\\b`, 'i');
-            return regex.test(text);
-        });
+    // New offensive word detection system
+    function tokenize(text) {
+        return text.toLowerCase().split(/\s+/).map(word => word.replace(/[^\w]/g, ''));
     }
 
-    // Update any function that deals with colors to use color names instead of hex values
-    function updateSelectedColor(color) {
-        selectedColor = color; // This is now a color name, not a hex value
-        // Update UI elements if needed
+    function isOffensiveWord(word, offensiveWord) {
+        if (word === offensiveWord) return true;
+        
+        const obfuscatedWord = word.replace(/[0@]/g, 'o')
+                                   .replace(/[1!]/g, 'i')
+                                   .replace(/[3]/g, 'e')
+                                   .replace(/[4]/g, 'a')
+                                   .replace(/[5]/g, 's')
+                                   .replace(/[$]/g, 's')
+                                   .replace(/[7]/g, 't');
+        
+        return obfuscatedWord === offensiveWord;
+    }
+
+    function containsOffensiveContent(text) {
+        const tokens = tokenize(text);
+        return OFFENSIVE_WORDS.some(offensiveWord => 
+            tokens.some(token => isOffensiveWord(token, offensiveWord))
+        );
     }
 
     window.updateUsername = function () {
@@ -113,12 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const location = document.getElementById('location').value.trim();
         let updateMessage = [];
 
-        if (containsOffensiveWord(username)) {
+        if (containsOffensiveContent(username)) {
             toastr.error('Username contains offensive words.');
             return;
         }
 
-        if (containsOffensiveWord(location)) {
+        if (containsOffensiveContent(location)) {
             toastr.error('Location contains offensive words.');
             return;
         }
@@ -154,38 +145,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const location = document.getElementById('location').value.trim();
         const roomName = document.getElementById('roomName').value.trim();
         const roomType = document.querySelector('input[name="roomType"]:checked').value;
-        const avatar = getCookie('userAvatar') || 'avatar15'; // Get avatar from cookie or use default
+        const avatar = getCookie('userAvatar') || 'avatar15';
 
-        if (!username) {
-            toastr.error('Please enter your username.');
-            console.log('Room creation failed - missing username');
+        if (!username || !location || !roomName) {
+            toastr.error('Please fill in all required fields.');
             return;
         }
 
-        if (!location) {
-            toastr.error('Please enter your location.');
-            console.log('Room creation failed - missing location');
-            return;
-        }
-
-        if (!roomName) {
-            toastr.error('Please enter a room name.');
-            console.log('Room creation failed - missing room name');
-            return;
-        }
-
-        if (containsOffensiveWord(username)) {
-            toastr.error('Username contains offensive words.');
-            return;
-        }
-
-        if (containsOffensiveWord(location)) {
-            toastr.error('Location contains offensive words.');
-            return;
-        }
-
-        if (containsOffensiveWord(roomName)) {
-            toastr.error('Room name contains offensive words.');
+        if (containsOffensiveContent(username) || containsOffensiveContent(location) || containsOffensiveContent(roomName)) {
+            toastr.error('Input contains offensive words.');
             return;
         }
 
@@ -208,49 +176,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const username = document.getElementById('name').value.trim();
             const location = document.getElementById('location').value.trim();
 
-            if (!username) {
-                toastr.error('Please enter your username.');
-                console.log('Room joining failed - missing username');
+            if (!username || !location) {
+                toastr.error('Please enter your username and location.');
                 return;
             }
 
-            if (!location) {
-                toastr.error('Please enter your location.');
-                console.log('Room joining failed - missing location');
-                return;
-            }
-
-            if (containsOffensiveWord(username)) {
-                toastr.error('Username contains offensive words.');
-                return;
-            }
-
-            if (containsOffensiveWord(location)) {
-                toastr.error('Location contains offensive words.');
+            if (containsOffensiveContent(username) || containsOffensiveContent(location)) {
+                toastr.error('Username or location contains offensive words.');
                 return;
             }
 
             const roomId = event.target.dataset.roomId;
             const roomType = event.target.dataset.roomType;
             const roomName = event.target.dataset.roomName;
-            const userColor = getCookie('userColor') || 'white'; // Get color from cookie
-            const userAvatar = getCookie('userAvatar') || 'avatar15'; // Default to avatar1 if not set
+            const userColor = getCookie('userColor') || 'white';
+            const userAvatar = getCookie('userAvatar') || 'avatar15';
             socket.emit('joinRoom', { roomId, username, location, userId, color: userColor, avatar: userAvatar });
-            console.log('Room joining request sent:', { roomId, username, location, userId, color: userColor, avatar: userAvatar });
-
-            socket.on('roomJoined', (data) => {
-                if (data.roomId === roomId) {
-                    window.location.href = `chat_room.html?roomId=${roomId}&username=${username}&location=${location}&userId=${userId}&roomType=${roomType}&roomName=${roomName}&txtclr=${encodeURIComponent(userColor)}&avatar=${userAvatar}`;
-                }
-            });
         }
-    });
-
-    // Add a socket event listener for color changes
-    socket.on('colorChanged', (data) => {
-        const { userId, color } = data;
-        // Update UI or other necessary changes when a user's color changes
-        // This might be needed if you want to reflect color changes in real-time
     });
 
     searchRoomBtn.addEventListener('click', () => {
@@ -280,37 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('roomCreated', (room) => {
         const existingRoomElement = document.getElementById(`room-${room.id}`);
         if (existingRoomElement) {
-            existingRoomElement.remove(); // Remove existing room element if it exists
+            existingRoomElement.remove();
         }
         if (room.type === 'public') {
             const roomElement = createRoomElement(room);
             roomList.appendChild(roomElement);
-            console.log('Room created:', room);
             updateRoomCount();
         }
     
         if (socket.id === room.users[0].socketId) {
-            const roomId = room.id;
-            const roomName = room.name;
-            const roomType = room.type;
-            const username = room.users[0].username;
-            const location = room.users[0].location;
-            const userId = room.users[0].userId;
-            const color = room.users[0].color;
-            const avatar = room.users[0].avatar || getCookie('userAvatar') || 'avatar15';
-    
-            const url = `chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
-            
-            console.log('Redirecting to:', url);
+            const url = `chat_room.html?roomId=${room.id}&username=${encodeURIComponent(room.users[0].username)}&location=${encodeURIComponent(room.users[0].location)}&userId=${room.users[0].userId}&roomType=${room.type}&roomName=${encodeURIComponent(room.name)}&txtclr=${encodeURIComponent(room.users[0].color)}&avatar=${room.users[0].avatar || getCookie('userAvatar') || 'avatar15'}`;
             window.location.href = url;
-        }
-    });
-
-    // Initialize the color of the preview textarea
-    document.addEventListener('DOMContentLoaded', function() {
-        const savedColor = getCookie('userColor');
-        if (savedColor) {
-            previewTextarea.style.color = savedColor;
         }
     });
 
@@ -322,7 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 roomList.appendChild(roomElement);
             }
         });
-        console.log('Existing rooms received:', rooms);
         updateRoomCount();
     });
 
@@ -331,10 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (room) {
             const roomElement = createRoomElement(room);
             roomList.appendChild(roomElement);
-            console.log('Search result received:', room);
         } else {
             toastr.error('Room not found');
-            console.log('Room not found');
         }
         updateRoomCount();
     });
@@ -343,16 +262,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const roomElement = document.getElementById(`room-${roomId}`);
         if (roomElement) {
             roomElement.remove();
-            console.log('Room removed:', roomId);
         }
         updateRoomCount();
     });
 
-// Update the roomJoined event handler
-socket.on('roomJoined', (data) => {
-    const { roomId, username, location, userId, roomType, roomName, color, avatar } = data;
-    window.location.href = `chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
-});
+    socket.on('roomJoined', (data) => {
+        const { roomId, username, location, userId, roomType, roomName, color, avatar } = data;
+        window.location.href = `chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
+    });
 
     socket.on('roomUpdated', (room) => {
         const existingRoomElement = document.getElementById(`room-${room.id}`);
@@ -360,11 +277,9 @@ socket.on('roomJoined', (data) => {
         if (room.type === 'public' && (!searchRoomId || (searchRoomId && room.id === searchRoomId))) {
             if (existingRoomElement) {
                 existingRoomElement.replaceWith(createRoomElement(room));
-                console.log('Room updated:', room);
             } else {
                 const roomElement = createRoomElement(room);
                 roomList.appendChild(roomElement);
-                console.log('Room added:', room);
             }
             updateRoomCount();
         }
@@ -391,9 +306,6 @@ socket.on('roomJoined', (data) => {
                 enterChatButton.disabled = true;
                 enterChatButton.textContent = 'Room Full';
             }
-            console.log('User joined room:', data);
-        } else {
-            console.log('Room not found for user joining:', roomId);
         }
     });
 
@@ -420,9 +332,6 @@ socket.on('roomJoined', (data) => {
                 enterChatButton.disabled = false;
                 enterChatButton.innerHTML = `Enter <img src="icons/chatbubble.png" alt="Chat" class="button-icon">`;
             }
-            console.log('User left room:', data);
-        } else {
-            console.log('Room not found for user leaving:', roomId);
         }
     });
 
@@ -489,4 +398,57 @@ socket.on('roomJoined', (data) => {
             }
         }
     });
+
+    socket.on('userBanned', (banExpiration) => {
+        const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
+        setCookie('banned', 'true', banDuration / 86400);
+        setCookie('banExpiration', banExpiration, banDuration / 86400);
+        window.location.href = 'removed.html';
+    });
+
+    socket.on('duplicateUser', (data) => {
+        toastr.error(data.message);
+        setTimeout(() => {
+            window.location.href = data.redirectUrl;
+        }, 3000);
+    });
+
+    socket.on('offensiveWordError', (message) => {
+        toastr.error(message);
+    });
+
+    // Initialize the color of the preview textarea
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedColor = getCookie('userColor');
+        if (savedColor) {
+            previewTextarea.style.color = savedColor;
+        }
+    });
+
+    function updateSelectedColor(color) {
+        selectedColor = color;
+        setCookie('userColor', color, 30);
+        // Update UI elements if needed
+    }
+
+    let inactivityTimeout;
+    const inactivityLimit = 120000;
+
+    function resetInactivityTimeout() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+            if (document.cookie.indexOf('banned=true') === -1) {
+                socket.emit('userDisconnected', { userId });
+                toastr.error('You were removed from the room for being inactive for 2 minutes.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+            }
+        }, inactivityLimit);
+    }
+
+    document.addEventListener('keydown', resetInactivityTimeout);
+    document.addEventListener('mousemove', resetInactivityTimeout);
+
+    resetInactivityTimeout();
 });

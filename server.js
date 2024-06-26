@@ -57,11 +57,30 @@ app.get('/offensive-words', (req, res) => {
     res.json(OFFENSIVE_WORDS);
 });
 
-function containsOffensiveWord(text) {
-    return OFFENSIVE_WORDS.some(word => {
-        const regex = new RegExp(`\\b${word}\\b`, 'i');
-        return regex.test(text);
-    });
+// New offensive word detection system
+function tokenize(text) {
+    return text.toLowerCase().split(/\s+/).map(word => word.replace(/[^\w]/g, ''));
+}
+
+function isOffensiveWord(word, offensiveWord) {
+    if (word === offensiveWord) return true;
+    
+    const obfuscatedWord = word.replace(/[0@]/g, 'o')
+                               .replace(/[1!]/g, 'i')
+                               .replace(/[3]/g, 'e')
+                               .replace(/[4]/g, 'a')
+                               .replace(/[5]/g, 's')
+                               .replace(/[$]/g, 's')
+                               .replace(/[7]/g, 't');
+    
+    return obfuscatedWord === offensiveWord;
+}
+
+function containsOffensiveContent(text) {
+    const tokens = tokenize(text);
+    return OFFENSIVE_WORDS.some(offensiveWord => 
+        tokens.some(token => isOffensiveWord(token, offensiveWord))
+    );
 }
 
 io.on('connection', (socket) => {
@@ -100,31 +119,31 @@ io.on('connection', (socket) => {
 
     socket.on('createRoom', (roomData) => {
         const { username, location, userId, name, type, color, modMode } = roomData;
-
+    
         if (!username || !location || !userId || !name || !['public', 'private', 'secret'].includes(type)) {
             socket.emit('error', 'Invalid input');
             return;
         }
-
+    
         if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || name.length > MAX_CHAR_LENGTH) {
             socket.emit('error', 'Input exceeds maximum length');
             return;
         }
-
-        if (containsOffensiveWord(username)) {
+    
+        if (containsOffensiveContent(username)) {
             socket.emit('offensiveWordError', 'Username contains offensive words');
             return;
         }
-
-        if (containsOffensiveWord(location)) {
+    
+        if (containsOffensiveContent(location)) {
             socket.emit('offensiveWordError', 'Location contains offensive words');
             return;
         }
-
-        if (containsOffensiveWord(name)) {
+    
+        if (containsOffensiveContent(name)) {
             socket.emit('offensiveWordError', 'Room name contains offensive words');
             return;
-        }
+        }    
 
         const roomId = generateRoomId();
         const room = {
@@ -161,23 +180,23 @@ io.on('connection', (socket) => {
 
     socket.on('joinRoom', (data) => {
         const { roomId, username, location, userId, color, modMode, avatar } = data;
-
+    
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
             return;
         }
-
+    
         if (username.length > MAX_CHAR_LENGTH || location.length > MAX_CHAR_LENGTH || roomId.length > MAX_CHAR_LENGTH) {
             socket.emit('error', 'Input exceeds maximum length');
             return;
         }
-
-        if (containsOffensiveWord(username)) {
+    
+        if (containsOffensiveContent(username)) {
             socket.emit('offensiveWordError', 'Username contains offensive words');
             return;
         }
-
-        if (containsOffensiveWord(location)) {
+    
+        if (containsOffensiveContent(location)) {
             socket.emit('offensiveWordError', 'Location contains offensive words');
             return;
         }
@@ -268,7 +287,7 @@ io.on('connection', (socket) => {
     socket.on('message', (data) => {
         const { roomId, userId, message, color } = data;
 
-        if (containsOffensiveWord(message)) {
+        if (containsOffensiveContent(message)) {
             const banDuration = 30 * 1000;
             const banExpiration = Date.now() + banDuration;
             bannedUsers.set(userId, banExpiration);
