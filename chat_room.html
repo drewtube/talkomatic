@@ -283,19 +283,20 @@
         </div>
         <audio id="joinSound" src="sound.wav" preload="auto"></audio>
         <!-- Ban Modal -->
-<div id="banModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Select Ban Duration</h2>
-        <form id="banDurationForm">
-            <label><input type="radio" name="banDuration" value="30000" checked> 30 seconds</label><br>
-            <label><input type="radio" name="banDuration" value="300000"> 5 minutes</label><br>
-            <label><input type="radio" name="banDuration" value="86400000"> 1 day</label><br>
-            <label><input type="radio" name="banDuration" value="12960000000"> Permanent</label><br>
-            <button type="submit">Ban User</button>
-        </form>
-    </div>
-</div>
+        <div id="banModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Remove / Ban User</h2>
+                <form id="banDurationForm">
+                    <label><input type="radio" name="banDuration" value="0" checked> Remove From Room</label><br>
+                    <label><input type="radio" name="banDuration" value="30000" checked> 30 Seconds</label><br>
+                    <label><input type="radio" name="banDuration" value="300000"> 5 Minutes</label><br>
+                    <label><input type="radio" name="banDuration" value="86400000"> 1 day</label><br>
+                    <label><input type="radio" name="banDuration" value="12960000000"> Permanent Ban</label><br>
+                    <button type="submit">Remove User</button>
+                </form>
+            </div>
+        </div>
 
 
 
@@ -304,7 +305,7 @@
             <p>Invite others to directly join this room with you!</p>
             <div class="invite-link">
                 <input type="text" id="inviteLink" readonly>
-                <button id="copyButton" onclick="copyInviteLink()">Copy Invite Link</button>
+                <button id="copyButton" onclick="copyInviteLink()">Copy Link</button>
             </div>
         </div>
         <div class="footer">

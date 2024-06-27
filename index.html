@@ -521,12 +521,90 @@
         padding: 1px;
     }
 }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .navbar .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        .navbar .nav-links a:hover {
+            color: #FF9800;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        .navbar .logout-btn {
+            background-color: #f44336;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        @media (min-width: 1021px) {
+            .navbar-mobile {
+                display: none;
+            }
+        }
+        @media (max-width: 1021px) {
+            .navbar {
+                display: none;
+            }
+            .navbar-mobile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+        }
+        .navbar-mobiler .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .navbar-mobile .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .navbar-mobile .nav-links a:hover {
+            color: #FF9800;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        .navbar-mobile .logout-btn {
+            background-color: #f44336;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        }
 </style>
 </head>
 <body>
     <div class="flex flex-col md:flex-row">
         <!-- Left Column -->
         <div class="left-column custom-bg md:w-383 md:max-h-screen overflow-y-auto">
+            <div class="navbar-mobile">
+                <div class="nav-links">
+                    <a href="/">Lobby</a>
+                    <a href="coming-soon.html">Profiles</a>
+                    <a href="coming-soon.html">Forum</a>
+                </div>
+                <button class="logout-btn" onclick="signOut()">Log Out</button>
+
+            </div>
             <div class="p-2 flex flex-col items-center">
                 <div class="header-text mt-1 mb-4">
                     <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
@@ -541,18 +619,16 @@
             <div class="info-box mt-2 p-3 border-orange">
                 <div class="info-item">
                     <label for="name">Your name:</label>
-                    <input type="text" id="name" name="name" placeholder="Username" maxlength="20">
+                    <input type="text" id="name" name="name" placeholder="Username" maxlength="10">
                 </div>
                 <div class="info-item">
                     <label for="location">Location:</label>
-                    <input type="text" id="location" name="location" placeholder="Earth" maxlength="20">
+                    <input type="text" id="location" name="location" placeholder="Earth" maxlength="10">
                 </div>
                 <button class="button-style" onclick="updateUsername()">
                     Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
                 </button>
-                <button id="signOutBtn" class="button-style button-style1" onclick="signOut()">
-                    Sign out <img src="icons/logout.png" alt="Sign out" class="button-icon">
-                </button>
+
             </div>
             <div class="full-width-banner mt-2">
                 <span class="banner-text">Create a room...</span>
@@ -602,7 +678,18 @@
             </div>
         </div>
         <!-- Right Column -->
+
         <div id="roomListContainer" class="right-column bg-black md:flex-1 md:max-h-screen overflow-y-auto">
+            <div class="navbar">
+                <div class="nav-links">
+                    <a href="/">Lobby</a>
+                    <a href="coming-soon.html">Profiles</a>
+                    <a href="coming-soon.html">Forum</a>
+                </div>
+                <button class="logout-btn" onclick="signOut()">Log Out</button>
+
+            </div>
+        
             <div class="right-column-header">
                 <div class="header-left">
                     Join a room...
@@ -626,62 +713,62 @@
                     </button>
                 </div>
             </div>
- <!-- Your right column content, including settings modal -->
- <div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 class="text-2xl font-bold mb-4">Settings</h2>
-        <div class="tabs">
-            <div class="tab active" data-tab="color">Color</div>
-            <div class="tab" data-tab="avatar">Avatar</div>
-            <div class="tab" data-tab="theme">Theme</div>
-            <div class="tab" data-tab="font">Font</div>
-            <div class="tab" data-tab="settings">Settings</div>
-        </div>
-        <div class="tab-content active" id="color">
-            <div class="color-buttons">
-                <span class="color-button" style="background-color: #FFFFFF;" data-color="white"></span>
-                <span class="color-button" style="background-color: #FF9800;" data-color="orange"></span>
-                <span class="color-button" style="background-color: #00FFFF;" data-color="blue"></span>
-                <span class="color-button" style="background-color: #00FF00;" data-color="green"></span>
-                <span class="color-button" style="background-color: #FF00FF;" data-color="pink"></span>
-                <span class="color-button" style="background-color: #FFFF00;" data-color="yellow"></span>
-            </div>
-            <textarea class="preview-textarea" readonly>This is what your text color will look like.</textarea>
-        </div>
-        <div class="tab-content" id="avatar">
-            <h3 class="avatar-selection-heading">Select the avatar you would like next to your name:</h3>
-            <div class="avatar-buttons-container">
-                <div class="avatar-buttons">
-                    <button class="avatar-button" data-avatar="avatar1"><img src="avatars/1.png" alt="Avatar 1"></button>
-                    <button class="avatar-button" data-avatar="avatar2"><img src="avatars/2.png" alt="Avatar 2"></button>
-                    <button class="avatar-button" data-avatar="avatar3"><img src="avatars/3.png" alt="Avatar 3"></button>
-                    <button class="avatar-button" data-avatar="avatar4"><img src="avatars/4.png" alt="Avatar 4"></button>
-                    <button class="avatar-button" data-avatar="avatar5"><img src="avatars/5.png" alt="Avatar 5"></button>
-                    <button class="avatar-button" data-avatar="avatar6"><img src="avatars/6.png" alt="Avatar 6"></button>
-                    <button class="avatar-button" data-avatar="avatar7"><img src="avatars/7.png" alt="Avatar 7"></button>
-                    <button class="avatar-button" data-avatar="avatar8"><img src="avatars/8.png" alt="Avatar 8"></button>
-                    <button class="avatar-button" data-avatar="avatar9"><img src="avatars/9.png" alt="Avatar 9"></button>
-                    <button class="avatar-button" data-avatar="avatar10"><img src="avatars/10.png" alt="Avatar 10"></button>
-                    <button class="avatar-button" data-avatar="avatar11"><img src="avatars/11.png" alt="Avatar 11"></button>
-                    <button class="avatar-button" data-avatar="avatar12"><img src="avatars/12.png" alt="Avatar 12"></button>
-                    <button class="avatar-button" data-avatar="avatar13"><img src="avatars/13.png" alt="Avatar 13"></button>
-                    <button class="avatar-button" data-avatar="avatar14"><img src="avatars/14.png" alt="Avatar 14"></button>
-                    <button class="avatar-button" data-avatar="avatar15"><img src="avatars/15.png" alt="Avatar 15"></button>
+            <!-- Your right column content, including settings modal -->
+            <div id="settingsModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 class="text-2xl font-bold mb-4">Settings</h2>
+                    <div class="tabs">
+                        <div class="tab active" data-tab="color">Color</div>
+                        <div class="tab" data-tab="avatar">Avatar</div>
+                        <div class="tab" data-tab="theme">Theme</div>
+                        <div class="tab" data-tab="font">Font</div>
+                        <div class="tab" data-tab="settings">Settings</div>
+                    </div>
+                    <div class="tab-content active" id="color">
+                        <div class="color-buttons">
+                            <span class="color-button" style="background-color: #FFFFFF;" data-color="white"></span>
+                            <span class="color-button" style="background-color: #FF9800;" data-color="orange"></span>
+                            <span class="color-button" style="background-color: #00FFFF;" data-color="blue"></span>
+                            <span class="color-button" style="background-color: #00FF00;" data-color="green"></span>
+                            <span class="color-button" style="background-color: #FF00FF;" data-color="pink"></span>
+                            <span class="color-button" style="background-color: #FFFF00;" data-color="yellow"></span>
+                        </div>
+                        <textarea class="preview-textarea" readonly>This is what your text color will look like.</textarea>
+                    </div>
+                    <div class="tab-content" id="avatar">
+                        <h3 class="avatar-selection-heading">Select the avatar you would like next to your name:</h3>
+                        <div class="avatar-buttons-container">
+                            <div class="avatar-buttons">
+                                <button class="avatar-button" data-avatar="avatar1"><img src="avatars/1.png" alt="Avatar 1"></button>
+                                <button class="avatar-button" data-avatar="avatar2"><img src="avatars/2.png" alt="Avatar 2"></button>
+                                <button class="avatar-button" data-avatar="avatar3"><img src="avatars/3.png" alt="Avatar 3"></button>
+                                <button class="avatar-button" data-avatar="avatar4"><img src="avatars/4.png" alt="Avatar 4"></button>
+                                <button class="avatar-button" data-avatar="avatar5"><img src="avatars/5.png" alt="Avatar 5"></button>
+                                <button class="avatar-button" data-avatar="avatar6"><img src="avatars/6.png" alt="Avatar 6"></button>
+                                <button class="avatar-button" data-avatar="avatar7"><img src="avatars/7.png" alt="Avatar 7"></button>
+                                <button class="avatar-button" data-avatar="avatar8"><img src="avatars/8.png" alt="Avatar 8"></button>
+                                <button class="avatar-button" data-avatar="avatar9"><img src="avatars/9.png" alt="Avatar 9"></button>
+                                <button class="avatar-button" data-avatar="avatar10"><img src="avatars/10.png" alt="Avatar 10"></button>
+                                <button class="avatar-button" data-avatar="avatar11"><img src="avatars/11.png" alt="Avatar 11"></button>
+                                <button class="avatar-button" data-avatar="avatar12"><img src="avatars/12.png" alt="Avatar 12"></button>
+                                <button class="avatar-button" data-avatar="avatar13"><img src="avatars/13.png" alt="Avatar 13"></button>
+                                <button class="avatar-button" data-avatar="avatar14"><img src="avatars/14.png" alt="Avatar 14"></button>
+                                <button class="avatar-button" data-avatar="avatar15"><img src="avatars/15.png" alt="Avatar 15"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content to" id="theme">
+                        <p>Coming Soon</p>
+                    </div>
+                    <div class="tab-content to" id="font">
+                        <p>Coming Soon</p>
+                    </div>
+                    <div class="tab-content to" id="settings">
+                        <p>Coming Soon</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="tab-content to" id="theme">
-            <p>Coming Soon</p>
-        </div>
-        <div class="tab-content to" id="font">
-            <p>Coming Soon</p>
-        </div>
-        <div class="tab-content to" id="settings">
-            <p>Coming Soon</p>
-        </div>
-    </div>
-</div>
 
             
             <div id="roomList">
@@ -864,8 +951,6 @@
                         usernameInput.value = '<';
                         locationInput.value = 'dev>';
                         toastr.success('Mod mode activated');
-                    } else {
-                        toastr.error('Invalid code');
                     }
                 })
                 .catch(error => {
