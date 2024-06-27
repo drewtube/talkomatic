@@ -1,5 +1,5 @@
 const OFFENSIVE_WORDS = [
-  'nigga', 'nigger', 'n1gger', 'n1gga', 'niggah', 'n igga', 'n gger', '69', 'nıgga', ' n i g g a',
+  'nigga', 'nigger', 'n1gger', 'n1gga', 'niggah', 'n igga', 'n gger', '69', 'nıgga', ' n i g g a', 'N I G G E R', 'a s s',
   'faggot', 'fagot',
   'kill yourself', 'kys', 'kill urself',
   'i hate you', 'i hate u',

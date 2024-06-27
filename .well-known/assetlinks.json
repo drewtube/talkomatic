@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "co.talkomatic.twa",
+        "sha256_cert_fingerprints": ["45:55:48:87:9A:93:25:FF:88:F3:53:0C:DD:AD:FB:1A:09:EB:F4:0C:2D:81:3C:A6:05:5C:12:57:C9:C1:B3:17"]
+      }
+    }]
