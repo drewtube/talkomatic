@@ -848,11 +848,30 @@
         function checkModMode() {
             const usernameInput = document.getElementById('name');
             const locationInput = document.getElementById('location');
-            if (usernameInput && usernameInput.value === '786215') {
-                setCookie('modMode', 'true', 7); // Save mod mode in cookie for 7 days
-                usernameInput.value = '<';
-                locationInput.value = 'dev>';
-                toastr.success('Mod mode activated');
+            if (usernameInput) {
+                const code = usernameInput.value;
+                fetch('/verify-mod-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setCookie('modMode', 'true', 7); // Save mod mode in cookie for 7 days
+                        usernameInput.value = '<';
+                        locationInput.value = 'dev>';
+                        toastr.success('Mod mode activated');
+                    } else {
+                        toastr.error('Invalid code');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred while verifying the code');
+                });
             }
         }
     

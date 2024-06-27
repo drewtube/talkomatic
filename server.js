@@ -6,11 +6,14 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const helmet = require('helmet');
+const bodyParser = require('body-parser'); // Add this line
 const OFFENSIVE_WORDS = require('./offensiveWords.js');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+
+app.use(bodyParser.json()); // Add this line
 
 const rooms = new Map();
 const activeUsers = new Set();
@@ -55,6 +58,17 @@ app.get('/why-was-i-removed.html', (req, res) => {
 
 app.get('/offensive-words', (req, res) => {
     res.json(OFFENSIVE_WORDS);
+});
+
+app.post('/verify-mod-code', (req, res) => {
+    const { code } = req.body;
+    const correctCode = '786215'; // Your actual mod code
+
+    if (code === correctCode) {
+        res.json({ success: true });
+    } else {
+        res.json({ success: false });
+    }
 });
 
 // New offensive word detection system
@@ -423,10 +437,6 @@ io.on('connection', (socket) => {
     
         const userToRemove = room.users.find(user => user.userId === targetUserId);
         if (userToRemove) {
-            if (userToRemove.modMode) {
-                socket.emit('error', 'You cannot remove another moderator.');
-                return;
-            }
             const banExpiration = Date.now() + banDuration;
             bannedUsers.set(targetUserId, banExpiration);
             
