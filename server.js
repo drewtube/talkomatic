@@ -411,7 +411,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('removeUser', (data) => {
-        const { roomId, targetUserId } = data;
+        const { roomId, targetUserId, banDuration } = data;
         const room = rooms.get(roomId);
         if (!room) return;
     
@@ -423,7 +423,10 @@ io.on('connection', (socket) => {
     
         const userToRemove = room.users.find(user => user.userId === targetUserId);
         if (userToRemove) {
-            const banDuration = 30 * 1000;
+            if (userToRemove.modMode) {
+                socket.emit('error', 'You cannot remove another moderator.');
+                return;
+            }
             const banExpiration = Date.now() + banDuration;
             bannedUsers.set(targetUserId, banExpiration);
             

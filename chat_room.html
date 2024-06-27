@@ -207,6 +207,71 @@
             background-color: #FF4500;
             color: rgb(255, 255, 255);
         }
+        .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 60px; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0, 0, 0, 0.4); 
+}
+
+.modal-content {
+    background-color: #333;
+    color: white;
+    margin: 5% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; 
+    max-width: 400px; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.modal-content button {
+    background-color: #555;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.modal-content button:hover {
+    background-color: #777;
+}
     </style>
 </head>
 <body class="horizontal-layout">
@@ -217,6 +282,23 @@
             <button id="layoutButton" class="layout-button">Switch Layout</button>
         </div>
         <audio id="joinSound" src="sound.wav" preload="auto"></audio>
+        <!-- Ban Modal -->
+<div id="banModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Select Ban Duration</h2>
+        <form id="banDurationForm">
+            <label><input type="radio" name="banDuration" value="30000" checked> 30 seconds</label><br>
+            <label><input type="radio" name="banDuration" value="300000"> 5 minutes</label><br>
+            <label><input type="radio" name="banDuration" value="86400000"> 1 day</label><br>
+            <label><input type="radio" name="banDuration" value="12960000000"> Permanent</label><br>
+            <button type="submit">Ban User</button>
+        </form>
+    </div>
+</div>
+
+
+
         <div id="chatRoom" class="row"></div>
         <div class="invite-section">
             <p>Invite others to directly join this room with you!</p>

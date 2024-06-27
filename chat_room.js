@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const chatRoom = document.getElementById('chatRoom');
     const joinSound = document.getElementById('joinSound');
     const inviteLinkButton = document.getElementById('copyButton');
+    const banModal = document.getElementById('banModal');
+    const banDurationForm = document.getElementById('banDurationForm');
 
     document.getElementById('roomId').textContent = roomId;
     document.getElementById('headerRoomId').textContent = roomId;
@@ -24,6 +26,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     let OFFENSIVE_WORDS = [];
     let birthdayCelebrated = false;
+    let currentTargetUserId = null;
+    let currentTargetUserModMode = false;
 
     const colorMap = {
         'white': '#FFFFFF',
@@ -85,7 +89,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             progressBar: true
         });
     });
-    
 
     socket.on('userJoined', (user) => {
         addUserToRoom(user);
@@ -241,7 +244,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
         
             removeButton.addEventListener('click', () => {
                 if (user.userId !== userId) {
-                    socket.emit('removeUser', { roomId, targetUserId: user.userId });
+                    if (user.modMode) {
+                        toastr.error('You cannot remove another moderator.', "", {
+                            timeOut: 3000,
+                            closeButton: false,
+                            progressBar: true
+                        });
+                    } else {
+                        currentTargetUserId = user.userId;
+                        openBanModal();
+                    }
                 }
             });
         
@@ -468,6 +480,31 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 
     resetInactivityTimeout();
+
+    banDurationForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const banDuration = parseInt(document.querySelector('input[name="banDuration"]:checked').value, 10);
+        if (currentTargetUserId) {
+            socket.emit('removeUser', { roomId, targetUserId: currentTargetUserId, banDuration });
+            closeBanModal();
+            currentTargetUserId = null;
+        }
+    });
+
+    function openBanModal() {
+        banModal.style.display = 'block';
+    }
+
+    function closeBanModal() {
+        banModal.style.display = 'none';
+    }
+
+    document.querySelector('.close').addEventListener('click', closeBanModal);
+    window.addEventListener('click', (event) => {
+        if (event.target === banModal) {
+            closeBanModal();
+        }
+    });
 });
 
 function switchLayout() {
