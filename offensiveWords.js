@@ -8,7 +8,7 @@ const OFFENSIVE_WORDS = [
   'f4gg0t',
   'penis', 'p3nis',
   'vagina', 'v4gina',
-  'sex', 's3x',
+  'sex', 's3x','sexy',
   'retard', 'r3tard',
   'dyke',
   'tranny', 'trannie',
