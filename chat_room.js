@@ -78,6 +78,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
         updateThumbsDownButtonStates();
     });
 
+    socket.on('userRemovedByModerator', (data) => {
+        toastr.info(`Moderator removed ${data.username}`, "", {
+            timeOut: 3000,
+            closeButton: false,
+            progressBar: true
+        });
+    });
+    
+
     socket.on('userJoined', (user) => {
         addUserToRoom(user);
         joinSound.play();
@@ -218,39 +227,61 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userInfo.style.paddingLeft = '12px';
         userInfo.style.marginBottom = '5px';
     
-        const thumbsDownButton = document.createElement('button');
-        thumbsDownButton.className = 'thumbs-down-button';
-        thumbsDownButton.style.marginLeft = 'auto';
-        thumbsDownButton.style.cursor = 'pointer';
-        thumbsDownButton.style.background = 'none';
-        thumbsDownButton.style.border = 'none';
-        thumbsDownButton.style.padding = '0';
-    
-        const thumbsDownImg = document.createElement('img');
-        thumbsDownImg.src = 'images/thumbdown.png'; // Make sure this path is correct
-        thumbsDownImg.alt = 'Thumbs Down';
-        thumbsDownImg.style.width = '20px';
-        thumbsDownImg.style.height = '20px';
-    
-        thumbsDownButton.appendChild(thumbsDownImg);
-        thumbsDownButton.addEventListener('click', () => {
-            if (user.userId !== userId) {
-                socket.emit('thumbsDown', { roomId, targetUserId: user.userId });
+        if (getCookie('modMode') === 'true') {
+            const removeButton = document.createElement('button');
+            removeButton.className = 'remove-button';
+            removeButton.style.marginLeft = 'auto';
+            removeButton.style.cursor = 'pointer';
+            removeButton.style.background = 'red';
+            removeButton.style.color = 'white';
+            removeButton.style.border = 'none';
+            removeButton.style.padding = '5px 10px';
+            removeButton.style.fontSize = '14px';
+            removeButton.textContent = 'Remove';
+        
+            removeButton.addEventListener('click', () => {
+                if (user.userId !== userId) {
+                    socket.emit('removeUser', { roomId, targetUserId: user.userId });
+                }
+            });
+        
+            userElement.removeButton = removeButton;
+            userInfo.appendChild(removeButton);
+        } else {
+            const thumbsDownButton = document.createElement('button');
+            thumbsDownButton.className = 'thumbs-down-button';
+            thumbsDownButton.style.marginLeft = 'auto';
+            thumbsDownButton.style.cursor = 'pointer';
+            thumbsDownButton.style.background = 'none';
+            thumbsDownButton.style.border = 'none';
+            thumbsDownButton.style.padding = '0';
+        
+            const thumbsDownImg = document.createElement('img');
+            thumbsDownImg.src = 'images/thumbdown.png'; // Make sure this path is correct
+            thumbsDownImg.alt = 'Thumbs Down';
+            thumbsDownImg.style.width = '20px';
+            thumbsDownImg.style.height = '20px';
+        
+            thumbsDownButton.appendChild(thumbsDownImg);
+            thumbsDownButton.addEventListener('click', () => {
+                if (user.userId !== userId) {
+                    socket.emit('thumbsDown', { roomId, targetUserId: user.userId });
+                }
+            });
+        
+            userElement.thumbsDownButton = thumbsDownButton;
+        
+            const thumbsDownCount = document.createElement('span');
+            thumbsDownCount.className = 'thumbs-down-count';
+            thumbsDownCount.style.marginLeft = '5px';
+            thumbsDownCount.textContent = '0';
+        
+            userInfo.appendChild(thumbsDownButton);
+            userInfo.appendChild(thumbsDownCount);
+        
+            if (user.userId === userId) {
+                thumbsDownButton.style.visibility = 'hidden';
             }
-        });
-    
-        userElement.thumbsDownButton = thumbsDownButton;
-    
-        const thumbsDownCount = document.createElement('span');
-        thumbsDownCount.className = 'thumbs-down-count';
-        thumbsDownCount.style.marginLeft = '5px';
-        thumbsDownCount.textContent = '0';
-    
-        userInfo.appendChild(thumbsDownButton);
-        userInfo.appendChild(thumbsDownCount);
-    
-        if (user.userId === userId) {
-            thumbsDownButton.style.visibility = 'hidden';
         }
     
         if (user.modMode) {

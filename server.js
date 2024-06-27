@@ -332,24 +332,31 @@ io.on('connection', (socket) => {
         const { roomId, targetUserId } = data;
         const room = rooms.get(roomId);
         if (!room) return;
-
+    
         const votingUser = room.users.find(user => user.socketId === socket.id);
         if (!votingUser || votingUser.userId === targetUserId) {
             // User not found in room or trying to vote for themselves
             return;
         }
-
+    
         if (room.users.length < 3) {
             // Voting is disabled when there are fewer than 3 users
             socket.emit('votingDisabled', { message: 'Voting is disabled when there are fewer than 3 users in the room.' });
             return;
         }
-
+    
+        const targetUser = room.users.find(user => user.userId === targetUserId);
+        if (targetUser && targetUser.modMode) {
+            // Do not allow voting out a moderator
+            socket.emit('votingDisabled', { message: 'You cannot vote to remove a moderator.' });
+            return;
+        }
+    
         // Initialize votes for target user if not exists
         if (!room.votes[targetUserId]) {
             room.votes[targetUserId] = new Set();
         }
-
+    
         // Toggle vote
         const hasVoted = room.votes[targetUserId].has(votingUser.userId);
         if (hasVoted) {
@@ -364,44 +371,91 @@ io.on('connection', (socket) => {
             }
             room.votes[targetUserId].add(votingUser.userId);
         }
-
+    
         const thumbsDownCount = room.votes[targetUserId].size;
         io.to(roomId).emit('updateThumbsDownCount', { userId: targetUserId, count: thumbsDownCount });
-
+    
         const majorityCount = Math.ceil(room.users.length / 2);
         if (thumbsDownCount >= majorityCount) {
             const userToRemove = room.users.find(user => user.userId === targetUserId);
             if (userToRemove) {
                 // Notify all users in the room about the impending removal
                 io.to(roomId).emit('userVotedOut', { username: userToRemove.username });
-                
+    
                 // Set a timeout to remove the user after a short delay
                 setTimeout(() => {
                     // Remove user from the room
                     room.users = room.users.filter(user => user.userId !== targetUserId);
-                    
+    
                     // Remove all votes for this user
                     delete room.votes[targetUserId];
-                    
+    
                     // Remove votes cast by this user
                     for (const voters of Object.values(room.votes)) {
                         voters.delete(targetUserId);
                     }
-
+    
                     io.to(roomId).emit('userLeft', { roomId, userId: targetUserId });
                     io.to(userToRemove.socketId).emit('removedFromRoom');
-
+    
                     // Update vote counts for remaining users
                     for (const [userId, voters] of Object.entries(room.votes)) {
                         io.to(roomId).emit('updateThumbsDownCount', { userId, count: voters.size });
                     }
-
+    
                     // Update room counts
                     updateCounts();
                 }, 3000); // 3 second delay
             }
         }
     });
+
+    socket.on('removeUser', (data) => {
+        const { roomId, targetUserId } = data;
+        const room = rooms.get(roomId);
+        if (!room) return;
+    
+        const removingUser = room.users.find(user => user.socketId === socket.id);
+        if (!removingUser || !removingUser.modMode || removingUser.userId === targetUserId) {
+            // User not found in room, not a moderator, or trying to remove themselves
+            return;
+        }
+    
+        const userToRemove = room.users.find(user => user.userId === targetUserId);
+        if (userToRemove) {
+            const banDuration = 30 * 1000;
+            const banExpiration = Date.now() + banDuration;
+            bannedUsers.set(targetUserId, banExpiration);
+            
+            io.to(userToRemove.socketId).emit('userBanned', banExpiration);
+    
+            // Notify all users in the room about the removal
+            io.to(roomId).emit('userRemovedByModerator', { username: userToRemove.username });
+    
+            // Remove user from the room
+            room.users = room.users.filter(user => user.userId !== targetUserId);
+            
+            // Remove all votes for this user
+            delete room.votes[targetUserId];
+    
+            // Remove votes cast by this user
+            for (const voters of Object.values(room.votes)) {
+                voters.delete(targetUserId);
+            }
+    
+            io.to(roomId).emit('userLeft', { roomId, userId: targetUserId });
+            io.to(userToRemove.socketId).emit('removedFromRoom');
+    
+            // Update vote counts for remaining users
+            for (const [userId, voters] of Object.entries(room.votes)) {
+                io.to(roomId).emit('updateThumbsDownCount', { userId, count: voters.size });
+            }
+    
+            // Update room counts
+            updateCounts();
+        }
+    });
+    
 
     socket.on('disconnect', () => {
         if (socket.userId) {
