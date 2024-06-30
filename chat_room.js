@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const userLocation = urlParams.get('location');
     const userId = urlParams.get('userId');
     const userColorName = getCookie('userColor') || decodeURIComponent(urlParams.get('txtclr')) || 'white';
-    const userAvatar = urlParams.get('avatar') || 'avatar15'; // Default to avatar1 if not set
+    const userAvatar = urlParams.get('avatar') || 'avatar15';
 
     const chatRoom = document.getElementById('chatRoom');
     const joinSound = document.getElementById('joinSound');
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let OFFENSIVE_WORDS = [];
     let birthdayCelebrated = false;
     let currentTargetUserId = null;
-    let currentTargetUserModMode = false;
+    let isUserModerator = false;
 
     const colorMap = {
         'white': '#FFFFFF',
@@ -73,11 +73,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, modMode: getCookie('modMode') === 'true', avatar: userAvatar });
+    socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, avatar: userAvatar });
 
     socket.on('initializeUsers', (users) => {
         chatRoom.innerHTML = '';
-        users.forEach(user => addUserToRoom(user));
+        users.forEach(user => {
+            if (user.userId === userId) {
+                isUserModerator = user.modMode;
+            }
+            addUserToRoom(user);
+        });
         updateUserContainerSizes();
         updateThumbsDownButtonStates();
     });
@@ -201,9 +206,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const userInfo = document.createElement('div');
         userInfo.className = 'user-info';
     
-        // Add avatar
         const avatarImg = document.createElement('img');
-        avatarImg.src = avatarMap[user.avatar] || avatarMap['avatar15']; // Default to avatar15 if not set
+        avatarImg.src = avatarMap[user.avatar] || avatarMap['avatar15'];
         avatarImg.alt = 'User Avatar';
         avatarImg.style.width = '20px';
         avatarImg.style.height = '20px';
@@ -230,7 +234,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userInfo.style.paddingLeft = '12px';
         userInfo.style.marginBottom = '5px';
     
-        if (getCookie('modMode') === 'true') {
+        if (isUserModerator) {
             const removeButton = document.createElement('button');
             removeButton.className = 'remove-button';
             removeButton.style.marginLeft = 'auto';
@@ -269,7 +273,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             thumbsDownButton.style.padding = '0';
         
             const thumbsDownImg = document.createElement('img');
-            thumbsDownImg.src = 'images/thumbdown.png'; // Make sure this path is correct
+            thumbsDownImg.src = 'images/thumbdown.png';
             thumbsDownImg.alt = 'Thumbs Down';
             thumbsDownImg.style.width = '20px';
             thumbsDownImg.style.height = '20px';
@@ -330,7 +334,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userElement.appendChild(textarea);
         chatRoom.appendChild(userElement);
     }
-    
 
     function updateThumbsDownButtonStates() {
         const userContainers = document.querySelectorAll('.user-container');

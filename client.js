@@ -1,9 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
 
-    const modMode = getCookie('modMode') === 'true';
-    const defaultUsername = modMode ? '<' : getCookie('username') || '';
-    const defaultLocation = modMode ? 'dev>' : getCookie('location') || '';
+    const defaultUsername = getCookie('username') || '';
+    const defaultLocation = getCookie('location') || '';
 
     document.getElementById('name').value = defaultUsername;
     document.getElementById('location').value = defaultLocation;
@@ -128,6 +127,25 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             toastr.info('No changes were made.');
         }
+
+        // Check for mod code
+        const code = username + location;
+        fetch('/verify-mod-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code, userId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success('Mod mode activated');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     };
 
     window.signOut = function () {

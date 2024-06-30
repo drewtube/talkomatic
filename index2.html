@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkomatic 2024 - Create and Join Chat Rooms | Online Community Platform with Auto Moderation</title>
+    <meta name="description" content="Discover Talkomatic 2024, the advanced platform for creating and joining chat rooms with real-time communication and auto moderation. Connect with friends and new communities seamlessly.">
+    <meta name="keywords" content="Talkomatic 2024, chat rooms, online communication, social platform, join rooms, create rooms, community, real-time chat, auto moderation, online chat">
+    <meta name="author" content="Talkomatic">
+    
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="Talkomatic 2024 - Create and Join Chat Rooms">
+    <meta property="og:description" content="Join Talkomatic 2024 to create and join chat rooms, connect with friends, and discover new communities in real-time with advanced auto moderation.">
+    <meta property="og:image" content="https://talkomatic.co/images/v2.2.0.0.png">
+    <meta property="og:url" content="https://www.talkomatic.co">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Talkomatic 2024 - Create and Join Chat Rooms">
+    <meta name="twitter:description" content="Join Talkomatic 2024 to create and join chat rooms, connect with friends, and discover new communities in real-time with advanced auto moderation.">
+    <meta name="twitter:image" content="https://talkomatic.co/images/v2.2.0.0.png">
+
+    <link rel="canonical" href="https://www.talkomatic.co">
+    <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="custom-toastr.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="offensiveWords.js"></script>
+    <script src="client.js"></script>
+    <script src="amount.js"></script>
+    <script src="service-worker.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+    <link rel="manifest" href="manifest.json">
+
+    <!-- IOS SUPPORT -->
+    <link rel="apple-touch-icon" href="images/icons/icon-96x96.png">
+    <meta name="apple-mobile-web-app-status-bar" content="#616161">
+
+    <!-- Structured Data for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": "Talkomatic 2024",
+      "url": "https://www.talkomatic.co",
+      "description": "Talkomatic 2024 is the original platform for creating and joining chat rooms with advanced auto moderation.",
+      "author": {
+        "@type": "Organization",
+        "name": "Talkomatic"
+      }
+    }
+    </script>
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut",
+            "opacity": 1,
+            "autoDismiss": true
+        };
+    </script>
+<style>
+    .social-media {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .social-media a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        margin-top: 5px;
+    }
+    .social-media a:hover {
+        text-decoration: underline;
+    }
+    .social-media img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+    .to p {
+        color: white;
+    }
+    .footer {
+        padding: 10px 0;
+        background-color: #FF9800;
+        color: black;
+        text-align: center;
+        width: 100%;
+        position: sticky;
+        bottom: 0;
+        left: 0;
+    }
+    .version {
+        margin-top: auto;
+        padding: 10px;
+        font-size: 12px;
+        color: rgb(221, 221, 221);
+        font-family: 'Courier New', Courier, monospace;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+    .room-creation {
+        margin-bottom: 20px;
+    }
+    #searchRoomId {
+        width: 100%;
+    }
+    .join-private-link {
+        display: block;
+        margin-top: 0px;
+        color: #FF9800;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    .join-private-link:hover {
+        text-decoration: underline;
+    }
+    @media (min-width: 768px) {
+        #searchRoomId {
+            width: 250px;
+        }
+    }
+    .refreshbtn, .searchbtn, .button-style, .join-room-button {
+        background-color: #222222;
+        border-radius: 4px;
+        padding: 10px 20px;
+        transition: background-color 0.3s ease;
+    }
+    .refreshbtn:hover, .searchbtn:hover, .button-style:hover, .join-room-button:hover {
+        background-color: #444444;
+    }
+    .refreshbtn:active, .searchbtn:active, .button-style:active, .join-room-button:active {
+        background-color: #666666;
+    }
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        position: relative;
+        min-height: 0;
+    }
+    #roomList {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 50px;
+        scrollbar-width: thin;
+        scrollbar-color: #FF9800 white;
+    }
+    #roomList::-webkit-scrollbar {
+        width: 8px;
+    }
+    #roomList::-webkit-scrollbar-track {
+        background: white;
+    }
+    #roomList::-webkit-scrollbar-thumb {
+        background-color: #FF9800;
+        border-radius: 10px;
+    }
+    @media (max-width: 1020px) {
+        body {
+            font-size: 16px;
+        }
+        .flex {
+            flex-direction: column;
+        }
+        
+        .left-column, .right-column {
+            width: 100%;
+            max-height: none;
+            overflow-y: visible;
+        }
+        .header-text {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .custom-link {
+            display: inline-block;
+            margin: 0.5rem;
+        }
+        .full-width-banner {
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .info-box {
+            margin: 1rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .info-item {
+            margin-bottom: 0.5rem;
+        }
+        .input-group {
+            flex-direction: column;
+        }
+        .input-group input {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .button-style {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        #signOutBtn {
+            margin-top: 1rem;
+        }
+        .radio-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .radio-icon {
+            margin-right: 0.5rem;
+        }
+        .social-media {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .social-media a {
+            width: 45%;
+            margin-bottom: 0.5rem;
+        }
+        .right-column-header {
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+        .header-left, .header-right {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .utility {
+            flex-direction: column;
+            padding: 1rem;
+        }
+        .search-container {
+            width: 100%;
+        }
+        #searchRoomId, 
+        #searchRoomBtn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px; /* optional for spacing between buttons */
+            right: 0;
+        }
+        #roomList {
+            padding: 1rem;
+        }
+        .footer {
+            position: static;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+    
+        /* Mobile-specific styles for buttons */
+        .button-container {
+            width: 100%;
+        }
+        #refreshRoomsBtn {
+            width: 80%;
+        }
+        #settingsbtn {
+            width: 20%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+    
+    /* Additional CSS for desktop view */
+    @media (min-width: 1021px) {
+        .utility {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 10px; /* added gap for spacing */
+        }
+        .button-container {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            gap: 10px; /* added gap for spacing */
+        }
+        #searchRoomId {
+            width: auto;
+        }
+        .refreshbtn,
+        .refreshbtn img {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        #settingsbtn {
+            padding: 10px 20px; /* ensure consistent padding */
+        }
+        #settingsbtn img {
+            width: 20px;
+            height: 20px;
+        }
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-content {
+        background-color: #393937;
+        margin: auto;
+        padding: 30px;
+        border-radius: 8px;
+        width: 800px;
+        max-width: 90%;
+        height: 600px;
+        max-height: 90%;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        overflow-y: auto;
+    }
+
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #fff;
+    }
+
+    .tabs {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        color: #fff;
+        transition: background-color 0.3s;
+    }
+
+    .tab.active {
+        border-bottom: 2px solid #fff;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    h2 {
+        color: #fff;
+    }
+
+    .color-buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        margin-top: 30px;
+    }
+
+    .color-button {
+        width: 40px;
+        height: 40px;
+        display: inline-block;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    .preview-textarea {
+        width: 100%;
+        height: 120px;
+        background-color: #000;
+        color: #fff;
+        padding: 15px;
+        resize: none;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    @media (max-width: 600px) {
+        .modal-content {
+            height: auto;
+        }
+
+        .color-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            justify-items: center;
+            padding: 0 50px;
+        }
+
+        .color-button {
+            width: 40px;
+            height: 40px;
+        }
+    }
+    .color-button.active {
+border: 2px solid black;
+}
+.avatar-selection-heading {
+text-align: center;
+color: #FFFFFF;
+margin-bottom: 10px;
+}
+
+.avatar-buttons-container {
+max-height: 350px;
+overflow-y: auto;
+padding: 0 50px;
+}
+
+.avatar-buttons {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 10px;
+margin-top: 10px;
+}
+
+.avatar-button {
+background: none;
+border: 2px solid transparent;
+cursor: pointer;
+padding: 2px;
+transition: border-color 0.3s ease;
+}
+
+.avatar-button:hover,
+.avatar-button.active {
+border-color: #FF9800;
+}
+
+.avatar-button img {
+width: 100%;
+height: auto;
+display: block;
+}
+
+.avatar-buttons-container::-webkit-scrollbar {
+width: 8px;
+}
+.avatar-buttons-container::-webkit-scrollbar-track {
+background: white;
+}
+.avatar-buttons-container::-webkit-scrollbar-thumb {
+background-color: #FF9800;
+border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+.avatar-buttons {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.avatar-buttons-container {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 0 30px;
+}
+
+.avatar-button {
+    padding: 1px;
+}
+}
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+    }
+    .navbar .nav-links {
+        display: flex;
+        gap: 15px;
+    }
+    .navbar .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 20px;
+    }
+    .navbar .nav-links a:hover {
+        color: #FF9800;
+        text-decoration: none;
+        font-size: 20px;
+    }
+    .navbar .logout-btn {
+        background-color: #f44336;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        color: white;
+    }
+
+    @media (min-width: 1021px) {
+        .navbar-mobile {
+            display: none;
+        }
+    }
+    @media (max-width: 1021px) {
+        .navbar {
+            display: none;
+        }
+        .navbar-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+    }
+    .navbar-mobiler .nav-links {
+        display: flex;
+        gap: 15px;
+    }
+    .navbar-mobile .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    .navbar-mobile .nav-links a:hover {
+        color: #FF9800;
+        text-decoration: none;
+        font-size: 20px;
+    }
+    .navbar-mobile .logout-btn {
+        background-color: #f44336;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        color: white;
+    }
+    }
+</style>
+</head>
+<body>
+    <div class="flex flex-col md:flex-row">
+        <!-- Left Column -->
+        <div class="left-column custom-bg md:w-383 md:max-h-screen overflow-y-auto">
+            <div class="navbar-mobile">
+                <div class="nav-links">
+                    <a href="/">Lobby</a>
+                    <a href="coming-soon.html">Profiles</a>
+                    <a href="coming-soon.html">Forum</a>
+                </div>
+                <button class="logout-btn" onclick="signOut()">Log Out</button>
+            </div>
+            <div class="p-2 flex flex-col items-center">
+                <div class="header-text mt-1 mb-4">
+                    <span class="custom-orange">Tal<span class="italic-k">k</span>omatic<sup>™</sup></span><span class="custom-white"> Lobby</span>
+                </div>
+                <a href="about.html" class="custom-link mt-2 hover:custom-link-hover">About Talkomatic<sup>™</sup></a>
+                <a href="patch-notes.html" class="custom-link mt-2 hover:custom-link-hover">Patch Notes v2.3.0.0</a>
+                <a href="faq.html" class="custom-link mt-2 hover:custom-link-hover">FAQ</a>
+            </div>        
+            <div class="full-width-banner mt=2">
+                <span class="banner-text">Be Known As...</span>
+            </div>
+            <div class="info-box mt-2 p-3 border-orange">
+                <div class="info-item">
+                    <label for="name">Your name:</label>
+                    <input type="text" id="name" name="name" placeholder="Username" maxlength="10">
+                </div>
+                <div class="info-item">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" placeholder="Earth" maxlength="10">
+                </div>
+                <button class="button-style" onclick="updateUsername()">
+                    Change <img src="icons/interwindarrows.png" alt="Change" class="button-icon">
+                </button>
+            </div>
+            <div class="full-width-banner mt-2">
+                <span class="banner-text">Create a room...</span>
+            </div>
+            <div class="room-creation mt-2">
+                <input type="text" id="roomName" name="roomName" placeholder="Room name" class="room-name-input" maxlength="20">
+                <label class="radio-container">
+                    <input type="radio" name="roomType" value="public" checked>
+                    <img src="icons/handshake.png" alt="Public" class="radio-icon">
+                    Public 
+                    <span class="radio-checkmark"></span>
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="roomType" value="private">
+                    <img src="icons/private.png" alt="Private" class="radio-icon">
+                    Private 
+                    <span class="radio-checkmark"></span>
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="roomType" value="secret">
+                    <img src="icons/key.png" alt="Secret" class="radio-icon">
+                    Secret
+                    <span class="radio-checkmark"></span>
+                </label>
+                <a href="rooms.html" class="join-private-link">How to use private rooms</a>
+                <button id="createRoomBtn" class="join-room-button">
+                    Create Room
+                    <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
+                </button>
+                <div class="p-2 text-gray-500 text-sm w-full bottom-left social-color">
+                    <p>Connect with us on our official socials:</p>
+                    <div class="social-media">
+                        <a href="https://www.reddit.com/r/talkomatic/" target="_blank">
+                            <img src="socials/reddit.png" alt="Reddit" class="social-icon"> Reddit
+                        </a>
+                        <a href="https://www.instagram.com/talkomaticofficial/" target="_blank">
+                            <img src="socials/instagram.png" alt="Instagram" class="social-icon"> Instagram
+                        </a>
+                        <a href="https://twitter.com/talkomatic_co" target="_blank">
+                            <img src="socials/x.png" alt="Twitter" class="social-icon"> Twitter/X
+                        </a>
+                        <a href="https://discord.gg/AY7Bk6zgze" target="_blank">
+                            <img src="socials/discord.png" alt="Discord" class="social-icon"> Discord
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column -->
+        <div id="roomListContainer" class="right-column bg-black md:flex-1 md:max-h-screen overflow-y-auto">
+            <div class="navbar">
+                <div class="nav-links">
+                    <a href="/">Lobby</a>
+                    <a href="coming-soon.html">Profiles</a>
+                    <a href="coming-soon.html">Forum</a>
+                </div>
+                <button class="logout-btn" onclick="signOut()">Log Out</button>
+            </div>
+            <div class="right-column-header">
+                <div class="header-left">
+                    Join a room...
+                </div>
+                <div class="header-right">
+                    <div id="roomsCount">room(s) available</div>
+                    <div id="usersCount">user(s) online</div>
+                </div>
+            </div>
+            <!-- Search Bar, Search Button and Refresh Button -->
+            <div class="flex items-center justify-between p-4 utility">
+                <div class="search-container">
+                    <input type="text" id="searchRoomId" placeholder="Search by Room ID" class="p-2 border border-gray-400">
+                    <button id="searchRoomBtn" class="p-2 searchbtn text-white">Search</button>
+                </div>
+                <div class="button-container">
+                    <button id="refreshRoomsBtn" class="p-2 searchbtn text-white">Refresh Room List</button>
+                    <button id="settingsbtn" class="p-2 refreshbtn text-white">
+                        <img src="icons/settings.png" alt="Settings" style="width: 20px; height: 20px;">
+                    </button>
+                </div>
+            </div>
+            <!-- Your right column content, including settings modal -->
+            <div id="settingsModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 class="text-2xl font-bold mb-4">Settings</h2>
+                    <div class="tabs">
+                        <div class="tab active" data-tab="color">Color</div>
+                        <div class="tab" data-tab="avatar">Avatar</div>
+                        <div class="tab" data-tab="theme">Theme</div>
+                        <div class="tab" data-tab="font">Font</div>
+                        <div class="tab" data-tab="settings">Settings</div>
+                    </div>
+                    <div class="tab-content active" id="color">
+                        <div class="color-buttons">
+                            <span class="color-button" style="background-color: #FFFFFF;" data-color="white"></span>
+                            <span class="color-button" style="background-color: #FF9800;" data-color="orange"></span>
+                            <span class="color-button" style="background-color: #00FFFF;" data-color="blue"></span>
+                            <span class="color-button" style="background-color: #00FF00;" data-color="green"></span>
+                            <span class="color-button" style="background-color: #FF00FF;" data-color="pink"></span>
+                            <span class="color-button" style="background-color: #FFFF00;" data-color="yellow"></span>
+                        </div>
+                        <textarea class="preview-textarea" readonly>This is what your text color will look like.</textarea>
+                    </div>
+                    <div class="tab-content" id="avatar">
+                        <h3 class="avatar-selection-heading">Select the avatar you would like next to your name:</h3>
+                        <div class="avatar-buttons-container">
+                            <div class="avatar-buttons">
+                                <button class="avatar-button" data-avatar="avatar1"><img src="avatars/1.png" alt="Avatar 1"></button>
+                                <button class="avatar-button" data-avatar="avatar2"><img src="avatars/2.png" alt="Avatar 2"></button>
+                                <button class="avatar-button" data-avatar="avatar3"><img src="avatars/3.png" alt="Avatar 3"></button>
+                                <button class="avatar-button" data-avatar="avatar4"><img src="avatars/4.png" alt="Avatar 4"></button>
+                                <button class="avatar-button" data-avatar="avatar5"><img src="avatars/5.png" alt="Avatar 5"></button>
+                                <button class="avatar-button" data-avatar="avatar6"><img src="avatars/6.png" alt="Avatar 6"></button>
+                                <button class="avatar-button" data-avatar="avatar7"><img src="avatars/7.png" alt="Avatar 7"></button>
+                                <button class="avatar-button" data-avatar="avatar8"><img src="avatars/8.png" alt="Avatar 8"></button>
+                                <button class="avatar-button" data-avatar="avatar9"><img src="avatars/9.png" alt="Avatar 9"></button>
+                                <button class="avatar-button" data-avatar="avatar10"><img src="avatars/10.png" alt="Avatar 10"></button>
+                                <button class="avatar-button" data-avatar="avatar11"><img src="avatars/11.png" alt="Avatar 11"></button>
+                                <button class="avatar-button" data-avatar="avatar12"><img src="avatars/12.png" alt="Avatar 12"></button>
+                                <button class="avatar-button" data-avatar="avatar13"><img src="avatars/13.png" alt="Avatar 13"></button>
+                                <button class="avatar-button" data-avatar="avatar14"><img src="avatars/14.png" alt="Avatar 14"></button>
+                                <button class="avatar-button" data-avatar="avatar15"><img src="avatars/15.png" alt="Avatar 15"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content to" id="theme">
+                        <p>Coming Soon</p>
+                    </div>
+                    <div class="tab-content to" id="font">
+                        <p>Coming Soon</p>
+                    </div>
+                    <div class="tab-content to" id="settings">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+            <div id="roomList">
+                <!-- Rooms will be dynamically added here -->
+            </div>
+            <!-- Footer -->
+            <footer class="footer">
+                Copyright 2024 Talkomatic.co | Revived by the community
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Color map for color selection
+        const colorMap = {
+            'white': '#FFFFFF',
+            'orange': '#FF9800',
+            'blue': '#00FFFF',
+            'green': '#00FF00',
+            'pink': '#FF00FF',
+            'yellow': '#FFFF00'
+        };
+
+        // Avatar map for avatar selection
+        const avatarMap = {
+            'avatar1': 'avatars/1.png',
+            'avatar2': 'avatars/2.png',
+            'avatar3': 'avatars/3.png',
+            'avatar4': 'avatars/4.png',
+            'avatar5': 'avatars/5.png',
+            'avatar6': 'avatars/6.png',
+            'avatar7': 'avatars/7.png',
+            'avatar8': 'avatars/8.png',
+            'avatar9': 'avatars/9.png',
+            'avatar10': 'avatars/10.png',
+            'avatar11': 'avatars/11.png',
+            'avatar12': 'avatars/12.png',
+            'avatar13': 'avatars/13.png',
+            'avatar14': 'avatars/14.png',
+            'avatar15': 'avatars/15.png'
+        };
+
+        // Get the modal and buttons
+        var modal = document.getElementById("settingsModal");
+        var settingsBtn = document.getElementById("settingsbtn");
+        var closeModalBtn = document.getElementsByClassName("close")[0];
+        var tabs = document.getElementsByClassName("tab");
+        var tabContents = document.getElementsByClassName("tab-content");
+        var selectedColor = getCookie('userColor') || "#FFFFFF";
+        var selectedAvatar = getCookie('userAvatar') || "avatar1";
+
+        // Open the modal when the settings button is clicked
+        settingsBtn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // Close the modal when the close button is clicked
+        closeModalBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when the user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Update active color button
+        function updateActiveColorButton() {
+            document.querySelectorAll('.color-button').forEach(button => {
+                if (button.getAttribute('data-color') === selectedColor) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Update active avatar button
+        function updateActiveAvatarButton() {
+            document.querySelectorAll('.avatar-button').forEach(button => {
+                if (button.getAttribute('data-avatar') === selectedAvatar) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Switch between tabs
+        Array.from(tabs).forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var tabId = this.getAttribute('data-tab');
+                Array.from(tabs).forEach(function(tab) {
+                    tab.classList.remove('active');
+                });
+                this.classList.add('active');
+                Array.from(tabContents).forEach(function(content) {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Color selection
+        Array.from(document.getElementsByClassName('color-button')).forEach(function(button) {
+            button.addEventListener('click', function() {
+                selectedColor = this.getAttribute('data-color');
+                document.querySelector('.preview-textarea').style.color = colorMap[selectedColor];
+                setCookie('userColor', selectedColor, 30); // Store the color name in a cookie
+                toastr.success('Text color changed');
+                updateActiveColorButton();
+            });
+        });
+
+        // Avatar selection
+        Array.from(document.getElementsByClassName('avatar-button')).forEach(function(button) {
+            button.addEventListener('click', function() {
+                selectedAvatar = this.getAttribute('data-avatar');
+                setCookie('userAvatar', selectedAvatar, 30); // Store the avatar in a cookie
+                updateActiveAvatarButton();
+                toastr.success('Avatar changed');
+            });
+        });
+
+        // Initialize color and mod mode on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.preview-textarea').style.color = selectedColor;
+            updateActiveColorButton();
+            updateActiveAvatarButton();
+
+            // Check mod mode on page load
+            if (getCookie('modMode') === 'true') {
+                toastr.success('Mod mode is already activated');
+            }
+        });
+
+        // Set a cookie
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Get a cookie
+        function getCookie(name) {
+            let cookieArray = document.cookie.split(';');
+            for (let i = 0; i < cookieArray.length; i++) {
+                let cookiePair = cookieArray[i].split('=');
+                if (name == cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        // Check and activate mod mode
+        function checkModMode() {
+            const usernameInput = document.getElementById('name');
+            const locationInput = document.getElementById('location');
+            if (usernameInput) {
+                const code = usernameInput.value;
+                fetch('/verify-mod-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setCookie('modMode', 'true', 7); // Save mod mode in cookie for 7 days
+                        usernameInput.value = '<';
+                        locationInput.value = 'dev>';
+                        toastr.success('Mod mode activated');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred while verifying the code');
+                });
+            }
+        }
+
+        // Event listener for the change button
+        const changeButton = document.querySelector('.button-style');
+        if (changeButton) {
+            changeButton.addEventListener('click', checkModMode);
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+                // Request permission for push notifications
+                Notification.requestPermission(status => {
+                    console.log('Notification permission status:', status);
+                    if (status === 'granted') {
+                    subscribeUserToPush(registration);
+                    }
+                });
+                }, err => {
+                console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+            }
+
+            function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+            }
+
+            function subscribeUserToPush(registration) {
+            const applicationServerKey = urlBase64ToUint8Array('BNReJ25f7VwJDUSVelEsoti78Tv1FtWUsDNXBRl4cAA9YEnFLS7ezpN9fXJbjH_-XmX7asrjkfWwk4XMnGHkG08');
+            registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: applicationServerKey
+            })
+            .then(subscription => {
+                console.log('User is subscribed:', subscription);
+            })
+            .catch(err => {
+                console.log('Failed to subscribe the user: ', err);
+            });
+            }
+    </script>
+</body>
+</html>

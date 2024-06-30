@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkomatic Profile Search</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1b1b1b;
+            color: #ff6f00;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            border: 2px solid #ff6f00;
+            background-color: #2e2e2e;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ff6f00;
+            padding-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #ff6f00;
+            text-shadow: 2px 2px 0 #333;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #ff6f00;
+            text-shadow: 1px 1px 0 #333;
+        }
+
+        .search-bar {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            width: 70%;
+            padding: 0.75rem;
+            background-color: #333;
+            border: 2px solid #ff6f00;
+            color: #ff6f00;
+            text-align: center;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+        .search-bar button {
+            background-color: #ff6f00;
+            color: #333;
+            padding: 0.75rem 1rem;
+            border: none;
+            font-size: 1rem;
+            margin-left: 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .search-bar button:hover {
+            background-color: #ff8c00;
+        }
+
+        .profile-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .profile-item {
+            background-color: #444;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #ff6f00;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .profile-item:hover {
+            background-color: #555;
+        }
+
+        .profile-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #ff6f00;
+            margin-right: 1rem;
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .profile-username {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-status {
+            font-size: 0.875rem;
+            color: #cccccc;
+        }
+
+        .button {
+            background-color: #ff6f00;
+            color: #333;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #ff8c00;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Talkomatic Profiles</h1>
+            <p>Search and explore user profiles</p>
+        </header>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search for profiles..." id="search">
+            <button>Search</button>
+        </div>
+
+        <ul class="profile-list">
+            <li class="profile-item">
+                <img src="profile-image-url" alt="Profile Image" class="profile-image">
+                <div class="profile-info">
+                    <div class="profile-username">Username1</div>
+                    <div class="profile-status">Status: Online</div>
+                </div>
+                <button class="button">View Profile</button>
+            </li>
+            <li class="profile-item">
+                <img src="profile-image-url" alt="Profile Image" class="profile-image">
+                <div class="profile-info">
+                    <div class="profile-username">Username2</div>
+                    <div class="profile-status">Status: Offline</div>
+                </div>
+                <button class="button">View Profile</button>
+            </li>
+            <li class="profile-item">
+                <img src="profile-image-url" alt="Profile Image" class="profile-image">
+                <div class="profile-info">
+                    <div class="profile-username">Username3</div>
+                    <div class="profile-status">Status: Online</div>
+                </div>
+                <button class="button">View Profile</button>
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>

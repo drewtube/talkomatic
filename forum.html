@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkomatic Forums</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 4px solid #333;
+            padding-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #2a9d8f;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #264653;
+        }
+
+        .section-title {
+            background-color: #2a9d8f;
+            color: #fff;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .forum-section {
+            margin-bottom: 2rem;
+        }
+
+        .forum-category {
+            background-color: #e9c46a;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .forum-category-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #264653;
+        }
+
+        .forum-topic {
+            background-color: #f4a261;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .forum-topic-title {
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .button {
+            background-color: #2a9d8f;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+        }
+
+        .topic-stats {
+            font-size: 0.875rem;
+            color: #e9c46a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Talkomatic Forums</h1>
+            <p>Join the discussion and share your thoughts!</p>
+        </header>
+
+        <div class="forum-section">
+            <h2 class="section-title">General Discussion</h2>
+            <div class="forum-category">
+                <h3 class="forum-category-title">Announcements</h3>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Welcome to Talkomatic!</span>
+                    <span class="topic-stats">10 replies | 100 views</span>
+                </div>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Forum Rules</span>
+                    <span class="topic-stats">5 replies | 50 views</span>
+                </div>
+            </div>
+            <div class="forum-category">
+                <h3 class="forum-category-title">General Chat</h3>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">How's everyone doing?</span>
+                    <span class="topic-stats">15 replies | 150 views</span>
+                </div>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Favorite retro games</span>
+                    <span class="topic-stats">20 replies | 200 views</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="forum-section">
+            <h2 class="section-title">Tech Talk</h2>
+            <div class="forum-category">
+                <h3 class="forum-category-title">Software</h3>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Latest programming languages</span>
+                    <span class="topic-stats">8 replies | 80 views</span>
+                </div>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Best coding practices</span>
+                    <span class="topic-stats">12 replies | 120 views</span>
+                </div>
+            </div>
+            <div class="forum-category">
+                <h3 class="forum-category-title">Hardware</h3>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Favorite vintage computers</span>
+                    <span class="topic-stats">10 replies | 100 views</span>
+                </div>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">New tech innovations</span>
+                    <span class="topic-stats">18 replies | 180 views</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="forum-section">
+            <h2 class="section-title">Entertainment</h2>
+            <div class="forum-category">
+                <h3 class="forum-category-title">Movies & TV</h3>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Best retro movies</span>
+                    <span class="topic-stats">22 replies | 220 views</span>
+                </div>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Favorite TV shows</span>
+                    <span class="topic-stats">17 replies | 170 views</span>
+                </div>
+            </div>
+            <div class="forum-category">
+                <h3 class="forum-category-title">Music</h3>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Top 90s bands</span>
+                    <span class="topic-stats">25 replies | 250 views</span>
+                </div>
+                <div class="forum-topic">
+                    <span class="forum-topic-title">Best concert experiences</span>
+                    <span class="topic-stats">30 replies | 300 views</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="button">Create New Topic</button>
+        </div>
+    </div>
+</body>
+
+</html>

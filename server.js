@@ -6,14 +6,22 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const helmet = require('helmet');
-const bodyParser = require('body-parser'); // Add this line
+const bodyParser = require('body-parser');
+const crypto = require('crypto');
 const OFFENSIVE_WORDS = require('./offensiveWords.js');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-app.use(bodyParser.json()); // Add this line
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(compression());
+app.use(helmet());
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+}));
 
 const rooms = new Map();
 const activeUsers = new Set();
@@ -23,14 +31,27 @@ const birthdayCelebrated = new Map();
 
 const MAX_CHAR_LENGTH = 20;
 
-app.use(express.static(path.join(__dirname)));
-app.use(cookieParser());
-app.use(compression());
-app.use(helmet());
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
-}));
+// Define allowed moderators
+const allowedMods = ['user_je5t88db3']; // Add more user IDs as needed
+
+// Function to generate a secure userId
+function generateSecureUserId() {
+  return crypto.randomBytes(16).toString('hex');
+}
+
+// Middleware to ensure user has a userId
+app.use((req, res, next) => {
+  if (!req.cookies.userId) {
+    const userId = generateSecureUserId();
+    res.cookie('userId', userId, { 
+      httpOnly: true, 
+      secure: true, 
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+  }
+  next();
+});
 
 app.use((req, res, next) => {
     const userId = req.cookies.userId;
@@ -39,6 +60,8 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+app.use(express.static(path.join(__dirname)));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -61,10 +84,18 @@ app.get('/offensive-words', (req, res) => {
 });
 
 app.post('/verify-mod-code', (req, res) => {
-    const { code } = req.body;
-    const correctCode = '786215'; // Your actual mod code
+    const { initialCode, modCode } = req.body;
+    const userId = req.cookies.userId;
+    const correctInitialCode = '786215';
+    const correctModCode = 'your_secure_mod_code_here'; // Set this to your actual mod code
 
-    if (code === correctCode) {
+    if (initialCode === correctInitialCode && modCode === correctModCode && allowedMods.includes(userId)) {
+        res.cookie('isModerator', 'true', { 
+            httpOnly: true, 
+            secure: true, 
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
         res.json({ success: true });
     } else {
         res.json({ success: false });
@@ -99,14 +130,16 @@ function containsOffensiveContent(text) {
 
 io.on('connection', (socket) => {
     socket.on('userConnected', (data) => {
-        const { userId, modMode } = data;
+        const userId = socket.request.cookies.userId;
+        const isModerator = socket.request.cookies.isModerator === 'true';
+        
         if (isUserBanned(userId)) {
             socket.emit('userBanned', getBanExpiration(userId));
             return;
         }
 
         socket.userId = userId;
-        socket.modMode = modMode || false;
+        socket.modMode = isModerator;
         activeUsers.add(userId);
         updateCounts();
         sendRandomRooms(socket);
@@ -126,13 +159,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('userDisconnected', (data) => {
-        const { userId } = data;
+        const userId = socket.request.cookies.userId;
         activeUsers.delete(userId);
         updateCounts();
     });
 
     socket.on('createRoom', (roomData) => {
-        const { username, location, userId, name, type, color, modMode } = roomData;
+        const { username, location, name, type, color } = roomData;
+        const userId = socket.request.cookies.userId;
     
         if (!username || !location || !userId || !name || !['public', 'private', 'secret'].includes(type)) {
             socket.emit('error', 'Invalid input');
@@ -144,27 +178,17 @@ io.on('connection', (socket) => {
             return;
         }
     
-        if (containsOffensiveContent(username)) {
-            socket.emit('offensiveWordError', 'Username contains offensive words');
+        if (containsOffensiveContent(username) || containsOffensiveContent(location) || containsOffensiveContent(name)) {
+            socket.emit('offensiveWordError', 'Input contains offensive words');
             return;
         }
-    
-        if (containsOffensiveContent(location)) {
-            socket.emit('offensiveWordError', 'Location contains offensive words');
-            return;
-        }
-    
-        if (containsOffensiveContent(name)) {
-            socket.emit('offensiveWordError', 'Room name contains offensive words');
-            return;
-        }    
 
         const roomId = generateRoomId();
         const room = {
             id: roomId,
             name: name,
             type: type,
-            users: [{ username: username, location: location, userId: userId, socketId: socket.id, color: color, modMode: modMode }],
+            users: [{ username, location, userId, socketId: socket.id, color, modMode: socket.modMode }],
             birthdayMessagesSent: new Set(),
             votes: {}
         };
@@ -184,8 +208,8 @@ io.on('connection', (socket) => {
             userId, 
             roomType: type, 
             roomName: name,
-            color: color, 
-            modMode: modMode 
+            color, 
+            modMode: socket.modMode
         });
         socket.emit('initializeUsers', room.users);
     
@@ -193,7 +217,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinRoom', (data) => {
-        const { roomId, username, location, userId, color, modMode, avatar } = data;
+        const { roomId, username, location, color, avatar } = data;
+        const userId = socket.request.cookies.userId;
     
         if (!roomId || !username || !location || !userId) {
             socket.emit('error', 'Invalid input');
@@ -205,13 +230,8 @@ io.on('connection', (socket) => {
             return;
         }
     
-        if (containsOffensiveContent(username)) {
-            socket.emit('offensiveWordError', 'Username contains offensive words');
-            return;
-        }
-    
-        if (containsOffensiveContent(location)) {
-            socket.emit('offensiveWordError', 'Location contains offensive words');
+        if (containsOffensiveContent(username) || containsOffensiveContent(location)) {
+            socket.emit('offensiveWordError', 'Input contains offensive words');
             return;
         }
 
@@ -229,14 +249,13 @@ io.on('connection', (socket) => {
             }
 
             if (room.users.length < 5) {
-                room.users.push({ username, location, userId, socketId: socket.id, color, modMode, avatar });
+                room.users.push({ username, location, userId, socketId: socket.id, color, modMode: socket.modMode, avatar });
                 socket.join(roomId);
                 io.emit('roomUpdated', room);
-                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color, modMode, avatar });
+                socket.emit('roomJoined', { roomId, username, location, userId, roomType: room.type, roomName: room.name, color, modMode: socket.modMode, avatar });
                 socket.emit('initializeUsers', room.users);
-                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color, modMode, avatar });
+                socket.to(roomId).emit('userJoined', { roomId, username, location, userId, color, modMode: socket.modMode, avatar });
 
-                // Send the current vote counts to the new user
                 const voteCounts = {};
                 for (const [key, value] of Object.entries(room.votes)) {
                     voteCounts[key] = value.size;
@@ -253,7 +272,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('leaveRoom', (data) => {
-        const { roomId, userId } = data;
+        const { roomId } = data;
+        const userId = socket.request.cookies.userId;
 
         const room = rooms.get(roomId);
         if (room) {
@@ -267,15 +287,12 @@ io.on('connection', (socket) => {
                 const roomBirthdayKey = `${roomId}-${userId}`;
                 birthdayCelebrated.delete(roomBirthdayKey);
 
-                // Remove all votes for this user
                 delete room.votes[userId];
 
-                // Remove this user's votes for others
                 for (const voters of Object.values(room.votes)) {
                     voters.delete(userId);
                 }
 
-                // Update vote counts for all users
                 for (const [targetUserId, voters] of Object.entries(room.votes)) {
                     io.to(roomId).emit('updateThumbsDownCount', { userId: targetUserId, count: voters.size });
                 }
@@ -294,12 +311,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('typing', (data) => {
-        const { roomId, userId, message, color } = data;
+        const { roomId, message, color } = data;
+        const userId = socket.request.cookies.userId;
         socket.to(roomId).emit('typing', { userId, message, color });
     });
 
     socket.on('message', (data) => {
-        const { roomId, userId, message, color } = data;
+        const { roomId, message, color } = data;
+        const userId = socket.request.cookies.userId;
 
         if (containsOffensiveContent(message)) {
             const banDuration = 30 * 1000;
@@ -335,7 +354,8 @@ io.on('connection', (socket) => {
 
     socket.on('birthdayMessage', (data) => {
         const { roomId, username } = data;
-        const roomBirthdayKey = `${roomId}-${socket.userId}`;
+        const userId = socket.request.cookies.userId;
+        const roomBirthdayKey = `${roomId}-${userId}`;
         if (!birthdayCelebrated.has(roomBirthdayKey)) {
             io.to(roomId).emit('birthdayMessage', { username });
             birthdayCelebrated.set(roomBirthdayKey, true);
@@ -344,221 +364,37 @@ io.on('connection', (socket) => {
 
     socket.on('thumbsDown', (data) => {
         const { roomId, targetUserId } = data;
+        const userId = socket.request.cookies.userId;
         const room = rooms.get(roomId);
         if (!room) return;
     
-        const votingUser = room.users.find(user => user.socketId === socket.id);
+        const votingUser = room.users.find(user => user.userId === userId);
         if (!votingUser || votingUser.userId === targetUserId) {
-            // User not found in room or trying to vote for themselves
             return;
         }
     
         if (room.users.length < 3) {
-            // Voting is disabled when there are fewer than 3 users
             socket.emit('votingDisabled', { message: 'Voting is disabled when there are fewer than 3 users in the room.' });
             return;
         }
     
         const targetUser = room.users.find(user => user.userId === targetUserId);
         if (targetUser && targetUser.modMode) {
-            // Do not allow voting out a moderator
             socket.emit('votingDisabled', { message: 'You cannot vote to remove a moderator.' });
             return;
         }
     
-        // Initialize votes for target user if not exists
         if (!room.votes[targetUserId]) {
             room.votes[targetUserId] = new Set();
         }
     
-        // Toggle vote
-        const hasVoted = room.votes[targetUserId].has(votingUser.userId);
+        const hasVoted = room.votes[targetUserId].has(userId);
         if (hasVoted) {
-            room.votes[targetUserId].delete(votingUser.userId);
+            room.votes[targetUserId].delete(userId);
         } else {
-            // Remove previous vote by this user, if any
-            for (const [userId, voters] of Object.entries(room.votes)) {
-                if (voters.has(votingUser.userId)) {
-                    voters.delete(votingUser.userId);
-                    io.to(roomId).emit('updateThumbsDownCount', { userId, count: voters.size });
+            for (const [voteUserId, voters] of Object.entries(room.votes)) {
+                if (voters.has(userId)) {
+                    voters.delete(userId);
+                    io.to(roomId).emit('updateThumbsDownCount', { userId: voteUserId, count: voters.size });
                 }
             }
-            room.votes[targetUserId].add(votingUser.userId);
-        }
-    
-        const thumbsDownCount = room.votes[targetUserId].size;
-        io.to(roomId).emit('updateThumbsDownCount', { userId: targetUserId, count: thumbsDownCount });
-    
-        const majorityCount = Math.ceil(room.users.length / 2);
-        if (thumbsDownCount >= majorityCount) {
-            const userToRemove = room.users.find(user => user.userId === targetUserId);
-            if (userToRemove) {
-                // Notify all users in the room about the impending removal
-                io.to(roomId).emit('userVotedOut', { username: userToRemove.username });
-    
-                // Set a timeout to remove the user after a short delay
-                setTimeout(() => {
-                    // Remove user from the room
-                    room.users = room.users.filter(user => user.userId !== targetUserId);
-    
-                    // Remove all votes for this user
-                    delete room.votes[targetUserId];
-    
-                    // Remove votes cast by this user
-                    for (const voters of Object.values(room.votes)) {
-                        voters.delete(targetUserId);
-                    }
-    
-                    io.to(roomId).emit('userLeft', { roomId, userId: targetUserId });
-                    io.to(userToRemove.socketId).emit('removedFromRoom');
-    
-                    // Update vote counts for remaining users
-                    for (const [userId, voters] of Object.entries(room.votes)) {
-                        io.to(roomId).emit('updateThumbsDownCount', { userId, count: voters.size });
-                    }
-    
-                    // Update room counts
-                    updateCounts();
-                }, 3000); // 3 second delay
-            }
-        }
-    });
-
-    socket.on('removeUser', (data) => {
-        const { roomId, targetUserId, banDuration } = data;
-        const room = rooms.get(roomId);
-        if (!room) return;
-    
-        const removingUser = room.users.find(user => user.socketId === socket.id);
-        if (!removingUser || !removingUser.modMode || removingUser.userId === targetUserId) {
-            // User not found in room, not a moderator, or trying to remove themselves
-            return;
-        }
-    
-        const userToRemove = room.users.find(user => user.userId === targetUserId);
-        if (userToRemove) {
-            const banExpiration = Date.now() + banDuration;
-            bannedUsers.set(targetUserId, banExpiration);
-            
-            io.to(userToRemove.socketId).emit('userBanned', banExpiration);
-    
-            // Notify all users in the room about the removal
-            io.to(roomId).emit('userRemovedByModerator', { username: userToRemove.username });
-    
-            // Remove user from the room
-            room.users = room.users.filter(user => user.userId !== targetUserId);
-            
-            // Remove all votes for this user
-            delete room.votes[targetUserId];
-    
-            // Remove votes cast by this user
-            for (const voters of Object.values(room.votes)) {
-                voters.delete(targetUserId);
-            }
-    
-            io.to(roomId).emit('userLeft', { roomId, userId: targetUserId });
-            io.to(userToRemove.socketId).emit('removedFromRoom');
-    
-            // Update vote counts for remaining users
-            for (const [userId, voters] of Object.entries(room.votes)) {
-                io.to(roomId).emit('updateThumbsDownCount', { userId, count: voters.size });
-            }
-    
-            // Update room counts
-            updateCounts();
-        }
-    });
-    
-
-    socket.on('disconnect', () => {
-        if (socket.userId) {
-            activeUsers.delete(socket.userId);
-        }
-        rooms.forEach((room, roomId) => {
-            const userIndex = room.users.findIndex((user) => user.socketId === socket.id);
-            if (userIndex !== -1) {
-                const user = room.users.splice(userIndex, 1)[0];
-                io.emit('roomUpdated', room);
-                socket.to(roomId).emit('userLeft', { roomId, userId: user.userId });
-
-                // Remove all votes for this user
-                delete room.votes[user.userId];
-
-// Remove all votes for this user
-delete room.votes[user.userId];
-
-// Remove this user's votes for others
-for (const voters of Object.values(room.votes)) {
-    voters.delete(user.userId);
-}
-
-// Update vote counts for remaining users
-for (const [targetUserId, voters] of Object.entries(room.votes)) {
-    io.to(roomId).emit('updateThumbsDownCount', { userId: targetUserId, count: voters.size });
-}
-
-if (room.users.length === 0) {
-    roomDeletionTimeouts.set(roomId, setTimeout(() => {
-        rooms.delete(roomId);
-        io.emit('roomRemoved', roomId);
-        roomDeletionTimeouts.delete(roomId);
-    }, 10000));
-}
-
-updateCounts();
-}
-});
-
-for (const [key, value] of birthdayCelebrated.entries()) {
-if (key.endsWith(`-${socket.userId}`)) {
-birthdayCelebrated.delete(key);
-}
-}
-});
-});
-
-function sendRandomRooms(socket) {
-const publicRooms = Array.from(rooms.values()).filter(room => room.type === 'public');
-const randomRooms = publicRooms.sort(() => 0.5 - Math.random());
-socket.emit('existingRooms', randomRooms);
-}
-
-function updateCounts() {
-const publicRoomsCount = Array.from(rooms.values()).filter(room => room.type === 'public').length;
-const usersCount = Array.from(rooms.values()).reduce((acc, room) => acc + room.users.length, 0);
-io.emit('updateCounts', { roomsCount: publicRoomsCount, usersCount });
-}
-
-function generateRoomId() {
-return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-function isUserBanned(userId) {
-if (!bannedUsers.has(userId)) return false;
-const banExpiration = bannedUsers.get(userId);
-if (Date.now() > banExpiration) {
-bannedUsers.delete(userId);
-return false;
-}
-return true;
-}
-
-function getBanExpiration(userId) {
-return bannedUsers.get(userId);
-}
-
-function isBirthdayMessage(message) {
-const birthdayPhrases = [
-"today is my birthday", "it's my birthday", "it is my birthday",
-"today's my birthday", "my birthday is today", "i'm celebrating my birthday",
-"im celebrating my birthday", "today is my bday", "its my bday",
-"it's my bday", "my bday is today", "celebrating my bday",
-"my birthday party is today", "having my birthday party", "born on this day"
-];
-return birthdayPhrases.some(phrase => message.toLowerCase().includes(phrase));
-}
-
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
-console.log(`Server is running on port ${port}`);
-});
