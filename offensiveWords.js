@@ -1734,7 +1734,11 @@ const OFFENSIVE_WORDS = [
   'zipperhead',
   'prostitute',
   '1993',
-  'ni-'
+  'ni-',
+  'd!ck',
+  's1ut',
+  'pu$$y'
+  
 ];
 
 module.exports = OFFENSIVE_WORDS;
