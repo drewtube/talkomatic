@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
         updateUserContainerSizes();
         updateThumbsDownButtonStates();
+        updateModeratorButtons();
     });
 
     socket.on('userRemovedByModerator', (data) => {
@@ -96,10 +97,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 
     socket.on('userJoined', (user) => {
+        if (user.userId === userId) {
+            isUserModerator = user.modMode;
+        }
         addUserToRoom(user);
         joinSound.play();
         updateUserContainerSizes();
         updateThumbsDownButtonStates();
+        updateModeratorButtons();
     });
 
     socket.on('userLeft', (user) => {
@@ -508,6 +513,91 @@ document.addEventListener('DOMContentLoaded', (event) => {
             closeBanModal();
         }
     });
+
+    function updateModeratorButtons() {
+        const userContainers = document.querySelectorAll('.user-container');
+        userContainers.forEach(container => {
+            const userInfo = container.querySelector('.user-info');
+            const removeButton = container.removeButton;
+            const thumbsDownButton = container.thumbsDownButton;
+
+            if (isUserModerator) {
+                if (thumbsDownButton) {
+                    userInfo.removeChild(thumbsDownButton);
+                    userInfo.removeChild(container.querySelector('.thumbs-down-count'));
+                }
+                if (!removeButton) {
+                    const newRemoveButton = document.createElement('button');
+                    newRemoveButton.className = 'remove-button';
+                    newRemoveButton.style.marginLeft = 'auto';
+                    newRemoveButton.style.cursor = 'pointer';
+                    newRemoveButton.style.background = 'red';
+                    newRemoveButton.style.color = 'white';
+                    newRemoveButton.style.border = 'none';
+                    newRemoveButton.style.padding = '5px 10px';
+                    newRemoveButton.style.fontSize = '14px';
+                    newRemoveButton.textContent = 'Remove';
+                    
+                    newRemoveButton.addEventListener('click', () => {
+                        const targetUserId = container.id.split('-')[1];
+                        if (targetUserId !== userId) {
+                            if (container.querySelector('img[alt="Moderator"]')) {
+                                toastr.error('You cannot remove another moderator.', "", {
+                                    timeOut: 3000,
+                                    closeButton: false,
+                                    progressBar: true
+                                });
+                            } else {
+                                currentTargetUserId = targetUserId;
+                                openBanModal();
+                            }
+                        }
+                    });
+
+                    userInfo.appendChild(newRemoveButton);
+                    container.removeButton = newRemoveButton;
+                }
+            } else {
+                if (removeButton) {
+                    userInfo.removeChild(removeButton);
+                    container.removeButton = null;
+                }
+                if (!thumbsDownButton && container.id !== `user-${userId}`) {
+                    const newThumbsDownButton = document.createElement('button');
+                    newThumbsDownButton.className = 'thumbs-down-button';
+                    newThumbsDownButton.style.marginLeft = 'auto';
+                    newThumbsDownButton.style.cursor = 'pointer';
+                    newThumbsDownButton.style.background = 'none';
+                    newThumbsDownButton.style.border = 'none';
+                    newThumbsDownButton.style.padding = '0';
+                
+                    const thumbsDownImg = document.createElement('img');
+                    thumbsDownImg.src = 'images/thumbdown.png';
+                    thumbsDownImg.alt = 'Thumbs Down';
+                    thumbsDownImg.style.width = '20px';
+                    thumbsDownImg.style.height = '20px';
+                
+                    newThumbsDownButton.appendChild(thumbsDownImg);
+                    newThumbsDownButton.addEventListener('click', () => {
+                        const targetUserId = container.id.split('-')[1];
+                        if (targetUserId !== userId) {
+                            socket.emit('thumbsDown', { roomId, targetUserId });
+                        }
+                    });
+                
+                    container.thumbsDownButton = newThumbsDownButton;
+                
+                    const thumbsDownCount = document.createElement('span');
+                    thumbsDownCount.className = 'thumbs-down-count';
+                    thumbsDownCount.style.marginLeft = '5px';
+                    thumbsDownCount.textContent = '0';
+                
+                    userInfo.appendChild(newThumbsDownButton);
+                    userInfo.appendChild(thumbsDownCount);
+                }
+            }
+        });
+    }
 });
 
 function switchLayout() {
