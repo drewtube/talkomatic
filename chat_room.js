@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userInfo.style.paddingLeft = '12px';
         userInfo.style.marginBottom = '5px';
     
-        if (isUserModerator) {
+        if (isUserModerator && !user.modMode && user.userId !== userId) {
             const removeButton = document.createElement('button');
             removeButton.className = 'remove-button';
             removeButton.style.marginLeft = 'auto';
@@ -252,23 +252,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
             removeButton.textContent = 'Remove';
         
             removeButton.addEventListener('click', () => {
-                if (user.userId !== userId) {
-                    if (user.modMode) {
-                        toastr.error('You cannot remove another moderator.', "", {
-                            timeOut: 3000,
-                            closeButton: false,
-                            progressBar: true
-                        });
-                    } else {
-                        currentTargetUserId = user.userId;
-                        openBanModal();
-                    }
-                }
+                currentTargetUserId = user.userId;
+                openBanModal();
             });
         
             userElement.removeButton = removeButton;
             userInfo.appendChild(removeButton);
-        } else {
+        } else if (!isUserModerator && !user.modMode && user.userId !== userId) {
             const thumbsDownButton = document.createElement('button');
             thumbsDownButton.className = 'thumbs-down-button';
             thumbsDownButton.style.marginLeft = 'auto';
@@ -285,9 +275,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         
             thumbsDownButton.appendChild(thumbsDownImg);
             thumbsDownButton.addEventListener('click', () => {
-                if (user.userId !== userId) {
-                    socket.emit('thumbsDown', { roomId, targetUserId: user.userId });
-                }
+                socket.emit('thumbsDown', { roomId, targetUserId: user.userId });
             });
         
             userElement.thumbsDownButton = thumbsDownButton;
@@ -299,10 +287,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         
             userInfo.appendChild(thumbsDownButton);
             userInfo.appendChild(thumbsDownCount);
-        
-            if (user.userId === userId) {
-                thumbsDownButton.style.visibility = 'hidden';
-            }
         }
     
         if (user.modMode) {
@@ -520,13 +504,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const userInfo = container.querySelector('.user-info');
             const removeButton = container.removeButton;
             const thumbsDownButton = container.thumbsDownButton;
+            const isUserMod = container.querySelector('img[alt="Moderator"]') !== null;
+            const targetUserId = container.id.split('-')[1];
 
             if (isUserModerator) {
                 if (thumbsDownButton) {
                     userInfo.removeChild(thumbsDownButton);
-                    userInfo.removeChild(container.querySelector('.thumbs-down-count'));
+                    const thumbsDownCount = userInfo.querySelector('.thumbs-down-count');
+                    if (thumbsDownCount) {
+                        userInfo.removeChild(thumbsDownCount);
+                    }
                 }
-                if (!removeButton) {
+                if (!removeButton && !isUserMod && targetUserId !== userId) {
                     const newRemoveButton = document.createElement('button');
                     newRemoveButton.className = 'remove-button';
                     newRemoveButton.style.marginLeft = 'auto';
@@ -539,19 +528,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     newRemoveButton.textContent = 'Remove';
                     
                     newRemoveButton.addEventListener('click', () => {
-                        const targetUserId = container.id.split('-')[1];
-                        if (targetUserId !== userId) {
-                            if (container.querySelector('img[alt="Moderator"]')) {
-                                toastr.error('You cannot remove another moderator.', "", {
-                                    timeOut: 3000,
-                                    closeButton: false,
-                                    progressBar: true
-                                });
-                            } else {
-                                currentTargetUserId = targetUserId;
-                                openBanModal();
-                            }
-                        }
+                        currentTargetUserId = targetUserId;
+                        openBanModal();
                     });
 
                     userInfo.appendChild(newRemoveButton);
@@ -562,7 +540,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     userInfo.removeChild(removeButton);
                     container.removeButton = null;
                 }
-                if (!thumbsDownButton && container.id !== `user-${userId}`) {
+                if (!thumbsDownButton && !isUserMod && targetUserId !== userId) {
                     const newThumbsDownButton = document.createElement('button');
                     newThumbsDownButton.className = 'thumbs-down-button';
                     newThumbsDownButton.style.marginLeft = 'auto';
@@ -579,10 +557,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 
                     newThumbsDownButton.appendChild(thumbsDownImg);
                     newThumbsDownButton.addEventListener('click', () => {
-                        const targetUserId = container.id.split('-')[1];
-                        if (targetUserId !== userId) {
-                            socket.emit('thumbsDown', { roomId, targetUserId });
-                        }
+                        socket.emit('thumbsDown', { roomId, targetUserId });
                     });
                 
                     container.thumbsDownButton = newThumbsDownButton;
