@@ -921,6 +921,8 @@ const OFFENSIVE_WORDS = [
   'jackoffs',
   'jackoffz',
   'jagoff',
+  'bend over',
+  'pp',
   'jailba!t',
   'jailbait',
   'jap ',

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Current Mod Code</title>
+</head>
+<body>
+    <h1>Current Mod Code</h1>
+    <div id="modCodeDisplay"></div>
+
+    <script>
+        fetch('/admin-code')
+            .then(response => response.text())
+            .then(code => {
+                document.getElementById('modCodeDisplay').innerText = code;
+            })
+            .catch(error => {
+                console.error('Error fetching mod code:', error);
+            });
+    </script>
+</body>
+</html>
