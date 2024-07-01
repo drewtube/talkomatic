@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userDetailElement.classList.add('user-detail');
             userDetailElement.dataset.userId = userId;
             userDetailElement.innerHTML = 
-                `<img src="icons/chatbubble.png" alt="Chat" class="details-icon"> ${userCount}. ${username} / ${location}`;
+                `<img src="../images/icons/chatbubble.png" alt="Chat" class="details-icon"> ${userCount}. ${username} / ${location}`;
             userInfoElement.appendChild(userDetailElement);
 
             const roomHeaderElement = existingRoomElement.querySelector('.room-header');
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const enterChatButton = existingRoomElement.querySelector('.enter-chat-button');
             if (userCount < 5) {
                 enterChatButton.disabled = false;
-                enterChatButton.innerHTML = `Enter <img src="icons/chatbubble.png" alt="Chat" class="button-icon">`;
+                enterChatButton.innerHTML = `Enter <img src="../images/icons/chatbubble.png" alt="Chat" class="button-icon">`;
             }
         }
     });
@@ -374,19 +374,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="room-info">
                     <div class="room-header">${room.name} (${room.users.length}/5)</div>
                     <div class="public-room-info">
-                        (${room.type.charAt(0).toUpperCase() + room.type.slice(1)} Room) <img src="icons/handshake.png" alt="${room.type} Room" class="room-icon">
+                        (${room.type.charAt(0).toUpperCase() + room.type.slice(1)} Room) <img src="../images/icons/handshake.png" alt="${room.type} Room" class="room-icon">
                     </div>
                 </div>
                 <div class="user-info">
                     ${room.users.map((user, index) => 
-                        `<div class="user-detail" data-user-id="${user.userId}"><img src="icons/chatbubble.png" alt="Chat" class="details-icon"> ${index + 1}. ${user.username} / ${user.location}</div>`
+                        `<div class="user-detail" data-user-id="${user.userId}"><img src="../images/icons/chatbubble.png" alt="Chat" class="details-icon"> ${index + 1}. ${user.username} / ${user.location}</div>`
                     ).join('')}
                 </div>
             </div>
             <div class="chat-button-container">
                 ${room.users.length < 5 ? 
                     `<button class="enter-chat-button" data-room-id="${room.id}" data-room-type="${room.type}" data-room-name="${room.name}">
-                        Enter <img src="icons/chatbubble.png" alt="Chat" class="button-icon">
+                        Enter <img src="../images/icons/chatbubble.png" alt="Chat" class="button-icon">
                     </button>` 
                  : 
                     `<button class="enter-chat-button" disabled>

@@ -69,28 +69,28 @@
             socket.on('roomNotFound', () => {
                 toastr.error('Room not found. Redirecting to lobby.');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 2000);
             });
 
             socket.on('roomFull', () => {
                 toastr.warning('Room is full. Redirecting to lobby.');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 2000);
             });
 
             socket.on('duplicateUser', (data) => {
                 toastr.info('You are already in this room. Redirecting to lobby.');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 2000);
             });
 
             socket.on('error', (message) => {
                 toastr.error(`Error: ${message}. Redirecting to lobby.`);
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 2000);
             });
         });

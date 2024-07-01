@@ -39,20 +39,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     };
 
     const avatarMap = {
-        'avatar1': '../avatars/1.png',
-        'avatar2': '../avatars/2.png',
-        'avatar3': '../avatars/3.png',
-        'avatar4': '../avatars/5.png',
-        'avatar6': '../avatars/6.png',
-        'avatar7': '../avatars/7.png',
-        'avatar8': '../avatars/8.png',
-        'avatar9': '../avatars/9.png',
-        'avatar10': '../avatars/10.png',
-        'avatar11': '../avatars/11.png',
-        'avatar12': '../avatars/12.png',
-        'avatar13': '../avatars/13.png',
-        'avatar14': '../avatars/14.png',
-        'avatar15': '../avatars/15.png'
+        'avatar1': '../images/avatars/1.png',
+        'avatar2': '../images/avatars/2.png',
+        'avatar3': '../images/avatars/3.png',
+        'avatar4': '../images/avatars/5.png',
+        'avatar6': '../images/avatars/6.png',
+        'avatar7': '../images/avatars/7.png',
+        'avatar8': '../images/avatars/8.png',
+        'avatar9': '../images/avatars/9.png',
+        'avatar10': '../images/avatars/10.png',
+        'avatar11': '../images/avatars/11.png',
+        'avatar12': '../images/avatars/12.png',
+        'avatar13': '../images/avatars/13.png',
+        'avatar14': '../images/avatars/14.png',
+        'avatar15': '../images/avatars/15.png'
     };
 
     fetch('/offensive-words')
