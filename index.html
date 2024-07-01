@@ -24,16 +24,16 @@
     <link rel="canonical" href="https://www.talkomatic.co">
     <link rel="icon" type="image/x-icon" href="images/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="custom-toastr.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/custom-toastr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="offensiveWords.js"></script>
-    <script src="client.js"></script>
-    <script src="amount.js"></script>
+    <script src="js/offensiveWords.js"></script>
+    <script src="js/client.js"></script>
+    <script src="js/amount.js"></script>
     <script src="service-worker.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
@@ -361,6 +361,25 @@ function updateUserIdDisplay() {
                 }
             });
         }
+
+        function checkBanStatus() {
+    const bannedCookie = getCookie('banned');
+    const banExpiration = getCookie('banExpiration');
+    
+    if (bannedCookie === 'true' && banExpiration) {
+        const currentTime = Date.now();
+        const expirationTime = parseInt(banExpiration);
+        
+        if (currentTime < expirationTime) {
+            window.location.href = 'html/removed.html';
+        } else {
+            // Ban has expired, clear the cookies
+            deleteCookie('banned');
+            deleteCookie('banExpiration');
+        }
+    }
+}
+
     
         // Switch between tabs
         Array.from(tabs).forEach(function(tab) {
@@ -400,6 +419,7 @@ function updateUserIdDisplay() {
     
         // Initialize color and mod mode on page load
         document.addEventListener('DOMContentLoaded', function() {
+            checkBanStatus(); // Check ban status first
             document.querySelector('.preview-textarea').style.color = selectedColor;
             updateActiveColorButton();
             updateActiveAvatarButton();
@@ -433,6 +453,11 @@ function updateUserIdDisplay() {
             return null;
         }
     
+        function deleteCookie(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+
         // Check and activate mod mode
         function checkModMode() {
             const usernameInput = document.getElementById('name');

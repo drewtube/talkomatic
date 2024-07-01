@@ -15,7 +15,7 @@
     <link rel="canonical" href="https://talkomatic.co/chat_room.html">
     <meta name="robots" content="noindex, nofollow">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="custom-toastr.css">
+    <link rel="stylesheet" href="../js/custom-toastr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -277,7 +277,7 @@
 <body class="horizontal-layout">
     <div class="container">
         <div class="header">
-            <button onclick="window.location.href='index.html'">Back to Lobby</button>
+            <button onclick="window.location.href='../index.html'">Back to Lobby</button>
             <div class="room-id">Room ID: <span id="headerRoomId"></span></div>
             <button id="layoutButton" class="layout-button">Switch Layout</button>
         </div>
@@ -321,7 +321,7 @@
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="chat_room.js"></script>
+    <script src="../js/chat_room.js"></script>
     <script>
         function checkBan() {
             const banned = getCookie('banned');
@@ -351,7 +351,7 @@
             document.getElementById('roomId').textContent = roomId;
             document.getElementById('headerRoomId').textContent = roomId;
             document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
-            const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
+            const inviteLink = `${window.location.origin}/html/join.html?roomId=${roomId}`;
             document.getElementById('inviteLink').value = inviteLink;
 
             setCookie('userColor', userColorName, 30);

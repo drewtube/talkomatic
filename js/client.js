@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         if (socket.id === room.users[0].socketId) {
-            const url = `chat_room.html?roomId=${room.id}&username=${encodeURIComponent(room.users[0].username)}&location=${encodeURIComponent(room.users[0].location)}&userId=${room.users[0].userId}&roomType=${room.type}&roomName=${encodeURIComponent(room.name)}&txtclr=${encodeURIComponent(room.users[0].color)}&avatar=${room.users[0].avatar || getCookie('userAvatar') || 'avatar15'}`;
+            const url = `html/chat_room.html?roomId=${room.id}&username=${encodeURIComponent(room.users[0].username)}&location=${encodeURIComponent(room.users[0].location)}&userId=${room.users[0].userId}&roomType=${room.type}&roomName=${encodeURIComponent(room.name)}&txtclr=${encodeURIComponent(room.users[0].color)}&avatar=${room.users[0].avatar || getCookie('userAvatar') || 'avatar15'}`;
             window.location.href = url;
         }
     });
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('roomJoined', (data) => {
         const { roomId, username, location, userId, roomType, roomName, color, avatar } = data;
-        window.location.href = `chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
+        window.location.href = `html/chat_room.html?roomId=${roomId}&username=${encodeURIComponent(username)}&location=${encodeURIComponent(location)}&userId=${userId}&roomType=${roomType}&roomName=${encodeURIComponent(roomName)}&txtclr=${encodeURIComponent(color)}&avatar=${avatar}`;
     });
 
     socket.on('roomUpdated', (room) => {
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
         setCookie('banned', 'true', banDuration / 86400);
         setCookie('banExpiration', banExpiration, banDuration / 86400);
-        window.location.href = 'removed.html';
+        window.location.href = '../html/removed.html';
     });
 
     socket.on('duplicateUser', (data) => {
@@ -470,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 socket.emit('userDisconnected', { userId });
                 toastr.error('You were removed from the room for being inactive for 2 minutes.');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 3000);
             }
         }, inactivityLimit);

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('headerRoomId').textContent = roomId;
     document.getElementById('roomTypeText').textContent = roomType.charAt(0).toUpperCase() + roomType.slice(1);
 
-    const inviteLink = `${window.location.origin}/join.html?roomId=${roomId}`;
+    const inviteLink = `${window.location.origin}/html/join.html?roomId=${roomId}`;
     document.getElementById('inviteLink').value = inviteLink;
 
     let OFFENSIVE_WORDS = [];
@@ -39,21 +39,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     };
 
     const avatarMap = {
-        'avatar1': 'avatars/1.png',
-        'avatar2': 'avatars/2.png',
-        'avatar3': 'avatars/3.png',
-        'avatar4': 'avatars/4.png',
-        'avatar5': 'avatars/5.png',
-        'avatar6': 'avatars/6.png',
-        'avatar7': 'avatars/7.png',
-        'avatar8': 'avatars/8.png',
-        'avatar9': 'avatars/9.png',
-        'avatar10': 'avatars/10.png',
-        'avatar11': 'avatars/11.png',
-        'avatar12': 'avatars/12.png',
-        'avatar13': 'avatars/13.png',
-        'avatar14': 'avatars/14.png',
-        'avatar15': 'avatars/15.png'
+        'avatar1': '../avatars/1.png',
+        'avatar2': '../avatars/2.png',
+        'avatar3': '../avatars/3.png',
+        'avatar4': '../avatars/5.png',
+        'avatar6': '../avatars/6.png',
+        'avatar7': '../avatars/7.png',
+        'avatar8': '../avatars/8.png',
+        'avatar9': '../avatars/9.png',
+        'avatar10': '../avatars/10.png',
+        'avatar11': '../avatars/11.png',
+        'avatar12': '../avatars/12.png',
+        'avatar13': '../avatars/13.png',
+        'avatar14': '../avatars/14.png',
+        'avatar15': '../avatars/15.png'
     };
 
     fetch('/offensive-words')
@@ -63,15 +62,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
         })
         .catch(error => console.error('Error fetching offensive words:', error));
 
-    if (getCookie('banned') === 'true') {
-        const banExpiration = getCookie('banExpiration');
-        if (banExpiration && Date.now() < parseInt(banExpiration)) {
-            window.location.href = 'removed.html';
-        } else {
-            deleteCookie('banned');
-            deleteCookie('banExpiration');
+        if (getCookie('banned') === 'true') {
+            const banExpiration = getCookie('banExpiration');
+            if (banExpiration && Date.now() < parseInt(banExpiration)) {
+                window.location.href = '../html/removed.html';
+                return;
+            } else {
+                deleteCookie('banned');
+                deleteCookie('banExpiration');
+            }
         }
-    }
 
     socket.emit('joinRoom', { roomId, username, location: userLocation, userId, color: userColorName, avatar: userAvatar });
 
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const banDuration = Math.floor((banExpiration - Date.now()) / 1000);
         setCookie('banned', 'true', banDuration / 86400);
         setCookie('banExpiration', banExpiration.toString(), banDuration / 86400);
-        window.location.href = 'removed.html';
+        window.location.href = '../html/removed.html';
     });
 
     socket.on('duplicateUser', (data) => {
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 
     socket.on('removedFromRoom', () => {
-        window.location.href = 'index.html';
+        window.location.href = '../html/removed.html';
     });
 
     socket.on('votingDisabled', (data) => {
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
         if (user.modMode) {
             const modIcon = document.createElement('img');
-            modIcon.src = 'images/crown.gif';
+            modIcon.src = '../images/crown.gif';
             modIcon.alt = 'Moderator';
             modIcon.style.width = '20px';
             modIcon.style.height = '20px';
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             thumbsDownButton.style.padding = '0';
         
             const thumbsDownImg = document.createElement('img');
-            thumbsDownImg.src = 'images/thumbdown.png';
+            thumbsDownImg.src = '../images/thumbdown.png';
             thumbsDownImg.alt = 'Thumbs Down';
             thumbsDownImg.style.width = '20px';
             thumbsDownImg.style.height = '20px';
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 socket.emit('userDisconnected', { userId });
                 toastr.error('You were removed from the room for being inactive for 2 minutes.');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 3000);
             }
         }, inactivityLimit);

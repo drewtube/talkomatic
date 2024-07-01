@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const OFFENSIVE_WORDS = require('./offensiveWords.js');
+const OFFENSIVE_WORDS = require('../js/offensiveWords.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,9 +24,9 @@ const birthdayCelebrated = new Map();
 const MAX_CHAR_LENGTH = 20;
 
 // Define allowed moderators
-const allowedMods = ['user_j369j5gkz','user_crzuhudgz','user_cc7r68nu0','user_pl43x2vca','user_1csrwjjd7','user_030skg48h','user_f379qlasz','user_nexow7a8n']; // Add more user IDs as needed
+const allowedMods = ['user_j369j5gkz','user_crzuhudgz','user_cc7r68nu0','user_pl43x2vca','user_1csrwjjd7','user_030skg48h','user_f379qlasz','user_nict8jm8e']; // Add more user IDs as needed
 
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, '../')));
 app.use(cookieParser());
 app.use(compression());
 app.use(helmet());
@@ -37,26 +37,26 @@ app.use(rateLimit({
 
 app.use((req, res, next) => {
     const userId = req.cookies.userId;
-    if (userId && isUserBanned(userId) && req.path !== '/why-was-i-removed.html' && req.path !== '/removed.html') {
-        return res.redirect('/removed.html');
+    if (userId && isUserBanned(userId) && req.path !== '/html/why-was-i-removed.html' && req.path !== '/html/removed.html') {
+        return res.redirect('/html/removed.html');
     }
     next();
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 app.get('/join.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'join.html'));
+    res.sendFile(path.join(__dirname, '../html/join.html'));
 });
 
 app.get('/removed', (req, res) => {
-    res.sendFile(path.join(__dirname, 'removed.html'));
+    res.sendFile(path.join(__dirname, '../html/removed.html'));
 });
 
 app.get('/why-was-i-removed.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'why-was-i-removed.html'));
+    res.sendFile(path.join(__dirname, '../html/why-was-i-removed.html'));
 });
 
 app.get('/offensive-words', (req, res) => {
@@ -207,7 +207,7 @@ io.on('connection', (socket) => {
         if (room) {
             const existingUser = room.users.find(user => user.userId === userId);
             if (existingUser) {
-                socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: 'index.html' });
+                socket.emit('duplicateUser', { message: 'You are already in this room.', redirectUrl: '../index.html' });
                 return;
             }
 
@@ -361,7 +361,7 @@ io.on('connection', (socket) => {
                     }
     
                     io.to(roomId).emit('userLeft', { roomId, userId: targetUserId });
-                    io.to(userToRemove.socketId).emit('removedFromRoom');
+                    i .to(userToRemove.socketId).emit('removedFromRoom');
     
                     for (const [userId, voters] of Object.entries(room.votes)) {
                         io.to(roomId).emit('updateThumbsDownCount', { userId, count: voters.size });
@@ -410,6 +410,7 @@ io.on('connection', (socket) => {
             updateCounts();
         }
     });
+    
     
     socket.on('disconnect', () => {
         if (socket.userId) {

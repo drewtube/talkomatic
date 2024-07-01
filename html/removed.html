@@ -67,7 +67,7 @@
         <div class="timer" id="timer"></div>
         <div class="info">
             For more information, please visit 
-            <a href="why-was-i-removed.html" class="link">Why was I removed?</a>
+            <a href="../html/why-was-i-removed.html" class="link">Why was I removed?</a>
         </div>
     </div>
     <script>
@@ -115,7 +115,7 @@
     if (!banExpiration || Date.now() >= parseInt(banExpiration)) {
         deleteCookie('banned');
         deleteCookie('banExpiration');
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
     }
 }
 
