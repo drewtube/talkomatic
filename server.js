@@ -285,36 +285,13 @@ io.on('connection', (socket) => {
 
     socket.on('message', (data) => {
         const { roomId, userId, message, color } = data;
-
-        if (containsOffensiveContent(message)) {
-            const banDuration = 30 * 1000;
-            const banExpiration = Date.now() + banDuration;
-            bannedUsers.set(userId, banExpiration);
-
-            socket.emit('userBanned', banExpiration);
-
-            const room = rooms.get(roomId);
-            if (room) {
-                const userIndex = room.users.findIndex((user) => user.userId === userId);
-                if (userIndex !== -1) {
-                    room.users.splice(userIndex, 1);
-                    socket.leave(roomId);
-                    io.emit('roomUpdated', room);
-                    socket.to(roomId).emit('userLeft', { roomId, userId });
-                }
-            }
-
-            socket.disconnect();
-            return;
+        const room = rooms.get(roomId);
+    
+        if (isBirthdayMessage(message) && !room.birthdayMessagesSent.has(userId)) {
+            room.birthdayMessagesSent.add(userId);
+            io.in(roomId).emit('birthdayMessage', { username: room.users.find(u => u.userId === userId).username });
         } else {
-            const room = rooms.get(roomId);
-
-            if (isBirthdayMessage(message) && !room.birthdayMessagesSent.has(userId)) {
-                room.birthdayMessagesSent.add(userId);
-                io.in(roomId).emit('birthdayMessage', { username: room.users.find(u => u.userId === userId).username });
-            } else {
-                io.to(roomId).emit('message', { userId, message, color });
-            }
+            io.to(roomId).emit('message', { userId, message, color });
         }
     });
 

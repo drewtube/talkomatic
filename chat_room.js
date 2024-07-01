@@ -351,7 +351,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (textarea.value.length >= textarea.maxLength) {
             toastr.error(`Message is too long! Maximum length is ${textarea.maxLength} characters.`);
         } else if (containsOffensiveWord(message)) {
-            toastr.error('Message contains offensive words.');
             socket.emit('message', { roomId, userId, message, color: userColorName });
             textarea.value = '';
         } else {
