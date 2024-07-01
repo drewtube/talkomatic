@@ -45,6 +45,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'user_' + Math.random().toString(36).substr(2, 9);
     }
 
+    function updateUserIdDisplay() {
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        if (userIdDisplay) {
+            userIdDisplay.textContent = userId;
+        }
+    }
+
+    document.getElementById('settingsbtn').addEventListener('click', () => {
+        updateUserIdDisplay();
+    });
+
     function setCookie(name, value, days) {
         var expires = "";
         if (days) {
