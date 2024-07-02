@@ -24,7 +24,7 @@ const birthdayCelebrated = new Map();
 const MAX_CHAR_LENGTH = 20;
 
 // Define allowed moderators
-const allowedMods = ['user_j369j5gkz','user_crzuhudgz','user_cc7r68nu0','user_pl43x2vca','user_1csrwjjd7','user_030skg48h','user_f379qlasz','user_nict8jm8e','user_7zl2kndsl']; // Add more user IDs as needed
+const allowedMods = ['user_j369j5gkz','user_crzuhudgz','user_cc7r68nu0','GPT4All','user_pl43x2vca','user_1csrwjjd7','user_030skg48h','user_f379qlasz','user_nict8jm8e','user_7zl2kndsl']; // Add more user IDs as needed
 
 app.use(express.static(path.join(__dirname, '../')));
 app.use(cookieParser());
