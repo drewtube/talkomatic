@@ -67,4 +67,4 @@ self.addEventListener('notificationclick', event => {
     clients.openWindow('/')
   );
 });
-
+// whitespace deleted by drew
